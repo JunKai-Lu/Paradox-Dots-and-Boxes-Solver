@@ -12,6 +12,15 @@ namespace DAB
 {
 	namespace SHELL
 	{
+		inline std::string B2S(bool b)
+		{
+			if (b)
+			{
+				return "true";
+			}
+			return "false";
+		}
+
 		void Info()
 		{
 			cout << "=============================================" << endl;
@@ -64,7 +73,11 @@ namespace DAB
 				cout << ">> state = " << endl;
 				state.Visualization();
 				cout << ">> margin = " << margin << endl;
-
+				bool dead_chain = STATE::ExistDeadChain(board);
+				bool free_edge = STATE::ExistFreeEdge(board);
+				cout << ">> exist dead-chain = " << B2S(dead_chain) << endl;
+				cout << ">> exist free-edge = " << B2S(free_edge) << endl;
+				cout << ">> is reasonable = " << B2S(!(dead_chain && free_edge)) << endl;
 				if (final_file.eof())
 				{
 					cout << ">> no more states." << endl;

@@ -222,7 +222,7 @@ namespace DAB
 						if (IsNotUpperSideHorEdge(fir_box_upper_edge))
 						{
 							Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
-							if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 1)
+							if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 2)
 							{
 								return true;
 							}
@@ -234,7 +234,7 @@ namespace DAB
 						if (IsNotLowerSideHorEdge(fir_box_lower_edge))
 						{
 							Edge sec_box_left_edge = STATE::GetLowerLeftVecEdge(fir_box_lower_edge);
-							if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 1)
+							if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 2)
 							{
 								return true;
 							}
@@ -246,7 +246,7 @@ namespace DAB
 						if (IsNotLeftSideVecEdge(fir_box_left_edge))
 						{
 							Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-							if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 1)
+							if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 2)
 							{
 								return true;
 							}
@@ -258,7 +258,7 @@ namespace DAB
 						if (IsNotRightSideVecEdge(fir_box_right_edge))
 						{
 							Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-							if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 1)
+							if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 2)
 							{
 								return true;
 							}
@@ -287,8 +287,15 @@ namespace DAB
 						{
 							if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
 							{
-								Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
-								if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) != 2)
+								if (IsNotLowerSideHorEdge(fir_box_lower_edge))
+								{
+									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
+									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) != 2)
+									{
+										return true;
+									}
+								}
+								else
 								{
 									return true;
 								}
@@ -339,11 +346,19 @@ namespace DAB
 						{
 							if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
 							{
-								Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge-5);
-								if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) != 2)
+								if (IsNotUpperSideHorEdge(fir_box_upper_edge))
+								{
+									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
+									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) != 2)
+									{
+										return true;
+									}
+								}
+								else
 								{
 									return true;
 								}
+								
 							}
 							else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
 							{
@@ -396,8 +411,15 @@ namespace DAB
 						{
 							if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
 							{
-								Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-								if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) != 2)
+								if (IsNotLeftSideVecEdge(fir_box_left_edge))
+								{
+									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
+									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) != 2)
+									{
+										return true;
+									}
+								}
+								else
 								{
 									return true;
 								}
@@ -445,8 +467,15 @@ namespace DAB
 						{
 							if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
 							{
-								Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-								if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) != 2)
+								if (IsNotRightSideVecEdge(fir_box_right_edge))
+								{
+									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
+									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) != 2)
+									{
+										return true;
+									}
+								}
+								else
 								{
 									return true;
 								}
