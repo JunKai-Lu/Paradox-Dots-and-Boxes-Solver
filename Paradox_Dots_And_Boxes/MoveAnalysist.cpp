@@ -5,7 +5,7 @@
 
 namespace DAB
 {
-	MoveAnalysist::MoveAnalysist(State& state)
+	MoveAnalysist::MoveAnalysist(State& state, bool filter)
 	{
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
@@ -18,12 +18,20 @@ namespace DAB
 				_edge[i] = false;
 			}
 		}
+		BitBoard board = BOARD::Create(state);
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
-			_action[i] = IsPossibleAction(i);
+			if (filter)
+			{
+				_action[i] = STATE::IsFreeEdge(board, i);
+			}
+			else
+			{
+				_action[i] = !_edge[i];
+			}
 		}
 	}
-	MoveAnalysist::MoveAnalysist(BitBoard bit_group)
+	MoveAnalysist::MoveAnalysist(BitBoard bit_group, bool filter)
 	{
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
@@ -38,7 +46,14 @@ namespace DAB
 		}
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
-			_action[i] = IsPossibleAction(i);
+			if (filter)
+			{
+				_action[i] = STATE::IsFreeEdge(bit_group,i);
+			}
+			else
+			{
+				_action[i] = !_edge[i];
+			}
 		}
 	}
 

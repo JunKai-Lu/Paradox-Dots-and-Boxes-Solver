@@ -29,6 +29,12 @@ namespace DAB
 		{
 			order_list[order] = { func, des };
 		}
+		inline std::string GetInput()
+		{
+			char buffer[50];
+			std::cin.getline(buffer, 50);
+			return std::string(buffer);
+		}
 
 		void Start();
 		void Info();

@@ -18,7 +18,7 @@
 #pragma  once
 
 #define DISPLAYED_TIME_INTERVAL 5000000
-
+#define MAX_ALLOW_THREAD 8
 
 
 namespace DAB

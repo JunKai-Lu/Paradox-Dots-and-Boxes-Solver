@@ -14,8 +14,8 @@ namespace DAB
 		bool _action[MAX_EDGE];
 
 	public:
-		MoveAnalysist(State& state);
-		MoveAnalysist(BitBoard bit_group);
+		MoveAnalysist(State& state, bool filter = false);
+		MoveAnalysist(BitBoard bit_group, bool filter = false);
 		inline ActionVec ActionVec()
 		{
 			return ACTIONVEC::Create(_action);

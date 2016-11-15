@@ -7,6 +7,7 @@
 #include "Shell.h"
 #include "GameDefine.h"
 #include "Solver.h"
+#include "MoveAnalysist.h"
 
 using namespace std;
 
@@ -113,10 +114,10 @@ namespace DAB
 			size_t current = SOLVER::GetCurrentDepth(false);
 			if (aim_layer < current && aim_layer >0)
 			{
-				cout << ">> input thread num( max = 8 )" << endl << ">>> ";
+				cout << ">> input thread num( max = "<<MAX_ALLOW_THREAD<<" )" << endl << ">>> ";
 				cin.getline(buffer, 50);
 				size_t thread_num = atoi(buffer);
-				if (thread_num <= 8)
+				if (thread_num <= MAX_ALLOW_THREAD && thread_num > 0)
 				{
 					bool file_cache;
 					cout << ">> input 'y' to use file cache." << endl << ">>> ";
@@ -143,7 +144,7 @@ namespace DAB
 					cin.getline(buffer, 50);
 					if (string(buffer) == "y")
 					{
-						Solver(aim_layer, file_cache, true,thread_num, true);
+						Solver(aim_layer, file_cache, true, thread_num, true);
 						return;
 					}
 					else
@@ -151,7 +152,7 @@ namespace DAB
 						cout << ">> action cancel." << endl << endl;
 						return;
 					}
-				}		
+				}
 			}
 			
 			cout << ">> error: wrong input, action cancel." << endl << endl;
@@ -168,7 +169,28 @@ namespace DAB
 		}
 		void FreeEdge()
 		{
-
+			for (;;)
+			{
+				cout << ">> input number of the edges of this random state, or 'exit' to finish." << endl << ">>>";
+				char buffer[50];
+				cin.getline(buffer,50);
+				if (string(buffer) == "exit")
+				{
+					break;
+				}
+				size_t num = atoi(buffer);
+				if (num < 60)
+				{
+					State state = State::RandomState(num);
+					MoveAnalysist ma(state, true);
+					state.Visualization(ma.ActionVec());
+					cout << endl;
+				}
+				else
+				{
+					cout << ">> wrong input!" << endl << endl;
+				}
+			}
 		}
 		void Exit()
 		{
@@ -205,6 +227,5 @@ namespace DAB
 			}
 			cout << ">> DabShell finish." << endl;
 		}
-		
 	}
 }

@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include <iostream>
+#include <vector>
+
 #include "GameDefine.h"
+
 
 using namespace std;
 
@@ -119,6 +122,33 @@ namespace DAB
 			}
 		}
 		cout << "¡ð" << endl;
+	}
+
+	State State::RandomState(size_t edge_num)
+	{
+		BitBoard board = EMPTY_BOARD;
+		vector<Edge> moves(60);
+		for (Edge i = 0; i < edge_num; i++)
+		{
+			for (Edge edge = 0; edge < MAX_EDGE; edge++)
+			{
+				if (STATE::IsFreeEdge(board, edge))
+				{
+					moves.push_back(edge);
+				}
+			}
+			if (moves.size() != 0)
+			{
+				size_t rnd = rand() % moves.size();
+				BOARD::EdgeSet(board, moves[rnd]);
+				moves.clear();
+			}
+			else
+			{
+				break;
+			}
+		}
+		return State(board);
 	}
 
 	namespace STATE

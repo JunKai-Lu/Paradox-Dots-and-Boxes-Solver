@@ -65,6 +65,9 @@ namespace DAB
 		{
 			_edge[index] = true;
 		}
+
+		//create a random state with appointed edge number.
+		static State RandomState(size_t edge_num);
 	};
 
 	namespace BOARD
@@ -137,7 +140,19 @@ namespace DAB
 			return temp;
 		}
 
-		
+		inline BitBoard Create(State& state)
+		{
+			BitBoard temp = 0;
+			for (Edge i = 59; i >= 0 && i < 60; i--)
+			{
+				temp = temp << 1;
+				if (state[i])
+				{
+					temp = temp | 0x1;
+				}
+			}
+			return temp;
+		}
 	}
 
 	namespace ACTIONVEC
