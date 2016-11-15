@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
-
+#include <Windows.h>
 
 #pragma  once
 
@@ -23,6 +23,8 @@ namespace DAB
 		std::cout << ">> WARNING: " << reason << " in function " << function << std::endl;
 		system("pause");
 	}
+	void Cprintf(std::string str, WORD color);
+	void CprintNum(int num, int color);
 
 	typedef unsigned char Edge;
 	typedef __int64 BitBoard;
@@ -35,14 +37,17 @@ namespace DAB
 	private:
 		bool _edge[MAX_EDGE];
 	public:
-		//生成空的棋盘
-		State();	
+		//create a empty state.
+		State();
+
+		//create a state by bit board.
 		State(BitBoard bit_board);
 
-		//显示棋盘
+		//Show State
 		void Visualization(ActionVec action_vec = 0);
+		void ActionVisualization(ActionVec action_vec = 0);
 
-		//取运算
+		//operator[]
 		inline bool operator[](size_t index) const
 		{
 			#ifdef WARNING
@@ -54,13 +59,13 @@ namespace DAB
 			return _edge[index];
 		}
 
-		//正常取运算
+		//get whether a edge exist in this state.
 		inline bool EdgeExist(size_t index) const 
 		{
 			return _edge[index];
 		}
 
-		//设置
+		//set edge.
 		inline void EdgeSet(size_t index)
 		{
 			_edge[index] = true;
@@ -161,15 +166,14 @@ namespace DAB
 		inline ActionVec Create(bool edge[MAX_EDGE])
 		{
 			ActionVec temp = 0;
-			for (int i = 0; i < MAX_EDGE; i++)
+			for (Edge i = 59; i >= 0 && i < 60; i--)
 			{
+				temp = temp << 1;
 				if (edge[i])
 				{
-					temp |= 0x1;
+					temp = temp | 0x1;
 				}
-				temp = temp << 1;
 			}
-			temp = temp >> 1;//多了一位。
 			return temp;
 		}
 

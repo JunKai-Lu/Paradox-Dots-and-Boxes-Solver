@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <vector>
 
 #include "Shell.h"
 #include "GameDefine.h"
@@ -19,11 +20,11 @@ namespace DAB
 		
 		void Info()
 		{
-			cout << "=============================================" << endl;
-			cout << "    PARADOX Dots and Boxes AI" << endl;
-			cout << "    This software is under GPL lincense" << endl;
-			cout << "    Copyright @ Junkai-Lu 2016" << endl;
-			cout << "=============================================" << endl << endl;
+			Cprintf("=============================================\n",8);
+			Cprintf( "    PARADOX Dots and Boxes AI\n" ,14);
+			Cprintf("    This software is under GPL lincense\n", 14);
+			Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
+			Cprintf("=============================================\n\n", 8);
 		}
 		void Layer()
 		{
@@ -60,8 +61,10 @@ namespace DAB
 		{
 			system("cls");
 			Info();
-			cout << ">> [ DAB Shell ]" << endl;
-			cout << ">> use 'help' to get more command" << endl << endl;
+			cout << ">> ";
+			Cprintf("[ DAB Shell ]\n",2);
+			cout << ">> ";
+			Cprintf("use 'help' to get more command\n\n", 2);
 		}
 		void Sample()
 		{
@@ -160,36 +163,92 @@ namespace DAB
 		}
 		void Help()
 		{
-			cout << ">> [ ORDER LIST ]" << endl << endl;
+			cout << ">> ";
+			Cprintf("[ ORDER LIST ]\n\n",14);
 			for (auto& order: order_list)
 			{
-				cout << "   '" << order.first << "'" << string("          ").substr(0, 10 - order.first.length()) << order.second._descript << endl;
+				cout << "   '"; 
+				Cprintf(order.first, 12);
+				cout << "'" << string("          ").substr(0, 10 - order.first.length()) << order.second._descript << endl;
 			}
 			cout << endl;
 		}
 		void FreeEdge()
 		{
+			State state;
 			for (;;)
 			{
-				cout << ">> input number of the edges of this random state, or 'exit' to finish." << endl << ">>>";
+				cout << ">> input edge number to create state" << endl; 
+				cout << "   'next' to set random edge in current state." << endl;
+				cout << "   'show' to show current state." << endl;
+				cout << "   'save' to save current state." << endl;
+				cout << "   'load' to load a state." << endl;
+				cout << "   'exit' to finish." << endl << endl << ">>> ";
+
 				char buffer[50];
 				cin.getline(buffer,50);
-				if (string(buffer) == "exit")
+				string str(buffer);
+				if (str == "exit")
 				{
 					break;
 				}
-				size_t num = atoi(buffer);
-				if (num < 60)
+				else if (str == "show")
 				{
-					State state = State::RandomState(num);
+					
 					MoveAnalysist ma(state, true);
-					state.Visualization(ma.ActionVec());
-					cout << endl;
+					state.ActionVisualization(ma.ActionVec());
+				}
+				else if (str == "next")
+				{
+					BitBoard board = BOARD::Create(state);
+					vector<Edge> actions(60);
+					for (Edge edge = 0; edge < MAX_EDGE; edge++)
+					{
+						if (STATE::IsFreeEdge(board, edge))
+						{
+							actions.push_back(edge);
+						}
+					}
+					if (actions.size() != 0)
+					{
+						size_t rnd = rand() % actions.size();
+						state.EdgeExist(actions[rnd]);
+						MoveAnalysist ma(state, true);
+						state.ActionVisualization(ma.ActionVec());
+					}
+					else
+					{
+						cout << ">> no more free-edge!" << endl; 
+					}
+				}
+				else if (str == "save")
+				{
+					ofstream ofs("free-edge.dat");
+					ofs << BOARD::Create(state);
+				}
+				else if (str == "load")
+				{
+					ifstream ifs("free-edge.dat");
+					BitBoard board;
+					ifs >> board;
+					state = State(board);
 				}
 				else
 				{
-					cout << ">> wrong input!" << endl << endl;
-				}
+					size_t num = atoi(buffer);
+					if (num < 60)
+					{
+						state = State::RandomState(num);
+						MoveAnalysist ma(state, true);
+						state.ActionVisualization(ma.ActionVec());
+						ActionVec temp = ma.ActionVec();
+						cout << endl;
+					}
+					else
+					{
+						cout << ">> wrong input!" << endl << endl;
+					}
+				}	
 			}
 		}
 		void Exit()
