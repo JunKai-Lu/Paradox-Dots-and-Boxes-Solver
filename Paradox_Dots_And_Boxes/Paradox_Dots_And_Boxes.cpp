@@ -1,15 +1,8 @@
-// Paradox_Dots_And_Boxes.cpp : 定义控制台应用程序的入口点。
-//
-
 #include "stdafx.h"
 #include "Shell.h"
 
 using namespace DAB;
 using namespace std;
-
-//Program Info
-#include <map>
-
 
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -21,7 +14,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	BitBoard next = board;
 	for (int i = 0; i < 2; i++)
 	{
-		next = STATE::ReverseBox(next);
+	next = STATE::ReverseBox(next);
 	}
 	State(next).Visualization();
 	cout << "\n\n\n\n\n\n\n";
@@ -31,6 +24,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	SHELL::Start();
 
 	return 0;
-	
+
 }
 
