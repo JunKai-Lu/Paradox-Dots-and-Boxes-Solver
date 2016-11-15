@@ -1,11 +1,11 @@
 #include "stdafx.h"
 
 #include "GameDefine.h"
-#include "MoveAnalysist.h"
+#include "MoveAnalyst.h"
 
 namespace DAB
 {
-	MoveAnalysist::MoveAnalysist(State& state, bool filter)
+	MoveAnalyst::MoveAnalyst(State& state, bool filter)
 	{
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
@@ -31,7 +31,7 @@ namespace DAB
 			}
 		}
 	}
-	MoveAnalysist::MoveAnalysist(BitBoard bit_group, bool filter)
+	MoveAnalyst::MoveAnalyst(BitBoard bit_group, bool filter)
 	{
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
@@ -58,7 +58,7 @@ namespace DAB
 	}
 
 	//判断某个招式是否可行
-	bool MoveAnalysist::IsPossibleAction(Edge index)
+	bool MoveAnalyst::IsPossibleAction(Edge index)
 	{
 		if (EdgeExist(index))//如果这条边已经被占领，返回假。
 		{

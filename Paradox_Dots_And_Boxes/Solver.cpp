@@ -10,7 +10,7 @@
 #include <time.h>
 
 #include "GameDefine.h"
-#include "MoveAnalysist.h"
+#include "MoveAnalyst.h"
 #include "Solver.h"
 
 #define COUT_MUTEX_TIME 100

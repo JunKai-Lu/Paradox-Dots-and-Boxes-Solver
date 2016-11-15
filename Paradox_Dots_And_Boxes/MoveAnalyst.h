@@ -7,15 +7,15 @@
 
 namespace DAB
 {
-	class MoveAnalysist
+	class MoveAnalyst
 	{
 	private:
 		bool _edge[MAX_EDGE];
 		bool _action[MAX_EDGE];
 
 	public:
-		MoveAnalysist(State& state, bool filter = false);
-		MoveAnalysist(BitBoard bit_group, bool filter = false);
+		MoveAnalyst(State& state, bool filter = false);
+		MoveAnalyst(BitBoard bit_group, bool filter = false);
 		inline ActionVec ActionVec()
 		{
 			return ACTIONVEC::Create(_action);
@@ -23,6 +23,16 @@ namespace DAB
 		inline bool* Actions()
 		{
 			return _action;
+		}
+		inline bool operator[](size_t index)
+		{
+#ifdef WARNING
+			if (index >= 60)
+			{
+				Warning("Wrong index", "MoveAnalyst::operator[]");
+			}
+#endif
+			return _action[index];
 		}
 
 

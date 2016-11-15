@@ -12,7 +12,7 @@
 #include <mutex>
 
 #include "GameDefine.h"
-#include "MoveAnalysist.h"
+#include "MoveAnalyst.h"
 #include "StorageCache.h"
 
 #pragma  once

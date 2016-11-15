@@ -8,7 +8,7 @@
 #include "Shell.h"
 #include "GameDefine.h"
 #include "Solver.h"
-#include "MoveAnalysist.h"
+#include "MoveAnalyst.h"
 
 using namespace std;
 
@@ -178,30 +178,64 @@ namespace DAB
 			State state;
 			for (;;)
 			{
-				cout << ">> input edge number to create state" << endl; 
-				cout << "   'next' to set random edge in current state." << endl;
-				cout << "   'show' to show current state." << endl;
-				cout << "   'save' to save current state." << endl;
-				cout << "   'load' to load a state." << endl;
-				cout << "   'exit' to finish." << endl << endl << ">>> ";
-
+				cout << ">> input help to get more order." << endl << ">>> ";
 				char buffer[50];
 				cin.getline(buffer,50);
 				string str(buffer);
 				if (str == "exit")
 				{
+					CleanScreen();
 					break;
+				}
+				else if (str == "help")
+				{
+					Cprintf("\n[ ORDER LIST ]\n\n", 14);
+
+					cout << "   [0,60]      to create state with edges. "<< endl;
+					cout << "   'next'      set random edge in current state." << endl;
+					cout << "   'show'      show current state." << endl;
+					cout << "   'action'    get free-edges index." << endl;
+					cout << "   'save'      save current state." << endl;
+					cout << "   'load'      load a state." << endl;
+					cout << "   'exit'      finish." << endl << endl;
 				}
 				else if (str == "show")
 				{
 					
-					MoveAnalysist ma(state, true);
+					MoveAnalyst ma(state, true);
 					state.ActionVisualization(ma.ActionVec());
+				}
+				else if (str == "action")
+				{
+					MoveAnalyst ma(state, true);
+					cout << ">> action = {" << endl << "  ";
+					for (size_t i = 0; i < MAX_EDGE; i++)
+					{
+						if (ma[i])
+						{
+							cout << i << " ";
+						}
+					}
+					cout << "}" << endl << endl;
 				}
 				else if (str == "next")
 				{
 					BitBoard board = BOARD::Create(state);
-					vector<Edge> actions(60);
+					for (;;)
+					{
+						Edge next_edge = STATE::GetDeadBoxRemainEdgeIndex(board);
+						if (next_edge != MAX_EDGE)
+						{
+							BOARD::EdgeSet(board, next_edge);
+							state.EdgeSet(next_edge);
+							cout << ">> take edge = " << size_t(next_edge) << endl;
+						}
+						else
+						{
+							break;
+						}
+					}
+					vector<Edge> actions;
 					for (Edge edge = 0; edge < MAX_EDGE; edge++)
 					{
 						if (STATE::IsFreeEdge(board, edge))
@@ -212,8 +246,9 @@ namespace DAB
 					if (actions.size() != 0)
 					{
 						size_t rnd = rand() % actions.size();
-						state.EdgeExist(actions[rnd]);
-						MoveAnalysist ma(state, true);
+						state.EdgeSet(actions[rnd]);
+						cout << ">> take edge = " << size_t(actions[rnd]) << endl;
+						MoveAnalyst ma(state, true);
 						state.ActionVisualization(ma.ActionVec());
 					}
 					else
@@ -225,6 +260,7 @@ namespace DAB
 				{
 					ofstream ofs("free-edge.dat");
 					ofs << BOARD::Create(state);
+					cout << ">> state have been saved successfully." << endl;
 				}
 				else if (str == "load")
 				{
@@ -232,14 +268,17 @@ namespace DAB
 					BitBoard board;
 					ifs >> board;
 					state = State(board);
+					cout << ">> state have been loaded successfully." << endl;
 				}
 				else
 				{
+					
 					size_t num = atoi(buffer);
 					if (num < 60)
 					{
+						cout << ">> create state, edges = " << num << endl;
 						state = State::RandomState(num);
-						MoveAnalysist ma(state, true);
+						MoveAnalyst ma(state, true);
 						state.ActionVisualization(ma.ActionVec());
 						ActionVec temp = ma.ActionVec();
 						cout << endl;
