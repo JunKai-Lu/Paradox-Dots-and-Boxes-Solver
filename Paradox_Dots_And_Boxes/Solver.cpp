@@ -55,6 +55,7 @@ namespace DAB
 	//Load data of last solved depth and return them as n parts;
 	bool Solver::LoadStorages(std::vector< Storage >* storages, size_t target_depth)
 	{
+		std::ios_base::sync_with_stdio(false);
 		clock_t start = clock();
 		cout << endl << "========== Load Storage ========== " << endl;
 		cout << "target = " << target_depth << endl;
@@ -117,6 +118,7 @@ namespace DAB
 	//Output the result of appointed layer
 	size_t Solver::OutputResult(SolverStateMap& ss_map, size_t layer, bool filter)
 	{
+		std::ios_base::sync_with_stdio(false);
 		clock_t start = clock();
 		stringstream path;
 		path << "./data/layer_" <<layer;

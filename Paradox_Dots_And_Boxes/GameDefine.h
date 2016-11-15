@@ -270,10 +270,10 @@ namespace DAB
 			return BOARD::EdgeExist(board, hor_edge) + BOARD::EdgeExist(board, lower_left_edge) + BOARD::EdgeExist(board, lower_left_edge + 5) + BOARD::EdgeExist(board, hor_edge + 5);
 		}
 
-		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE。
+		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE.
 		Edge GetDeadBoxRemainEdgeIndex(BitBoard board);
 
-		//判断某个局面是否没有DEAD BOX
+		//judge whether any dead box exists in a board.
 		bool ExistDeadBox(BitBoard board);
 
 		//capture all possible box in this action.
@@ -404,7 +404,7 @@ namespace DAB
 			return num;
 		}
 
-		//get the box that have been rotate for 90'
+		//get the box that have been rotate for 90'.
 		inline BitBoard RotateBox(BitBoard board)
 		{
 			BitBoard temp = board & 0x3FFFFFFF;
@@ -453,8 +453,10 @@ namespace DAB
 		//check whether exist free edge in a board.
 		bool ExistFreeEdge(BitBoard board);
 
-		//get not reasonable state
+		//get not reasonable state.
 		bool IsReasonable(BitBoard board);
-	}
 
+		//judge whether a edge in a board is a free-edge.
+		bool IsFreeEdge(BitBoard board, Edge edge);
+	}
 }

@@ -10,6 +10,8 @@ using namespace std;
 //Program Info
 #include <map>
 
+
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	/*BitBoard board = BOARD::RandomBitBoard();
@@ -25,7 +27,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	cout << "\n\n\n\n\n\n\n";
 	State(STATE::MinimalForm(next)).Visualization();
 	*/
-	
 	SHELL::Info();
 	SHELL::Start();
 
