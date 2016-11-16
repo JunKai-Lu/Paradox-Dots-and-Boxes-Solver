@@ -108,6 +108,10 @@ namespace DAB
 			exit(0);
 		}
 		
+		namespace GAME
+		{
+			
+		}
 		namespace SOLVERSHELL
 		{
 			void StartSolver()
@@ -177,6 +181,7 @@ namespace DAB
 			void ShowAction(State& state)
 			{
 				MoveAnalyst ma(state, true);
+				state.Visualization(ma.ActionVec());
 				cout << ">> action = {" << endl << "  ";
 				for (size_t i = 0; i < MAX_EDGE; i++)
 				{
