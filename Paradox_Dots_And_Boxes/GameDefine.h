@@ -18,14 +18,44 @@
 
 namespace DAB
 {
-	inline void Warning(std::string reason, std::string function)
-	{
-		std::cout << ">> WARNING: " << reason << " in function " << function << std::endl;
-		system("pause");
-	}
+	//colorful print.
 	void Cprintf(std::string str, WORD color);
 	void CprintNum(int num, int color);
 
+	//output message.
+	inline void Warning(std::string reason, std::string function)
+	{
+		Cprintf(">> WARNING: ", 12);
+		Cprintf(reason, 14);
+		Cprintf(" in function ", 8);
+		Cprintf(function + "\n", 9);
+		system("pause");
+	}
+	inline void Error(std::string reason)
+	{
+		Cprintf(">> ERROR: ", 5);
+		Cprintf(reason, 14);
+		std::cout << std::endl;
+	}
+	inline void Message(std::string message,bool show_MSG = true)
+	{
+		if (show_MSG)
+		{
+			Cprintf(">> MSG: ", 2);
+		}
+		else
+		{
+			Cprintf(">> ", 2);
+		}
+		Cprintf(message, 15);
+		std::cout << std::endl;
+	}
+	inline void InputTip()
+	{
+		cout << ">>> ";
+	}
+
+	//type define.
 	typedef unsigned char Edge;
 	typedef __int64 BitBoard;
 	typedef __int64 ActionVec;
@@ -48,7 +78,7 @@ namespace DAB
 		void ActionVisualization(ActionVec action_vec = 0);
 
 		//operator[]
-		inline bool operator[](size_t index) const
+		inline bool operator[](Edge index) const
 		{
 			#ifdef WARNING
 				if (index >= MAX_EDGE || index < 0)
@@ -60,15 +90,39 @@ namespace DAB
 		}
 
 		//get whether a edge exist in this state.
-		inline bool EdgeExist(size_t index) const 
+		inline bool EdgeExist(Edge index) const
 		{
+#ifdef WARNING
+			if (index >= MAX_EDGE)
+			{
+				Warning("Wrong index", "State::EdgeExist");
+			}
+#endif
 			return _edge[index];
 		}
 
 		//set edge.
-		inline void EdgeSet(size_t index)
+		inline void EdgeSet(Edge index)
 		{
+#ifdef WARNING
+			if (index >= MAX_EDGE)
+			{
+				Warning("Wrong index", "State::EdgeSet");
+			}
+#endif
 			_edge[index] = true;
+		}
+
+		//remove edge.
+		inline void EdgeRemove(Edge index)
+		{
+#ifdef WARNING
+			if (index >= MAX_EDGE)
+			{
+				Warning("Wrong index", "State::EdgeRemove");
+			}
+#endif
+			_edge[index] = false;
 		}
 
 		//create a random state with appointed edge number.
@@ -77,25 +131,25 @@ namespace DAB
 
 	namespace BOARD
 	{
-		//检查某一条边是否存在
+		//get whether a edge exist in this bit board.
 		inline bool EdgeExist(const BitBoard& board, Edge index)
 		{
 		#ifdef WARNING
 			if (index >= MAX_EDGE || index < 0)
 			{
-				Warning("Wrong index", "State::EdgeExist");
+				Warning("Wrong index", "BOARD::EdgeExist");
 			}
 		#endif
 			return ((board >> index) & 0x1) == 1;
 		}
 
-		//设置某一条边
+		//set edge in bit board.
 		inline void EdgeSet(BitBoard& board, Edge index)
 		{
 			#ifdef WARNING
 				if (index >= MAX_EDGE || index < 0)
 				{
-					Warning("Wrong index", "State::EdgeSet");
+					Warning("Wrong index", "BOARD::EdgeSet");
 				}
 			#endif
 			BitBoard temp = 1;
@@ -103,17 +157,18 @@ namespace DAB
 			board = board | temp;
 		}
 
+		//remove edge in bit board.
 		inline void EdgeRemove(BitBoard& board, Edge index)
 		{
 #ifdef WARNING
 			if (index >= MAX_EDGE || index < 0)
 			{
-				Warning("Wrong index", "State::EdgeRemove");
+				Warning("Wrong index", "BOARD::EdgeRemove");
 			}
 
 			if (!BOARD::EdgeExist(board, index))
 			{
-				Warning("edge not exist", "State::EdgeRemove");
+				Warning("edge not exist", "BOARD::EdgeRemove");
 			}
 #endif
 
@@ -122,7 +177,7 @@ namespace DAB
 			board = board & temp;
 		}
 
-		//打印
+		//print bit board.
 		inline void BitPrint(BitBoard board)
 		{
 			for (Edge i = MAX_EDGE - 1; i >= 0; i--)
@@ -132,7 +187,7 @@ namespace DAB
 			std::cout << std::endl;
 		}
 
-		//随机局面
+		//get a random bit board.
 		inline BitBoard RandomBitBoard()
 		{
 			BitBoard temp = 0;
@@ -145,6 +200,7 @@ namespace DAB
 			return temp;
 		}
 
+		//create a bit board by a State.
 		inline BitBoard Create(State& state)
 		{
 			BitBoard temp = 0;
@@ -162,7 +218,7 @@ namespace DAB
 
 	namespace ACTIONVEC
 	{
-		//创建一个动作容器
+		//create a action vector.
 		inline ActionVec Create(bool edge[MAX_EDGE])
 		{
 			ActionVec temp = 0;
@@ -177,7 +233,7 @@ namespace DAB
 			return temp;
 		}
 
-		//检查某个动作是否存在
+		//get whether a action exist in this action vec.
 		inline bool ActionExist(const BitBoard target, Edge index)
 		{
 			#ifdef WARNING
@@ -189,7 +245,7 @@ namespace DAB
 			return ((target >> index) & 0x1) == 1;
 		}
 
-		//给动作容器存入某一位
+		//set action in action vector.
 		inline void ActionSet(ActionVec& target, Edge index)
 		{
 			#ifdef WARNING
@@ -203,7 +259,7 @@ namespace DAB
 			target = target | temp;
 		}
 
-		//打印
+		//print action vector.
 		inline void Print(ActionVec target)
 		{
 			for (Edge i = MAX_EDGE -1; i >= 0; i--)

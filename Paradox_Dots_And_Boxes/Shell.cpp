@@ -40,21 +40,25 @@ namespace DAB
 			size_t layer = atoi(buffer);
 			if (layer <= 60 && layer >= 1)
 			{
-				cout << ">> input 'y' to confirm the action." << endl << ">>> ";
+				Message("input 'y' to confirm the action.",false);
+				InputTip();
 				cin.getline(buffer, 50);
 				if (string(buffer) == "y")
 				{
 					SOLVER::WriteSolverData(layer, true);
-					cout << ">> change layer success!" << endl << endl;
+					Message("change layer success!");
+					cout << endl;
 				}
 				else
 				{
-					cout << ">> action cancel." << endl << endl;
+					Message("action cancel.");
+					cout << endl;
 				}
 			}
 			else
 			{
-				cout << ">> error: wrong layer" << endl << endl;
+				Error("wrong layer");
+				cout << endl;
 			}
 		}
 		void CleanScreen()
@@ -86,11 +90,12 @@ namespace DAB
 				cout << ">> is reasonable = " << B2S(!(dead_chain && free_edge)) << endl;
 				if (final_file.eof())
 				{
-					cout << ">> no more states." << endl;
-					cout << ">> sample finish." << endl; 
+					Error("no more states.");
+					Message("sample finish.");
 					break;
 				}
-				cout << endl << ">> input 'stop' to stop sample. or other input to continue." << endl<<">>> ";
+				Message("input 'stop' to stop sample. or other input to continue.", false);
+				InputTip();
 				char buffer[50];
 				cin.getline(buffer, 50);
 				if (string(buffer) == "stop")
@@ -178,6 +183,8 @@ namespace DAB
 			State state;
 			for (;;)
 			{
+				Message("input help to get more order.", false);
+				InputTip();
 				cout << ">> input help to get more order." << endl << ">>> ";
 				char buffer[50];
 				cin.getline(buffer,50);
@@ -197,13 +204,42 @@ namespace DAB
 					cout << "   'action'    get free-edges index." << endl;
 					cout << "   'save'      save current state." << endl;
 					cout << "   'load'      load a state." << endl;
+					cout << "   'remove'    remove a edge in current state." << endl;
+					cout << "   'seed'      change random seed." << endl;
 					cout << "   'exit'      finish." << endl << endl;
 				}
 				else if (str == "show")
 				{
-					
 					MoveAnalyst ma(state, true);
 					state.ActionVisualization(ma.ActionVec());
+				}
+				else if (str == "remove")
+				{
+					Message("input the edge index that need remove.", false);
+					InputTip();
+					Edge edge;
+					cin >> edge;
+					if (edge < 60 )
+					{
+						if (state.EdgeExist(edge))
+						{
+							state.EdgeRemove(edge);
+							Message("edge have removed");
+						}
+						else
+						{
+							Error("edge do not exist.");
+						}
+					}
+					else
+					{
+						Error("edge do not exist.");
+					}
+				}
+				else if(str == "seed")
+				{
+					srand((unsigned)time(NULL));
+					Message("set random seed success.");
 				}
 				else if (str == "action")
 				{
@@ -253,14 +289,14 @@ namespace DAB
 					}
 					else
 					{
-						cout << ">> no more free-edge!" << endl; 
+						Error("no more free-edge!");
 					}
 				}
 				else if (str == "save")
 				{
 					ofstream ofs("free-edge.dat");
 					ofs << BOARD::Create(state);
-					cout << ">> state have been saved successfully." << endl;
+					Message("state have been saved successfully.");
 				}
 				else if (str == "load")
 				{
@@ -268,7 +304,7 @@ namespace DAB
 					BitBoard board;
 					ifs >> board;
 					state = State(board);
-					cout << ">> state have been loaded successfully." << endl;
+					Message("state have been loaded successfully.");
 				}
 				else
 				{
@@ -285,7 +321,7 @@ namespace DAB
 					}
 					else
 					{
-						cout << ">> wrong input!" << endl << endl;
+						Error("wrong input!");
 					}
 				}	
 			}
