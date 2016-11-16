@@ -25,10 +25,10 @@ namespace DAB
 	//output message.
 	inline void Warning(std::string reason, std::string function)
 	{
-		Cprintf(">> WARNING: ", 12);
-		Cprintf(reason, 14);
+		Cprintf(">> WARNING: ", 5);
+		Cprintf(reason, 12);
 		Cprintf(" in function ", 8);
-		Cprintf(function + "\n", 9);
+		Cprintf(function + "\n", 7);
 		system("pause");
 	}
 	inline void Error(std::string reason)
@@ -52,7 +52,7 @@ namespace DAB
 	}
 	inline void InputTip()
 	{
-		cout << ">>> ";
+		std::cout << ">>> ";
 	}
 
 	//type define.
