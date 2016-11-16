@@ -25,6 +25,10 @@ namespace DAB
 				_func[command] = func;
 				_des[command] = des;
 			}
+			inline void AddDescript(std::string command, std::string des)
+			{
+				_des[command] = des;
+			}
 			inline bool Exist(std::string command)
 			{
 				return _func.count(command) > 0;

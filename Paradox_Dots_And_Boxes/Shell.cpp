@@ -174,14 +174,128 @@ namespace DAB
 		}
 		namespace STATESHELL
 		{
-			
-			void StartStateShell()
+			void ShowAction(State& state)
 			{
-				State state;
-				Message("use 'help' to get more command", false);
+				MoveAnalyst ma(state, true);
+				cout << ">> action = {" << endl << "  ";
+				for (size_t i = 0; i < MAX_EDGE; i++)
+				{
+					if (ma[i])
+					{
+						cout << i << " ";
+					}
+				}
+				cout << "}" << endl << endl;
+			}
+			void SaveState(State& state)
+			{
+				ofstream ofs("free-edge.dat");
+				ofs << BOARD::Create(state);
+				Message("state have been saved successfully.");
+			}
+			void LoadState(State& state)
+			{
+				ifstream ifs("free-edge.dat");
+				BitBoard board;
+				ifs >> board;
+				state = State(board);
+				Message("state have been loaded successfully.");
+			}
+			void RemoveEdge(State& state)
+			{
+				Message("input the edge index that need remove.", false);
+				InputTip();
+				Edge edge;
+				cin >> edge;
+				if (edge < 60)
+				{
+					if (state.EdgeExist(edge))
+					{
+						state.EdgeRemove(edge);
+						Message("edge have removed");
+					}
+					else
+					{
+						Error("edge do not exist.");
+					}
+				}
+				else
+				{
+					Error("edge do not exist.");
+				}
+			}
+			void ChangeSeed(State& state)
+			{
+				srand((unsigned)time(NULL));
+				Message("set random seed success.");
+			}
+			void ShowState(State& state)
+			{
+				MoveAnalyst ma(state, true);
+				state.ActionVisualization(ma.ActionVec());
+			}
+			void NextState(State& state)
+			{
+				BitBoard board = BOARD::Create(state);
 				for (;;)
 				{
+					Edge next_edge = STATE::GetDeadBoxRemainEdgeIndex(board);
+					if (next_edge != MAX_EDGE)
+					{
+						BOARD::EdgeSet(board, next_edge);
+						state.EdgeSet(next_edge);
+						cout << ">> take edge = " << size_t(next_edge) << endl;
+					}
+					else
+					{
+						break;
+					}
+				}
+				vector<Edge> actions;
+				for (Edge edge = 0; edge < MAX_EDGE; edge++)
+				{
+					if (STATE::IsFreeEdge(board, edge))
+					{
+						actions.push_back(edge);
+					}
+				}
+				if (actions.size() != 0)
+				{
+					size_t rnd = rand() % actions.size();
+					state.EdgeSet(actions[rnd]);
+					cout << ">> take edge = " << size_t(actions[rnd]) << endl;
+					MoveAnalyst ma(state, true);
+					state.ActionVisualization(ma.ActionVec());
+				}
+				else
+				{
+					Error("no more free-edge!");
+				}
+			}
+			void StartStateShell()
+			{
+				
+				State state;
+				CommandList<void(*)(State&)> commands;	
+				commands.Add("next",NextState,"set random edge in current state.");
+				commands.Add("show",ShowState,"show current state.");
+				commands.Add("action",ShowAction,"get free-edges index.");
+				commands.Add("save",SaveState,"save current state.");
+				commands.Add("load",LoadState,"load a state.");
+				commands.Add("remove",RemoveEdge,"remove a edge in current state.");
+				commands.Add("seed",ChangeSeed,"change random seed.");
+				commands.AddDescript("exit", "finish.");
+				commands.AddDescript("[0,60]", "to create state with edges.");
 
+				system("cls");
+				cout << ">> ";
+				Cprintf("[ State Debug Shell ]\n", 2);
+				cout << ">> ";
+				Cprintf("use 'help' to get more command\n\n", 2);
+				commands.ShowCommand();
+
+				for (;;)
+				{
 					InputTip();
 					char buffer[50];
 					cin.getline(buffer, 50);
@@ -193,132 +307,30 @@ namespace DAB
 					}
 					else if (str == "help")
 					{
-						Cprintf("\n[ ORDER LIST ]\n\n", 14);
-
-						cout << "   [0,60]      to create state with edges. " << endl;
-						cout << "   'next'      set random edge in current state." << endl;
-						cout << "   'show'      show current state." << endl;
-						cout << "   'action'    get free-edges index." << endl;
-						cout << "   'save'      save current state." << endl;
-						cout << "   'load'      load a state." << endl;
-						cout << "   'remove'    remove a edge in current state." << endl;
-						cout << "   'seed'      change random seed." << endl;
-						cout << "   'exit'      finish." << endl << endl;
-					}
-					else if (str == "show")
-					{
-						MoveAnalyst ma(state, true);
-						state.ActionVisualization(ma.ActionVec());
-					}
-					else if (str == "remove")
-					{
-						Message("input the edge index that need remove.", false);
-						InputTip();
-						Edge edge;
-						cin >> edge;
-						if (edge < 60)
-						{
-							if (state.EdgeExist(edge))
-							{
-								state.EdgeRemove(edge);
-								Message("edge have removed");
-							}
-							else
-							{
-								Error("edge do not exist.");
-							}
-						}
-						else
-						{
-							Error("edge do not exist.");
-						}
-					}
-					else if (str == "seed")
-					{
-						srand((unsigned)time(NULL));
-						Message("set random seed success.");
-					}
-					else if (str == "action")
-					{
-						MoveAnalyst ma(state, true);
-						cout << ">> action = {" << endl << "  ";
-						for (size_t i = 0; i < MAX_EDGE; i++)
-						{
-							if (ma[i])
-							{
-								cout << i << " ";
-							}
-						}
-						cout << "}" << endl << endl;
-					}
-					else if (str == "next")
-					{
-						BitBoard board = BOARD::Create(state);
-						for (;;)
-						{
-							Edge next_edge = STATE::GetDeadBoxRemainEdgeIndex(board);
-							if (next_edge != MAX_EDGE)
-							{
-								BOARD::EdgeSet(board, next_edge);
-								state.EdgeSet(next_edge);
-								cout << ">> take edge = " << size_t(next_edge) << endl;
-							}
-							else
-							{
-								break;
-							}
-						}
-						vector<Edge> actions;
-						for (Edge edge = 0; edge < MAX_EDGE; edge++)
-						{
-							if (STATE::IsFreeEdge(board, edge))
-							{
-								actions.push_back(edge);
-							}
-						}
-						if (actions.size() != 0)
-						{
-							size_t rnd = rand() % actions.size();
-							state.EdgeSet(actions[rnd]);
-							cout << ">> take edge = " << size_t(actions[rnd]) << endl;
-							MoveAnalyst ma(state, true);
-							state.ActionVisualization(ma.ActionVec());
-						}
-						else
-						{
-							Error("no more free-edge!");
-						}
-					}
-					else if (str == "save")
-					{
-						ofstream ofs("free-edge.dat");
-						ofs << BOARD::Create(state);
-						Message("state have been saved successfully.");
-					}
-					else if (str == "load")
-					{
-						ifstream ifs("free-edge.dat");
-						BitBoard board;
-						ifs >> board;
-						state = State(board);
-						Message("state have been loaded successfully.");
+						commands.ShowCommand();
 					}
 					else
 					{
-
-						size_t num = atoi(buffer);
-						if (num < 60)
+						if (commands.Exist(str))
 						{
-							cout << ">> create state, edges = " << num << endl;
-							state = State::RandomState(num);
-							MoveAnalyst ma(state, true);
-							state.ActionVisualization(ma.ActionVec());
-							ActionVec temp = ma.ActionVec();
-							cout << endl;
+							commands.Func(str)(state);
 						}
 						else
 						{
-							Error("wrong input!");
+							size_t num = atoi(buffer);
+							if (num < 60 && num > 0)
+							{
+								cout << ">> create state, edges = " << num << endl;
+								state = State::RandomState(num);
+								MoveAnalyst ma(state, true);
+								state.ActionVisualization(ma.ActionVec());
+								ActionVec temp = ma.ActionVec();
+								cout << endl;
+							}
+							else
+							{
+								Error("wrong input!");
+							}
 						}
 					}
 				}
@@ -338,6 +350,8 @@ namespace DAB
 			commands.Add("cls", CleanScreen, "clean screen.");
 			commands.Add("state", STATESHELL::StartStateShell, "start state-debug");
 			commands.Add("exit", Exit, "exit program.");
+			commands.AddDescript("help", "get command list");
+
 			CleanScreen();
 			commands.ShowCommand();
 			for (;;)
