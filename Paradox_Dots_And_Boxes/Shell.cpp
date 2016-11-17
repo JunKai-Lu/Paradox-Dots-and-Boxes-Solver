@@ -37,7 +37,6 @@ namespace DAB
 		{
 			exit(0);
 		}
-		
 		void Sample()
 		{
 			size_t layer = SOLVER::GetCurrentDepth();
@@ -126,68 +125,6 @@ namespace DAB
 					Message("disable filter.");
 				}
 			}
-
-			/*void Create()
-			{
-				char buffer[50];
-				cout << ">> solver begin, input solver aim('next' of layer number)" << endl << ">>> ";
-				cin.getline(buffer, 50);
-				size_t aim_layer;
-				if (string(buffer) == "next")
-				{
-					aim_layer = SOLVER::GetCurrentDepth(false) - 1;
-				}
-				else
-				{
-					aim_layer = atoi(buffer);
-				}
-				size_t current = SOLVER::GetCurrentDepth(false);
-				if (aim_layer < current && aim_layer >0)
-				{
-					cout << ">> input thread num( max = " << MAX_ALLOW_THREAD << " )" << endl << ">>> ";
-					cin.getline(buffer, 50);
-					size_t thread_num = atoi(buffer);
-					if (thread_num <= MAX_ALLOW_THREAD && thread_num > 0)
-					{
-						bool file_cache;
-						cout << ">> input 'y' to use file cache." << endl << ">>> ";
-						cin.getline(buffer, 50);
-						if (string(buffer) == "y")
-						{
-							file_cache = true;
-						}
-						else
-						{
-							file_cache = false;
-						}
-
-						cout << ">> Solver is ready." << endl;
-						cout << ">> aim layer = " << aim_layer << endl;
-						cout << ">> thread num = " << thread_num << endl;
-						cout << ">> file cache = ";
-						if (file_cache)
-							cout << "yes" << endl;
-						else
-							cout << "no" << endl;
-
-						cout << ">> input 'y' to start." << endl << ">>> ";
-						cin.getline(buffer, 50);
-						if (string(buffer) == "y")
-						{
-							Solver(aim_layer, file_cache, true, thread_num, true);
-							return;
-						}
-						else
-						{
-							cout << ">> action cancel." << endl << endl;
-							return;
-						}
-					}
-				}
-
-				cout << ">> error: wrong input, action cancel." << endl << endl;
-
-			}*/
 			void Layer(Solver& solver)
 			{
 				cout << ">> current layer = " << SOLVER::GetCurrentDepth(false) << endl;
@@ -226,7 +163,87 @@ namespace DAB
 				//parameters check.
 				solver.Run();
 			}
+			void Create(Solver& solver)
+			{
+				reinput_aim:
+				InputTip("input solver aim('next' of layer number)");
+				char buffer[50];
+				cin.getline(buffer, 50);
+				size_t aim_layer;
+				if (string(buffer) == "next")
+				{
+					aim_layer = SOLVER::GetCurrentDepth(false) - 1;
+				}
+				else
+				{
+					aim_layer = atoi(buffer);
+				}
+				size_t current = SOLVER::GetCurrentDepth(false);
+				if (aim_layer < current && aim_layer >0)
+				{
+					Message("aim layer = " + I2S(aim_layer));
+					reinput_thread_num:
+					InputTip("input thread num(max = "+I2S(MAX_ALLOW_THREAD));
+					cin.getline(buffer, 50);
+					size_t thread_num = atoi(buffer);
+					if (thread_num <= MAX_ALLOW_THREAD && thread_num > 0)
+					{
+						Message("thread num = " + I2S(thread_num));
+						bool use_file_cache;
+						InputTip("input 'y' to use file cache.");
+						cin.getline(buffer, 50);
+						if (string(buffer) == "y")
+						{
+							use_file_cache = true;
+							Message("use file cache = true");
+						}
+						else
+						{
+							use_file_cache = false;
+							Message("use file cache = true");
+						}
 
+						bool use_filter;
+						InputTip("input 'y' to use filter.");
+						cin.getline(buffer, 50);
+						if (string(buffer) == "y")
+						{
+							use_filter = true;
+							Message("use filter = true");
+						}
+						else
+						{
+							use_filter = false;
+							Message("use filter = true");
+						}
+						solver = Solver(aim_layer, use_file_cache, use_filter, thread_num);
+						Message("create solver succeess.");
+					}
+					else
+					{
+						Error("wrong input.");
+						goto reinput_thread_num;
+					}
+				}
+				else
+				{
+					Error("wrong input.");
+					goto reinput_aim;
+				}
+			}
+			void Show(Solver& solver)
+			{
+				stringstream ss;
+				ss << ">> " << "aim layer = " << solver.aim_depth() << endl;
+				ss << ">> " << "current layer = " << solver.current_depth() << endl;
+				ss << ">> " << "thread number = " << solver.thread_num() << endl;
+				ss << ">> " << "use file cache = " << B2S(solver.file_cache()) << endl;
+				ss << ">> " << "use filter = " << B2S(solver.use_filter) << endl;
+
+				cout << endl;
+				cout << ss.str();
+				cout << endl;
+			}
 			void StartSolver()
 			{
 				Solver solver(60, false, false, 1);
@@ -237,7 +254,11 @@ namespace DAB
 				commands.Add("layer", Layer, "get current layer.");
 				commands.Add("set", Set, "set current layer");
 				commands.Add("start", Start, "execute solver.");
+				commands.Add("create", Create, "create a solver");
+				commands.Add("show", Show, "show current solver parameters.");
 				commands.AddDescript("return", "return to previous menu.");
+				
+				Create(solver);
 				system("cls");
 				cout << ">> ";
 				Cprintf("[ Solver Shell ]\n", 2);

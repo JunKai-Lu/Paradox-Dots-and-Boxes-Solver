@@ -2,9 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "GameDefine.h"
 #include <map>
-#include <functional>
+#include <sstream>
+
+#include "GameDefine.h"
 
 #pragma  once
 
@@ -74,6 +75,12 @@ namespace DAB
 				return "true";
 			}
 			return "false";
+		}
+		inline std::string I2S(size_t i)
+		{
+			std::stringstream ss;
+			ss << i;
+			return ss.str();
 		}
 		inline std::string GetInput()
 		{
