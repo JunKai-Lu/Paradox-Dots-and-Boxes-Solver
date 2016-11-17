@@ -20,25 +20,25 @@ using namespace std;
 namespace DAB
 {
 	//Constructor Function.
-	Solver::Solver(size_t aim_depth, bool file_cache, bool use_filter, size_t thread_num) :
-		_aim_depth(aim_depth),
+	Solver::Solver(size_t aim_layer, bool file_cache, bool use_filter, size_t thread_num) :
+		_aim_layer(aim_layer),
 		_file_cache(file_cache),
 		_thread_num(thread_num),
 		_use_filter(use_filter),
 		_log("SolverLog.log",std::ios::app)
 	{
 		
-		_current_depth = SOLVER::GetCurrentDepth();
+		_current_layer = SOLVER::GetCurrentLayer();
 
 		_log << "========== Solver Start ==========" << endl;
 		_log << "start time = " << SOLVER::GetLogTimeStr() << endl;
-		_log << "aim depth = " << _aim_depth << endl;
-		_log << "current depth = " << _current_depth << endl;
+		_log << "aim layer = " << _aim_layer << endl;
+		_log << "current layer = " << _current_layer << endl;
 		_log << "thread num = " << _thread_num << endl;
 		_log << "file cache = " << _file_cache << endl;
 		_log << "==================================" << endl << endl;
 
-		/*if (_current_depth < _aim_depth)
+		/*if (_current_layer < _aim_layer)
 		{
 			std::cout << ">>>SYSTEM:[ your aim have been solved ]" << std::endl;
 			system("pause");
@@ -46,22 +46,22 @@ namespace DAB
 		}*/
 	}
 
-	//Load data of last solved depth and return them as n parts;
-	bool Solver::LoadStorages(std::vector< Storage >* storages, size_t target_depth)
+	//Load data of last solved layer and return them as n parts;
+	bool Solver::LoadStorages(std::vector< Storage >* storages, size_t target_layer)
 	{
 		std::ios_base::sync_with_stdio(false);
 		clock_t start = clock();
 		cout << endl << "========== Load Storage ========== " << endl;
-		cout << "target = " << target_depth << endl;
+		cout << "target = " << target_layer << endl;
 		cout << "thread_num = " << thread_num() << endl;
 		
 		_log << endl << "========== Load Storage ========== " << endl;
-		_log << "target = " << target_depth << endl;
+		_log << "target = " << target_layer << endl;
 		_log << "thread_num = " << thread_num() << endl;
 
 		//push new lists
 		stringstream path;
-		path << "./data/layer_" << target_depth << "/layer_" << target_depth << "_final.dat";
+		path << "./data/layer_" << target_layer << "/layer_" << target_layer << "_final.dat";
 		if (_access(path.str().c_str(), 0) != -1)
 		{
 			ifstream target_file(path.str());
@@ -167,11 +167,11 @@ namespace DAB
 	//try to compute next layer to close solver aim.
 	void Solver::ComputeNextLayer()
 	{
-		cout << ">> Solver [" << _current_depth << " -> " << _current_depth - 1 << "] start!" << endl << endl;
-		_log << ">> Solver [" << _current_depth << " -> " << _current_depth - 1 << "] start!" << endl << endl;
+		cout << ">> Solver [" << _current_layer << " -> " << _current_layer - 1 << "] start!" << endl << endl;
+		_log << ">> Solver [" << _current_layer << " -> " << _current_layer - 1 << "] start!" << endl << endl;
 
 		vector < Storage > storages(thread_num());		
-		if (!LoadStorages(&storages, _current_depth))
+		if (!LoadStorages(&storages, _current_layer))
 		{
 			system("pause");
 			return;
@@ -258,12 +258,12 @@ namespace DAB
 		cout << endl << ">> Start outputing... " << endl;
 		_log << endl << ">> Start outputing... " << endl;
 		
-		_current_depth--;
-		size_t output_size = OutputResult(ss_map, _current_depth, false);
+		_current_layer--;
+		size_t output_size = OutputResult(ss_map, _current_layer, false);
 		
-		SOLVER::WriteSolverData(_current_depth);
-		cout << endl << ">> Solver ["<< _current_depth + 1 << " -> " << _current_depth <<"] finish!"<< endl << endl;
-		_log << endl << ">> Solver [" << _current_depth + 1 << " -> " << _current_depth << "] finish!" << endl << endl;
+		SOLVER::WriteSolverData(_current_layer);
+		cout << endl << ">> Solver ["<< _current_layer + 1 << " -> " << _current_layer <<"] finish!"<< endl << endl;
+		_log << endl << ">> Solver [" << _current_layer + 1 << " -> " << _current_layer << "] finish!" << endl << endl;
 	}
 
 	//start solver
@@ -271,7 +271,7 @@ namespace DAB
 	{	
 		for (;;)
 		{
-			if (_current_depth <= _aim_depth)
+			if (_current_layer <= _aim_layer)
 			{
 				break;
 			}
@@ -303,8 +303,8 @@ namespace DAB
 			return path.str();
 		}
 
-		//Load current record and return the last solved depth(1-60) 
-		size_t GetCurrentDepth(bool print_info)
+		//Load current record and return the last solved layer(1-60) 
+		size_t GetCurrentLayer()
 		{
 			//check whether the folder exist
 			stringstream path;
@@ -323,11 +323,6 @@ namespace DAB
 			size_t last_layer;
 			ifstream file("./data/solver.dat");
 			file >> last_layer;
-
-			if (print_info)
-			{
-				cout << ">> Load last layer success!, last layer = " << last_layer << endl << endl;
-			}
 			return last_layer;
 		}
 

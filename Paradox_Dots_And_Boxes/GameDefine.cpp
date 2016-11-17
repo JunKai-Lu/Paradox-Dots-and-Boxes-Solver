@@ -376,6 +376,8 @@ namespace DAB
 		Cprintf("¡ð\n\n", dot_color);
 	}
 
+	
+
 	State State::RandomState(size_t edge_num)
 	{
 		BitBoard board = EMPTY_BOARD;

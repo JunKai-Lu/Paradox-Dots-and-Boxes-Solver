@@ -39,7 +39,7 @@ namespace DAB
 		}
 		void Sample()
 		{
-			size_t layer = SOLVER::GetCurrentDepth();
+			size_t layer = SOLVER::GetCurrentLayer();
 			ifstream final_file(SOLVER::GetFinalFileName(layer));
 			for (;;)
 			{
@@ -125,14 +125,10 @@ namespace DAB
 					Message("disable filter.");
 				}
 			}
-			void Layer(Solver& solver)
-			{
-				cout << ">> current layer = " << SOLVER::GetCurrentDepth(false) << endl;
-			}
-			void Set(Solver& solver)
+			void ChangeLayer(Solver& solver)
 			{
 				//cout << ">> set current layer = ";
-				cout << ">> input new layer, current layer = " << SOLVER::GetCurrentDepth(false) << endl << ">>> ";
+				cout << ">> input new layer, current layer = " << SOLVER::GetCurrentLayer() << endl << ">>> ";
 				char buffer[50];
 				cin.getline(buffer, 50);
 				size_t layer = atoi(buffer);
@@ -163,27 +159,25 @@ namespace DAB
 				//parameters check.
 				solver.Run();
 			}
-			void Create(Solver& solver)
+			void Set(Solver& solver)
 			{
-				reinput_aim:
 				InputTip("input solver aim('next' of layer number)");
 				char buffer[50];
 				cin.getline(buffer, 50);
 				size_t aim_layer;
 				if (string(buffer) == "next")
 				{
-					aim_layer = SOLVER::GetCurrentDepth(false) - 1;
+					aim_layer = SOLVER::GetCurrentLayer() - 1;
 				}
 				else
 				{
 					aim_layer = atoi(buffer);
 				}
-				size_t current = SOLVER::GetCurrentDepth(false);
+				size_t current = SOLVER::GetCurrentLayer();
 				if (aim_layer < current && aim_layer >0)
 				{
 					Message("aim layer = " + I2S(aim_layer));
-					reinput_thread_num:
-					InputTip("input thread num(max = "+I2S(MAX_ALLOW_THREAD));
+					InputTip("input allow thread number (max = "+I2S(MAX_ALLOW_THREAD)+" )");
 					cin.getline(buffer, 50);
 					size_t thread_num = atoi(buffer);
 					if (thread_num <= MAX_ALLOW_THREAD && thread_num > 0)
@@ -216,33 +210,62 @@ namespace DAB
 							use_filter = false;
 							Message("use filter = true");
 						}
-						solver = Solver(aim_layer, use_file_cache, use_filter, thread_num);
-						Message("create solver succeess.");
+						solver.set_aim_layer(aim_layer);
+						solver.set_thread_num(thread_num);
+						solver.set_use_file_cache(use_file_cache);
+						solver.set_use_filter(use_filter);
+						Message("set solver succeess.");
 					}
 					else
 					{
 						Error("wrong input.");
-						goto reinput_thread_num;
+						return;
 					}
 				}
 				else
 				{
 					Error("wrong input.");
-					goto reinput_aim;
+					return;
 				}
 			}
 			void Show(Solver& solver)
 			{
 				stringstream ss;
-				ss << ">> " << "aim layer = " << solver.aim_depth() << endl;
-				ss << ">> " << "current layer = " << solver.current_depth() << endl;
+				ss << ">> " << "aim layer = " << solver.aim_layer() << endl;
+				ss << ">> " << "current layer = " << solver.current_layer() << endl;
 				ss << ">> " << "thread number = " << solver.thread_num() << endl;
 				ss << ">> " << "use file cache = " << B2S(solver.file_cache()) << endl;
-				ss << ">> " << "use filter = " << B2S(solver.use_filter) << endl;
+				ss << ">> " << "use filter = " << B2S(solver.use_filter()) << endl;
 
 				cout << endl;
 				cout << ss.str();
 				cout << endl;
+			}
+			void Aim(Solver& solver)
+			{
+				InputTip("input solver aim('next' of layer number)");
+				char buffer[50];
+				cin.getline(buffer, 50);
+				size_t aim_layer;
+				if (string(buffer) == "next")
+				{
+					aim_layer = SOLVER::GetCurrentLayer() - 1;
+				}
+				else
+				{
+					aim_layer = atoi(buffer);
+				}
+				size_t current = SOLVER::GetCurrentLayer();
+				if (aim_layer < current && aim_layer >0)
+				{
+					solver.set_aim_layer(aim_layer);
+					Message("aim layer = " + I2S(aim_layer));
+					Show(solver);
+				}
+				else
+				{
+					Error("wrong input!");
+				}
 			}
 			void StartSolver()
 			{
@@ -251,14 +274,13 @@ namespace DAB
 				commands.Add("thread", Thread, "change thread number");
 				commands.Add("cache", FileCache, "set whether to use file cache.");
 				commands.Add("filter", Filter, "set thether to use filter.");
-				commands.Add("layer", Layer, "get current layer.");
-				commands.Add("set", Set, "set current layer");
+				commands.Add("layer", ChangeLayer, "change current layer");
 				commands.Add("start", Start, "execute solver.");
-				commands.Add("create", Create, "create a solver");
+				commands.Add("set", Set, "change all solver set.");
 				commands.Add("show", Show, "show current solver parameters.");
 				commands.AddDescript("return", "return to previous menu.");
-				
-				Create(solver);
+
+				Set(solver);
 				system("cls");
 				cout << ">> ";
 				Cprintf("[ Solver Shell ]\n", 2);

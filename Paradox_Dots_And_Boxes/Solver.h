@@ -40,10 +40,10 @@ namespace DAB
 	class Solver
 	{
 	private:
-		size_t _aim_depth;
+		size_t _aim_layer;
 		bool _file_cache;
 		size_t _thread_num;
-		size_t _current_depth;
+		size_t _current_layer;
 		bool _use_filter;
 		std::ofstream _log;
 
@@ -52,12 +52,12 @@ namespace DAB
 		/*
 		* Constructor Function
 		* parameters:
-			* [aim_depth] is aim of this function, program would finish after we reach the aim.
+			* [aim_layer] is aim of this function, program would finish after we reach the aim.
 			* [file_cache] means this solver would use files as cache to decrease memory requirement.
 			* [thread_num] is the theard number that solver is able to use
 			* [auto_execute] can control whether this solver would start automaticlly after it finish load datas.
 		*/
-		Solver(size_t aim_depth, bool file_cache, bool use_filter, size_t thread_num);
+		Solver(size_t aim_layer, bool file_cache, bool use_filter, size_t thread_num);
 
 		/*
 		* Start solver until reach the aim
@@ -68,13 +68,13 @@ namespace DAB
 		{
 			return _thread_num;
 		}
-		inline size_t aim_depth()
+		inline size_t aim_layer()
 		{
-			return _aim_depth;
+			return _aim_layer;
 		}
-		inline size_t current_depth()
+		inline size_t current_layer()
 		{
-			return _current_depth;
+			return _current_layer;
 		}
 		inline bool use_filter()
 		{
@@ -89,9 +89,9 @@ namespace DAB
 		{
 			_thread_num = num;
 		}
-		inline void set_aim_depth(size_t num)
+		inline void set_aim_layer(size_t num)
 		{
-			_aim_depth = num;
+			_aim_layer = num;
 		}
 		inline void set_use_filter(bool b)
 		{
@@ -105,7 +105,7 @@ namespace DAB
 	private:
 		
 		/*
-		* Load data of last solved depth and return them as n parts in a vector;
+		* Load data of last solved layer and return them as n parts in a vector;
 		* return value: whether this function load target layer data successfully.
 		* parameter:
 			* [lists] is the vetor contains multiple list,this function would fill in those lists with data of target layer
@@ -162,12 +162,12 @@ namespace DAB
 		}
 
 		/*
-		* Load current record and return the last solved depth(1-60)
-		* return value: the current layer depth.
+		* Load current record and return the last solved layer(1-60)
+		* return value: the current layer layer.
 		* paramerter
 		*	[print_info] control the log output.
 		*/
-		size_t GetCurrentDepth(bool print_info = true);
+		size_t GetCurrentLayer();
 
 		/*
 		* Write last solved layer to the 'solver.dat'

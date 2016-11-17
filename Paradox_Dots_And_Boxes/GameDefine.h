@@ -31,31 +31,26 @@ namespace DAB
 		Cprintf(function + "\n", 7);
 		system("pause");
 	}
-
 	inline void Error(std::string reason)
 	{
 		Cprintf(">> ERROR: ", 5);
 		Cprintf(reason, 14);
 		std::cout << std::endl;
 	}
-
 	inline void Message(std::string message,bool show_MSG = true)
 	{
+		std::cout << ">> ";
 		if (show_MSG)
 		{
-			Cprintf(">> MSG: ", 2);
+			Cprintf("MSG: ", 2);
 		}
-		else
-		{
-			Cprintf(">> ", 2);
-		}
-		Cprintf(message, 15);
-		std::cout << std::endl;
+		Cprintf(message, 10);
+		std::cout << std::endl << std::endl;
 	}
 	inline void InputTip(std::string tip)
 	{
-		Cprintf(">> ", 2);
-		Cprintf(tip, 15);
+		std::cout << ">> ";
+		Cprintf(tip, 8);
 		std::cout << std::endl << ">>> ";
 	}
 
