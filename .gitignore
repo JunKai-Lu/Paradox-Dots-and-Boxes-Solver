@@ -154,3 +154,9 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+/Paradox_Dots_And_Boxes/Paradox_Dots_And_Boxes.vcxproj
+/Paradox_Dots_And_Boxes/Paradox_Dots_And_Boxes.vcxproj.filters
+/Paradox_Dots_And_Boxes.sln
+/Paradox_Dots_And_Boxes.VC.db
+/Paradox_Dots_And_Boxes.VC.VC.opendb
+/Paradox_Dots_And_Boxes/free-edge.dat

@@ -70,9 +70,13 @@ namespace DAB
 		const WORD edge_color = 14;
 		const WORD action_color = 15;
 		const WORD dot_color = 8;
+
+		string interval = "     ";
+
 		for (int y = 0; y < GAME_SIZE; y++)
 		{
 			//首先得到横边初始坐标
+			cout << endl << interval;
 			for (int index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
@@ -100,6 +104,7 @@ namespace DAB
 			//cout << "○" << endl;
 
 			//然后得到纵边坐标
+			cout << interval;
 			for (int index = 34 - y; index < 59 - y; index+=5)
 			{
 				if (EdgeExist(index))
@@ -153,6 +158,7 @@ namespace DAB
 		}
 
 		//打印最下面的一个边
+		cout << interval;
 		for (int index = 25; index < 30; index++)
 		{
 			//cout << "○";
@@ -176,7 +182,7 @@ namespace DAB
 			}
 		}
 		//cout << "○" << endl;
-		Cprintf("○\n", dot_color);
+		Cprintf("○\n\n", dot_color);
 	}
 
 	void State::ActionVisualization(ActionVec action_vec)

@@ -205,18 +205,21 @@ namespace DAB
 				ifs >> board;
 				state = State(board);
 				Message("state have been loaded successfully.");
+				state.Visualization();
 			}
 			void RemoveEdge(State& state)
 			{
 				Message("input the edge index that need remove.", false);
 				InputTip();
-				Edge edge;
-				cin >> edge;
+				size_t num;
+				cin >> num;
+				Edge edge = (Edge)num;
 				if (edge < 60)
 				{
 					if (state.EdgeExist(edge))
 					{
 						state.EdgeRemove(edge);
+						cout << ">> edge = " << edge << endl;
 						Message("edge have removed");
 					}
 					else
