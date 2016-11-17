@@ -31,12 +31,14 @@ namespace DAB
 		Cprintf(function + "\n", 7);
 		system("pause");
 	}
+
 	inline void Error(std::string reason)
 	{
 		Cprintf(">> ERROR: ", 5);
 		Cprintf(reason, 14);
 		std::cout << std::endl;
 	}
+
 	inline void Message(std::string message,bool show_MSG = true)
 	{
 		if (show_MSG)

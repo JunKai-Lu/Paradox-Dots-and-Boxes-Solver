@@ -236,8 +236,8 @@ namespace DAB
 			}
 			void ShowState(State& state)
 			{
-				MoveAnalyst ma(state, true);
-				state.ActionVisualization(ma.ActionVec());
+				//MoveAnalyst ma(state, true);
+				state.Visualization();
 			}
 			void NextState(State& state)
 			{
@@ -340,7 +340,6 @@ namespace DAB
 					}
 				}
 			}
-
 		}
 		
 		void ShellStart()

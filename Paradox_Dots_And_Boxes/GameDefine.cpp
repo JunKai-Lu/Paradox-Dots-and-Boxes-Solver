@@ -571,260 +571,215 @@ namespace DAB
 		//judge whether a edge in a board is a free-edge.
 		bool IsFreeEdge(BitBoard board, Edge edge)
 		{
+			//Check horizon edges.
+			if (IsHorEdge(edge))
 			{
-				//Check horizon edges.
-				if (IsHorEdge(edge))
+				if (BOARD::EdgeExist(board, edge) == false)
 				{
-					if (BOARD::EdgeExist(board, edge) == false)
+					//check the box below the edge.
+					bool affect_upper_box = false;
+					bool affect_lower_box = false;
+					if (IsNotLowerSideHorEdge(edge))
 					{
-						//check the box below the edge.
-						if (IsNotLowerSideHorEdge(edge))
+						Edge fir_box_lower_edge = edge + 5;
+						Edge fir_box_left_edge = GetLowerLeftVecEdge(edge);
+						Edge fir_box_right_edge = fir_box_left_edge + 5;
+						if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
 						{
-							Edge fir_box_lower_edge = edge + 5;
-							Edge fir_box_left_edge = GetLowerLeftVecEdge(edge);
-							Edge fir_box_right_edge = fir_box_left_edge + 5;
-							if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
+							if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
 							{
-								if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+								if (IsNotLowerSideHorEdge(fir_box_lower_edge))
 								{
-									if (IsNotLowerSideHorEdge(fir_box_lower_edge))
+									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
+									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 2)
 									{
-										Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
-										if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
-									}
-								}
-								else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
-								{
-									if (IsNotLeftSideVecEdge(fir_box_left_edge))
-									{
-										Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-										if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
-									}
-								}
-								else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
-								{
-									if (IsNotRightSideVecEdge(fir_box_right_edge))
-									{
-										Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-										if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
+										affect_lower_box = true;
 									}
 								}
 							}
-							else
+							else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
 							{
-								return true;
-							}
-						}
-						//check the box above the edge
-						if (IsNotUpperSideHorEdge(edge))
-						{
-							Edge fir_box_upper_edge = edge - 5;
-							Edge fir_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge);
-							Edge fir_box_right_edge = fir_box_left_edge + 5;
-							if (BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
-							{
-								if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
+								if (IsNotLeftSideVecEdge(fir_box_left_edge))
 								{
-									if (IsNotUpperSideHorEdge(fir_box_upper_edge))
+									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
+									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 2)
 									{
-										Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
-										if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
-									}
-
-								}
-								else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
-								{
-									if (IsNotLeftSideVecEdge(fir_box_left_edge))
-									{
-										Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-										if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
-									}
-								}
-								else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
-								{
-									if (IsNotRightSideVecEdge(fir_box_right_edge))
-									{
-										Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-										if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
+										affect_lower_box = true;
 									}
 								}
 							}
-							else
+							else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
 							{
-								return true;
+								if (IsNotRightSideVecEdge(fir_box_right_edge))
+								{
+									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
+									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 2)
+									{
+										affect_lower_box = true;
+									}
+								}
 							}
 						}
 					}
-				}
-				else if (IsVecEdge(edge))
-				{
-					if (BOARD::EdgeExist(board, edge) == false)
+					//check the box above the edge
+					if (IsNotUpperSideHorEdge(edge))
 					{
-						//check the box on the left of the edge.
-						if (IsNotLeftSideVecEdge(edge))
+						Edge fir_box_upper_edge = edge - 5;
+						Edge fir_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge);
+						Edge fir_box_right_edge = fir_box_left_edge + 5;
+						if (BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
 						{
-							Edge fir_box_left_edge = edge - 5;
-							Edge fir_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge);
-							Edge fir_box_lower_edge = fir_box_upper_edge + 5;
-							if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge) == 2)
+							if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
 							{
-								if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+								if (IsNotUpperSideHorEdge(fir_box_upper_edge))
 								{
-									if (IsNotLeftSideVecEdge(fir_box_left_edge))
+									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
+									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 2)
 									{
-										Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-										if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
-									}
-								}
-								else if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
-								{
-									if (IsNotUpperSideHorEdge(fir_box_upper_edge))
-									{
-										Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
-										if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
-									}
-								}
-								else if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
-								{
-									if (IsNotLowerSideHorEdge(fir_box_lower_edge))
-									{
-										Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
-										if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
+										affect_upper_box = true;
 									}
 								}
 							}
-							else
+							else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
 							{
-								return true;
-							}
-						}
-
-						//check the box on the right of the edge.
-						if (IsNotRightSideVecEdge(edge))
-						{
-							Edge fir_box_right_edge = edge + 5;
-							Edge fir_box_upper_edge = GetUpperRightHorEdge(edge);
-							Edge fir_box_lower_edge = fir_box_upper_edge + 5;
-							if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
-							{
-								if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+								if (IsNotLeftSideVecEdge(fir_box_left_edge))
 								{
-									if (IsNotRightSideVecEdge(fir_box_right_edge))
+									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
+									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 2)
 									{
-										Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-										if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
-									}
-								}
-								else if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
-								{
-									if (IsNotUpperSideHorEdge(fir_box_upper_edge))
-									{
-										Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
-										if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
-									}
-								}
-								else if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
-								{
-									if (IsNotLowerSideHorEdge(fir_box_lower_edge))
-									{
-										Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
-										if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) != 2)
-										{
-											return true;
-										}
-									}
-									else
-									{
-										return true;
+										affect_upper_box = true;
 									}
 								}
 							}
-							else
+							else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
 							{
-								return true;
+								if (IsNotRightSideVecEdge(fir_box_right_edge))
+								{
+									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
+									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 2)
+									{
+										affect_upper_box = true;
+									}
+								}
 							}
 						}
 					}
+					if (affect_upper_box || affect_lower_box)
+					{
+						return false;
+					}
+					else
+					{
+						return true;
+					}
 				}
-				return false;
 			}
+			else if (IsVecEdge(edge))
+			{
+				if (BOARD::EdgeExist(board, edge) == false)
+				{
+					//check the box on the left of the edge.
+					bool affect_left_box = false;
+					bool affect_right_box = false;
+					if (IsNotLeftSideVecEdge(edge))
+					{
+						Edge fir_box_left_edge = edge - 5;
+						Edge fir_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge);
+						Edge fir_box_lower_edge = fir_box_upper_edge + 5;
+						if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge) == 2)
+						{
+							if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+							{
+								if (IsNotLeftSideVecEdge(fir_box_left_edge))
+								{
+									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
+									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 2)
+									{
+										affect_left_box = true;
+									}
+								}
+							}
+							else if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
+							{
+								if (IsNotUpperSideHorEdge(fir_box_upper_edge))
+								{
+									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
+									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 2)
+									{
+										affect_left_box = true;
+									}
+								}
+							}
+							else if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+							{
+								if (IsNotLowerSideHorEdge(fir_box_lower_edge))
+								{
+									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
+									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 2)
+									{
+										affect_left_box = true;
+									}
+								}
+							}
+						}
+					}
+
+					//check the box on the right of the edge.
+					if (IsNotRightSideVecEdge(edge))
+					{
+						Edge fir_box_right_edge = edge + 5;
+						Edge fir_box_upper_edge = GetUpperRightHorEdge(edge);
+						Edge fir_box_lower_edge = fir_box_upper_edge + 5;
+						if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
+						{
+							if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+							{
+								if (IsNotRightSideVecEdge(fir_box_right_edge))
+								{
+									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
+									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 2)
+									{
+										affect_right_box = true;
+									}
+								}
+							}
+							else if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
+							{
+								if (IsNotUpperSideHorEdge(fir_box_upper_edge))
+								{
+									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
+									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 2)
+									{
+										affect_right_box = true;
+									}
+								}
+							}
+							else if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+							{
+								if (IsNotLowerSideHorEdge(fir_box_lower_edge))
+								{
+									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
+									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 2)
+									{
+										affect_right_box = true;
+									}
+								}
+							}
+						}
+					}
+					if (affect_left_box || affect_right_box)
+					{
+						return false;
+					}
+					else
+					{
+						return true;
+					}
+
+				}
+			}
+
+			return false;
 		}
 	}
 }
