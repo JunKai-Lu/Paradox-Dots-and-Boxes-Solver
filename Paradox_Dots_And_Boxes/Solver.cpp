@@ -20,12 +20,11 @@ using namespace std;
 namespace DAB
 {
 	//Constructor Function.
-	Solver::Solver(size_t aim_depth, bool file_cache, bool use_filter, size_t thread_num, bool auto_execute) :
+	Solver::Solver(size_t aim_depth, bool file_cache, bool use_filter, size_t thread_num) :
 		_aim_depth(aim_depth),
 		_file_cache(file_cache),
 		_thread_num(thread_num),
 		_use_filter(use_filter),
-		_auto_execute(auto_execute),
 		_log("SolverLog.log",std::ios::app)
 	{
 		
@@ -39,17 +38,12 @@ namespace DAB
 		_log << "file cache = " << _file_cache << endl;
 		_log << "==================================" << endl << endl;
 
-		if (_current_depth < _aim_depth)
+		/*if (_current_depth < _aim_depth)
 		{
 			std::cout << ">>>SYSTEM:[ your aim have been solved ]" << std::endl;
 			system("pause");
 			return;
-		}
-
-		if (auto_execute)
-		{
-			Run();
-		}
+		}*/
 	}
 
 	//Load data of last solved depth and return them as n parts;
@@ -129,7 +123,9 @@ namespace DAB
 		path << "/layer_" << layer;// <<;
 
 		ofstream os((path.str() + "_final.dat").c_str());
+		Message(("Output target = " + path.str() + "_final.dat"),false);
 		size_t count = 0;
+
 		if (filter)
 		{
 			for (auto ss : ss_map)
@@ -404,13 +400,6 @@ namespace DAB
 					}
 				}
 			}
-		}
-
-		//Judge whether a state is valuable. some valuelss state would can be recognized by this function.
-		//TODO
-		bool ValuableStateFilter(BitBoard board)
-		{
-			return true;
 		}
 
 		//this function is used for a thread.

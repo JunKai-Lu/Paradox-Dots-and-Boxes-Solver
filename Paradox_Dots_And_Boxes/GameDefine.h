@@ -52,9 +52,11 @@ namespace DAB
 		Cprintf(message, 15);
 		std::cout << std::endl;
 	}
-	inline void InputTip()
+	inline void InputTip(std::string tip)
 	{
-		std::cout << ">>> ";
+		Cprintf(">> ", 2);
+		Cprintf(tip, 15);
+		std::cout << std::endl << ">>> ";
 	}
 
 	//type define.

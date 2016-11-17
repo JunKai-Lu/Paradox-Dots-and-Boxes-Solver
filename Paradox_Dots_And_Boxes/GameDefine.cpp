@@ -71,12 +71,12 @@ namespace DAB
 		const WORD action_color = 15;
 		const WORD dot_color = 8;
 
+		cout << endl;
 		string interval = "     ";
-
 		for (int y = 0; y < GAME_SIZE; y++)
 		{
 			//首先得到横边初始坐标
-			cout << endl << interval;
+			cout << interval;
 			for (int index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";

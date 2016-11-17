@@ -24,41 +24,6 @@ namespace DAB
 			Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
 			Cprintf("=============================================\n\n", 8);
 		}
-		void Layer()
-		{
-			size_t layer = DAB::SOLVER::GetCurrentDepth(false);
-			cout << ">> current layer = " << layer << endl;
-		}
-		void Set()
-		{
-			//cout << ">> set current layer = ";
-			cout << ">> input new layer, current layer = " << SOLVER::GetCurrentDepth(false) << endl << ">>> ";
-			char buffer[50];
-			cin.getline(buffer, 50);
-			size_t layer = atoi(buffer);
-			if (layer <= 60 && layer >= 1)
-			{
-				Message("input 'y' to confirm the action.", false);
-				InputTip();
-				cin.getline(buffer, 50);
-				if (string(buffer) == "y")
-				{
-					SOLVER::WriteSolverData(layer, true);
-					Message("change layer success!");
-					cout << endl;
-				}
-				else
-				{
-					Message("action cancel.");
-					cout << endl;
-				}
-			}
-			else
-			{
-				Error("wrong layer");
-				cout << endl;
-			}
-		}
 		void CleanScreen()
 		{
 			system("cls");
@@ -67,7 +32,12 @@ namespace DAB
 			Cprintf("[ DAB Shell ]\n", 2);
 			cout << ">> ";
 			Cprintf("use 'help' to get more command\n\n", 2);
+		}	
+		void Exit()
+		{
+			exit(0);
 		}
+		
 		void Sample()
 		{
 			size_t layer = SOLVER::GetCurrentDepth();
@@ -92,8 +62,7 @@ namespace DAB
 					Message("sample finish.");
 					break;
 				}
-				Message("input 'stop' to stop sample. or other input to continue.", false);
-				InputTip();
+				InputTip("input 'stop' to stop sample. or other input to continue.");
 				char buffer[50];
 				cin.getline(buffer, 50);
 				if (string(buffer) == "stop")
@@ -103,18 +72,62 @@ namespace DAB
 			}
 			CleanScreen();
 		}
-		void Exit()
-		{
-			exit(0);
-		}
-		
+
 		namespace GAME
 		{
-			
+			void StartGame()
+			{
+
+			}
 		}
 		namespace SOLVERSHELL
 		{
-			void StartSolver()
+			void Thread(Solver& solver)
+			{
+				cout << ">> current thread num = " << solver.thread_num() << endl;
+				InputTip("input thread num");
+				size_t num;
+				cin >> num;
+				if (num > 0 && num <= MAX_ALLOW_THREAD)
+				{
+					solver.set_thread_num(num);
+					Message("set thread num success.");
+				}
+			}
+			void FileCache(Solver& solver)
+			{
+				cout << ">> use file cache = " << B2S(solver.file_cache()) << endl;
+				InputTip("input y to allow file cache.");
+				string str = GetInput();
+				if (str == "y")
+				{
+					solver.set_use_file_cache(true);
+					Message("enable file cache.");
+				}
+				else
+				{
+					solver.set_use_file_cache(false);
+					Message("disable file cache.");
+				}
+			}
+			void Filter(Solver& solver)
+			{
+				cout << ">> use filter = " << B2S(solver.use_filter()) << endl;
+				InputTip("input y to enable filter.");
+				string str = GetInput();
+				if (str == "y")
+				{
+					solver.set_use_filter(true);
+					Message("enable filter.");
+				}
+				else
+				{
+					solver.set_use_filter(false);
+					Message("disable filter.");
+				}
+			}
+
+			/*void Create()
 			{
 				char buffer[50];
 				cout << ">> solver begin, input solver aim('next' of layer number)" << endl << ">>> ";
@@ -174,6 +187,87 @@ namespace DAB
 
 				cout << ">> error: wrong input, action cancel." << endl << endl;
 
+			}*/
+			void Layer(Solver& solver)
+			{
+				cout << ">> current layer = " << SOLVER::GetCurrentDepth(false) << endl;
+			}
+			void Set(Solver& solver)
+			{
+				//cout << ">> set current layer = ";
+				cout << ">> input new layer, current layer = " << SOLVER::GetCurrentDepth(false) << endl << ">>> ";
+				char buffer[50];
+				cin.getline(buffer, 50);
+				size_t layer = atoi(buffer);
+				if (layer <= 60 && layer >= 1)
+				{
+					InputTip("input 'y' to confirm the action.");
+					cin.getline(buffer, 50);
+					if (string(buffer) == "y")
+					{
+						SOLVER::WriteSolverData(layer, true);
+						Message("change layer success!");
+						cout << endl;
+					}
+					else
+					{
+						Message("action cancel.");
+						cout << endl;
+					}
+				}
+				else
+				{
+					Error("wrong layer");
+					cout << endl;
+				}
+			}
+			void Start(Solver& solver)
+			{
+				//parameters check.
+				solver.Run();
+			}
+
+			void StartSolver()
+			{
+				Solver solver(60, false, false, 1);
+				CommandList<void(*)(Solver&)> commands;
+				commands.Add("thread", Thread, "change thread number");
+				commands.Add("cache", FileCache, "set whether to use file cache.");
+				commands.Add("filter", Filter, "set thether to use filter.");
+				commands.Add("layer", Layer, "get current layer.");
+				commands.Add("set", Set, "set current layer");
+				commands.Add("start", Start, "execute solver.");
+				commands.AddDescript("return", "return to previous menu.");
+				system("cls");
+				cout << ">> ";
+				Cprintf("[ Solver Shell ]\n", 2);
+				cout << ">> ";
+				Cprintf("use 'help' to get more command\n\n", 2);
+				for (;;)
+				{
+					cout << ">>> ";
+					string str = GetInput();
+					if (str == "return")
+					{
+						CleanScreen();
+						break;
+					}
+					else if (str == "help")
+					{
+						commands.ShowCommand();
+					}
+					else
+					{
+						if (commands.Exist(str))
+						{
+							commands.Func(str)(solver);
+						}
+						else
+						{
+							Error("wrong input!");
+						}
+					}
+				}
 			}
 		}
 		namespace STATESHELL
@@ -209,8 +303,7 @@ namespace DAB
 			}
 			void RemoveEdge(State& state)
 			{
-				Message("input the edge index that need remove.", false);
-				InputTip();
+				InputTip("input the edge index that need remove.");
 				size_t num;
 				cin >> num;
 				Edge edge = (Edge)num;
@@ -282,7 +375,6 @@ namespace DAB
 			}
 			void StartStateShell()
 			{
-				
 				State state;
 				CommandList<void(*)(State&)> commands;	
 				commands.Add("next",NextState,"set random edge in current state.");
@@ -292,23 +384,20 @@ namespace DAB
 				commands.Add("load",LoadState,"load a state.");
 				commands.Add("remove",RemoveEdge,"remove a edge in current state.");
 				commands.Add("seed",ChangeSeed,"change random seed.");
-				commands.AddDescript("exit", "finish.");
+				commands.AddDescript("return", "return to previous menu.");
 				commands.AddDescript("[0,60]", "to create state with edges.");
-
 				system("cls");
 				cout << ">> ";
 				Cprintf("[ State Debug Shell ]\n", 2);
 				cout << ">> ";
 				Cprintf("use 'help' to get more command\n\n", 2);
-				commands.ShowCommand();
-
 				for (;;)
 				{
-					InputTip();
+					cout << ">>> ";
 					char buffer[50];
 					cin.getline(buffer, 50);
 					string str(buffer);
-					if (str == "exit")
+					if (str == "return")
 					{
 						CleanScreen();
 						break;
@@ -349,13 +438,11 @@ namespace DAB
 		{
 			CommandList<void(*)()> commands;
 			commands.Add("info", Info, "get info about software." );
-			commands.Add("info", Info, "get info about software.");
-			commands.Add("layer", Layer, "show current layer that had been solved.");
-			commands.Add("set", Set, "change the current layer data.");
-			commands.Add("sample", Sample, "get sample of last layer.");
+			commands.Add("game", GAME::StartGame, "start a new game.");
 			commands.Add("solver", SOLVERSHELL::StartSolver, "start solver then set aim and parameters");
 			commands.Add("cls", CleanScreen, "clean screen.");
 			commands.Add("state", STATESHELL::StartStateShell, "start state-debug");
+			commands.Add("sample", Sample, "get sample to check.");
 			commands.Add("exit", Exit, "exit program.");
 			commands.AddDescript("help", "get command list");
 
@@ -363,7 +450,7 @@ namespace DAB
 			commands.ShowCommand();
 			for (;;)
 			{
-				InputTip();
+				cout << ">>> ";
 				string com = GetInput();
 				if (commands.Exist(com))
 				{

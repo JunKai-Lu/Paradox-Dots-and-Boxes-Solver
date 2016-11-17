@@ -55,15 +55,15 @@ namespace DAB
 			}
 			inline void ShowCommand()
 			{
-				cout << ">> ";
-				Cprintf("[ ORDER LIST ]\n\n", 14);
+				cout << endl << ">> ";
+				Cprintf("[ COMMAND LIST ]\n\n", 14);
 				for (auto command : _des)
 				{
 					cout << "   '";
 					Cprintf(command.first, 12);
 					cout << "'" << string("          ").substr(0, 10 - command.first.length()) << command.second << endl;
 				}
-				cout << endl;
+				cout << endl << endl;
 			}
 		};
 

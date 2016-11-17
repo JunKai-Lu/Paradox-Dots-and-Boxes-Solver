@@ -45,7 +45,6 @@ namespace DAB
 		size_t _thread_num;
 		size_t _current_depth;
 		bool _use_filter;
-		bool _auto_execute;
 		std::ofstream _log;
 
 	public:
@@ -58,7 +57,7 @@ namespace DAB
 			* [thread_num] is the theard number that solver is able to use
 			* [auto_execute] can control whether this solver would start automaticlly after it finish load datas.
 		*/
-		Solver(size_t aim_depth, bool file_cache, bool use_filter, size_t thread_num, bool auto_execute);
+		Solver(size_t aim_depth, bool file_cache, bool use_filter, size_t thread_num);
 
 		/*
 		* Start solver until reach the aim
@@ -80,6 +79,27 @@ namespace DAB
 		inline bool use_filter()
 		{
 			return _use_filter;
+		}
+		inline bool file_cache()
+		{
+			return _file_cache;
+		}
+
+		inline void set_thread_num(size_t num)
+		{
+			_thread_num = num;
+		}
+		inline void set_aim_depth(size_t num)
+		{
+			_aim_depth = num;
+		}
+		inline void set_use_filter(bool b)
+		{
+			_use_filter = b;
+		}
+		inline void set_use_file_cache(bool b)
+		{
+			_file_cache = b;
 		}
 
 	private:
@@ -184,6 +204,9 @@ namespace DAB
 		* parameters:
 		* [board] is the state that need be judge.
 		*/
-		bool ValuableStateFilter(BitBoard board);
+		inline bool ValuableStateFilter(BitBoard board)
+		{
+			return STATE::IsReasonable(board);
+		}
 	}
 }
