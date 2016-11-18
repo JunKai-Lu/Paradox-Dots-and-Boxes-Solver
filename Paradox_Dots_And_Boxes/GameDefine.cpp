@@ -569,7 +569,7 @@ namespace DAB
 		//get not reasonable state
 		bool IsReasonable(BitBoard board)
 		{
-			if (ExistDeadBox(board) && ExistFreeEdge(board))
+			if (ExistDeadChain(board) && ExistFreeEdge(board))
 			{
 				return false;
 			}

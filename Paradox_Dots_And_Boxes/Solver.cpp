@@ -197,31 +197,11 @@ namespace DAB
 		}
 		else
 		{
-			for (size_t i = 0; i < storage_vec.size(); i++)
-			{
-				Message("source storage[" + I2S(i) + "] = " + I2S(storage_vec[i].size()), false);
-			}
-			cout << "vector " << "  " << &storage_vec << " , " << &cache_vec << endl;
-			/*if (thread_num() ==1)
-			{
-				cout << ">> Compute storage start[ToCache]..." << endl;
-				ComputeStorageToCache(storage_vec[0], caches[0], true);
-				cout << ">> Compute storage finish, method = [ToCache], cache size = " << caches[0].count() << endl;
-				_log << ">> Compute storage finish, method = [ToCache], cache size = " << caches[0].count() << endl;
-				storage_vec.clear();
-			}
-			else
-			{
-				//multi thread, to do.
-
-				storage_vec.clear();	
-			}*/
 			vector<thread> threads(thread_num());
 			std::timed_mutex cout_mutex;
 
 			for (size_t i = 0; i < thread_num(); i++)
 			{
-				cout << "thread " << i << "  " << &storage_vec[i] << " , " << &cache_vec[i] << endl;
 				threads[i] = thread(SOLVER::ThreadComputeStorageToCache, storage_vec[i], cache_vec[i], use_filter(), i);
 			}
 
@@ -391,7 +371,6 @@ namespace DAB
 			}
 			if (cout_mtx.try_lock_for(std::chrono::milliseconds(COUT_MUTEX_TIME)))
 			{
-				cout << "thread " << thread_index << "  " << &original_storage << "," << &storage_cache << " in thread." << endl;
 				cout << ">> Thread " << thread_index << " : compute storage start[ToCache]..." << endl;
 				cout_mtx.unlock();
 			}
