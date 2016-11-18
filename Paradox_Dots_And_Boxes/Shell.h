@@ -68,26 +68,7 @@ namespace DAB
 			}
 		};
 
-		inline std::string B2S(bool b)
-		{
-			if (b)
-			{
-				return "true";
-			}
-			return "false";
-		}
-		inline std::string I2S(size_t i)
-		{
-			std::stringstream ss;
-			ss << i;
-			return ss.str();
-		}
-		inline std::string GetInput()
-		{
-			char buffer[50];
-			std::cin.getline(buffer, 50);
-			return std::string(buffer);
-		}
+		
 		
 		void ShellStart();
 	}

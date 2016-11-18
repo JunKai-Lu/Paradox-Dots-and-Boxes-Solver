@@ -2,7 +2,9 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <sstream>
 #include <Windows.h>
+
 
 #pragma  once
 
@@ -53,6 +55,27 @@ namespace DAB
 		Cprintf(tip, 8);
 		std::cout << std::endl << ">>> ";
 	}
+	inline std::string GetInput()
+	{
+		char buffer[50];
+		std::cin.getline(buffer, 50);
+		return std::string(buffer);
+	}
+	inline std::string B2S(bool b)
+	{
+		if (b)
+		{
+			return "true";
+		}
+		return "false";
+	}
+	inline std::string I2S(size_t i)
+	{
+		std::stringstream ss;
+		ss << i;
+		return ss.str();
+	}
+	
 
 	//type define.
 	typedef unsigned char Edge;

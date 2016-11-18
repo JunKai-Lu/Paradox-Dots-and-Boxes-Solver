@@ -27,13 +27,10 @@ namespace DAB
 		_use_filter(use_filter),
 		_log("SolverLog.log",std::ios::app)
 	{
-		
-		_current_layer = SOLVER::GetCurrentLayer();
-
 		_log << "========== Solver Start ==========" << endl;
 		_log << "start time = " << SOLVER::GetLogTimeStr() << endl;
 		_log << "aim layer = " << _aim_layer << endl;
-		_log << "current layer = " << _current_layer << endl;
+		_log << "current layer = " << SOLVER::GetCurrentLayer() << endl;
 		_log << "thread num = " << _thread_num << endl;
 		_log << "file cache = " << _file_cache << endl;
 		_log << "==================================" << endl << endl;
@@ -47,7 +44,7 @@ namespace DAB
 	}
 
 	//Load data of last solved layer and return them as n parts;
-	bool Solver::LoadStorages(std::vector< Storage >* storages, size_t target_layer)
+	bool Solver::LoadStorages(std::vector< Storage >& storage_vec, size_t target_layer)
 	{
 		std::ios_base::sync_with_stdio(false);
 		clock_t start = clock();
@@ -65,12 +62,6 @@ namespace DAB
 		if (_access(path.str().c_str(), 0) != -1)
 		{
 			ifstream target_file(path.str());
-			for (size_t i = 0; i < thread_num(); i++)
-			{
-				Storage new_storage;
-				storages->push_back(new_storage);
-			}
-
 			//turn to load record
 			size_t current_storage_index = 0;
 			size_t count = 0;
@@ -84,7 +75,7 @@ namespace DAB
 					break;
 				}
 				count++;
-				storages->operator[](current_storage_index).push_back(SolverState(bit, mar));
+				storage_vec[current_storage_index].push_back(SolverState(bit, mar));
 				current_storage_index++;
 				if (current_storage_index >= thread_num())
 				{
@@ -105,12 +96,12 @@ namespace DAB
 			_log << "================================== " << endl << endl;
 			return true;
 		}
-		cout << ">> ERROR: [ can not find file " << path.str() << " ]" << endl;
+		Error("can not find file " + path.str());
 		return false;
 	}
 	
 	//Output the result of appointed layer
-	size_t Solver::OutputResult(SolverStateMap& ss_map, size_t layer, bool filter)
+	size_t Solver::OutputResult(SolverStateMap& ss_map, size_t layer)
 	{
 		std::ios_base::sync_with_stdio(false);
 		clock_t start = clock();
@@ -126,24 +117,10 @@ namespace DAB
 		Message(("Output target = " + path.str() + "_final.dat"),false);
 		size_t count = 0;
 
-		if (filter)
+		for (auto ss : ss_map)
 		{
-			for (auto ss : ss_map)
-			{
-				if (SOLVER::ValuableStateFilter(ss.first))
-				{
-					count++;
-					os << ss.first << " " << ss.second << std::endl;
-				}
-			}
-		}
-		else
-		{
-			for (auto ss : ss_map)
-			{
-				count++;
-				os << ss.first << " " << ss.second << std::endl;
-			}
+			count++;
+			os << ss.first << " " << ss.second << std::endl;
 		}
 
 		double time_consuming = SOLVER::GetTimeConsuming(start);
@@ -167,17 +144,18 @@ namespace DAB
 	//try to compute next layer to close solver aim.
 	void Solver::ComputeNextLayer()
 	{
-		cout << ">> Solver [" << _current_layer << " -> " << _current_layer - 1 << "] start!" << endl << endl;
-		_log << ">> Solver [" << _current_layer << " -> " << _current_layer - 1 << "] start!" << endl << endl;
+		size_t current_layer = SOLVER::GetCurrentLayer();
+		cout << ">> Solver [" << current_layer << " -> " << current_layer - 1 << "] start!" << endl << endl;
+		_log << ">> Solver [" << current_layer << " -> " << current_layer - 1 << "] start!" << endl << endl;
 
-		vector < Storage > storages(thread_num());		
-		if (!LoadStorages(&storages, _current_layer))
+		vector < Storage > storage_vec(thread_num());
+		if (!LoadStorages(storage_vec, current_layer))
 		{
 			system("pause");
 			return;
 		}
 
-		vector<StorageCache> caches;
+		vector<StorageCache> cache_vec;
 		if (! ( thread_num() == 1 && !_file_cache ))
 		{
 			if (_file_cache)//using file cache.
@@ -192,7 +170,7 @@ namespace DAB
 
 					stringstream ss;
 					ss << "./cache/cache_" << i << ".dat";
-					caches.push_back(StorageCache(ss.str()));
+					cache_vec.push_back(StorageCache(ss.str()));
 				}
 
 				cout << ">> Create file cache success!" << endl;
@@ -202,7 +180,7 @@ namespace DAB
 			{
 				for (size_t i = 0; i < thread_num(); i++)
 				{
-					caches.push_back(StorageCache());
+					cache_vec.push_back(StorageCache());
 				}
 				cout << ">> Create memory cache success!" << endl;
 				_log << ">> Create memory cache success!" << endl;
@@ -213,32 +191,38 @@ namespace DAB
 		if (thread_num() == 1 && !_file_cache)
 		{
 			cout << ">> Compute storage start[ToMap]..." << endl;
-			SOLVER::ComputeStorageToMap(storages[0], ss_map, use_filter(), true);
-			cout << ">> Compute storage, method = [ToMap], size = " << storages[0].size() << endl;
-			_log << ">> Compute storage, method = [ToMap], size = " << storages[0].size() << endl;
-			storages.clear();
+			SOLVER::ComputeStorageToMap(storage_vec[0], ss_map, use_filter(), true);
+			cout << ">> Compute storage, method = [ToMap], size = " << storage_vec[0].size() << endl;
+			_log << ">> Compute storage, method = [ToMap], size = " << storage_vec[0].size() << endl;
 		}
 		else
 		{
+			for (size_t i = 0; i < storage_vec.size(); i++)
+			{
+				Message("source storage[" + I2S(i) + "] = " + I2S(storage_vec[i].size()), false);
+			}
+			cout << "vector " << "  " << &storage_vec << " , " << &cache_vec << endl;
 			/*if (thread_num() ==1)
 			{
 				cout << ">> Compute storage start[ToCache]..." << endl;
-				ComputeStorageToCache(storages[0], caches[0], true);
+				ComputeStorageToCache(storage_vec[0], caches[0], true);
 				cout << ">> Compute storage finish, method = [ToCache], cache size = " << caches[0].count() << endl;
 				_log << ">> Compute storage finish, method = [ToCache], cache size = " << caches[0].count() << endl;
-				storages.clear();
+				storage_vec.clear();
 			}
 			else
 			{
 				//multi thread, to do.
 
-				storages.clear();	
+				storage_vec.clear();	
 			}*/
 			vector<thread> threads(thread_num());
 			std::timed_mutex cout_mutex;
+
 			for (size_t i = 0; i < thread_num(); i++)
 			{
-				threads[i] = thread(SOLVER::ThreadComputeStorageToCache, storages[i], caches[i], use_filter(), i);
+				cout << "thread " << i << "  " << &storage_vec[i] << " , " << &cache_vec[i] << endl;
+				threads[i] = thread(SOLVER::ThreadComputeStorageToCache, storage_vec[i], cache_vec[i], use_filter(), i);
 			}
 
 			for (auto& thd : threads)
@@ -248,22 +232,23 @@ namespace DAB
 			cout << ">> all threads finish." << endl;
 
 			//execute ToMap.
-			for (size_t i = 0; i < caches.size(); i++)
+			for (size_t i = 0; i < cache_vec.size(); i++)
 			{
 				cout << ">> ToMap [ " << i + 1 << "/" << thread_num() << " ] executing..." << endl;
 				_log << ">> ToMap [ " << i + 1 << "/" << thread_num() << " ] executing..." << endl;
-				caches[i].ToMap(ss_map);
+				cache_vec[i].ToMap(ss_map);
 			}
 		}
+
 		cout << endl << ">> Start outputing... " << endl;
 		_log << endl << ">> Start outputing... " << endl;
 		
-		_current_layer--;
-		size_t output_size = OutputResult(ss_map, _current_layer, false);
+		current_layer--;
+		size_t output_size = OutputResult(ss_map, current_layer);
 		
-		SOLVER::WriteSolverData(_current_layer);
-		cout << endl << ">> Solver ["<< _current_layer + 1 << " -> " << _current_layer <<"] finish!"<< endl << endl;
-		_log << endl << ">> Solver [" << _current_layer + 1 << " -> " << _current_layer << "] finish!" << endl << endl;
+		SOLVER::WriteSolverData(current_layer);
+		cout << endl << ">> Solver ["<< current_layer + 1 << " -> " << current_layer <<"] finish!"<< endl << endl;
+		_log << endl << ">> Solver [" << current_layer + 1 << " -> " << current_layer << "] finish!" << endl << endl;
 	}
 
 	//start solver
@@ -271,7 +256,7 @@ namespace DAB
 	{	
 		for (;;)
 		{
-			if (_current_layer <= _aim_layer)
+			if (SOLVER::GetCurrentLayer() <= _aim_layer)
 			{
 				break;
 			}
@@ -400,8 +385,13 @@ namespace DAB
 		//this function is used for a thread.
 		void ThreadComputeStorageToCache(Storage& original_storage, StorageCache& storage_cache, bool use_filter, size_t thread_index)
 		{
+			if (original_storage.size() == 0)
+			{
+				return;
+			}
 			if (cout_mtx.try_lock_for(std::chrono::milliseconds(COUT_MUTEX_TIME)))
 			{
+				cout << "thread " << thread_index << "  " << &original_storage << "," << &storage_cache << " in thread." << endl;
 				cout << ">> Thread " << thread_index << " : compute storage start[ToCache]..." << endl;
 				cout_mtx.unlock();
 			}
@@ -418,29 +408,38 @@ namespace DAB
 						BitBoard new_board = current_board;
 						BOARD::EdgeRemove(new_board, i);	//get a new board without edge i
 						new_board = STATE::MinimalForm(new_board);
-						if (!use_filter || ValuableStateFilter(new_board))
-						{
-							Margin new_margin;
-							size_t num = STATE::TheNumOfFullBoxWithTheEdge(current_board, i);
-							if (num != 0)
-							{
-								new_margin = current_margin + (Margin)num;	//break a box, the margin increase 1.
-							}
-							else
-							{
-								new_margin = -current_margin;	//do not break the box, change player and reverse margin.
-							}
-							storage_cache.Push(new_board, new_margin);
 
-							if (storage_cache.count() % DISPLAYED_TIME_INTERVAL == 0)
+						if (use_filter)
+						{
+							if (!ReasonableStateFilter(new_board))
 							{
-								if (cout_mtx.try_lock_for(std::chrono::milliseconds(COUT_MUTEX_TIME)))
-								{
-									cout << ">> Thread " << thread_index << ": Computed storage state num = " << storage_cache.count() << endl;
-									cout_mtx.unlock();
-								}
+								continue;
 							}
 						}
+
+						//if (!use_filter || ReasonableStateFilter(new_board))
+						//{
+						Margin new_margin;
+						size_t num = STATE::TheNumOfFullBoxWithTheEdge(current_board, i);
+						if (num != 0)
+						{
+							new_margin = current_margin + (Margin)num;	//break a box, the margin increase 1.
+						}
+						else
+						{
+							new_margin = -current_margin;	//do not break the box, change player and reverse margin.
+						}
+						storage_cache.Push(new_board, new_margin);
+
+						if (storage_cache.count() % DISPLAYED_TIME_INTERVAL == 0)
+						{
+							if (cout_mtx.try_lock_for(std::chrono::milliseconds(COUT_MUTEX_TIME)))
+							{
+								cout << ">> Thread " << thread_index << ": Computed storage state num = " << storage_cache.count() << endl;
+								cout_mtx.unlock();
+							}
+						}
+
 					}
 				}
 			}

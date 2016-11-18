@@ -71,6 +71,13 @@ namespace DAB
 			}
 			CleanScreen();
 		}
+		void Debug()
+		{
+			State s(576460752303423487);
+			s.Visualization();
+			cout << B2S(STATE::IsReasonable(576460752303423487));
+			system("pause");
+		}
 
 		namespace GAME
 		{
@@ -134,19 +141,9 @@ namespace DAB
 				size_t layer = atoi(buffer);
 				if (layer <= 60 && layer >= 1)
 				{
-					InputTip("input 'y' to confirm the action.");
-					cin.getline(buffer, 50);
-					if (string(buffer) == "y")
-					{
-						SOLVER::WriteSolverData(layer, true);
-						Message("change layer success!");
-						cout << endl;
-					}
-					else
-					{
-						Message("action cancel.");
-						cout << endl;
-					}
+					SOLVER::WriteSolverData(layer, true);
+					Message("change layer success!");
+					cout << endl;
 				}
 				else
 				{
@@ -157,6 +154,7 @@ namespace DAB
 			void Start(Solver& solver)
 			{
 				//parameters check.
+				Message("solver start");
 				solver.Run();
 			}
 			void Set(Solver& solver)
@@ -487,6 +485,7 @@ namespace DAB
 			commands.Add("state", STATESHELL::StartStateShell, "start state-debug");
 			commands.Add("sample", Sample, "get sample to check.");
 			commands.Add("exit", Exit, "exit program.");
+			commands.Add("debug", Debug, "debug model.");
 			commands.AddDescript("help", "get command list");
 
 			CleanScreen();
