@@ -68,8 +68,6 @@ namespace DAB
 			}
 		};
 
-		
-		
 		void ShellStart();
 	}
 	

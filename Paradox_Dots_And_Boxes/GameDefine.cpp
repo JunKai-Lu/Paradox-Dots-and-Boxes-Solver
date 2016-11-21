@@ -376,8 +376,6 @@ namespace DAB
 		Cprintf("¡ð\n\n", dot_color);
 	}
 
-	
-
 	State State::RandomState(size_t edge_num)
 	{
 		BitBoard board = EMPTY_BOARD;
@@ -403,6 +401,21 @@ namespace DAB
 			}
 		}
 		return State(board);
+	}
+
+	namespace GAME
+	{
+		GameState::GameState() :
+			State()
+		{
+
+		}
+
+		GameState::GameState(BitBoard board, size_t fir_score, size_t sec_score) :
+			State(board)
+		{
+
+		}
 	}
 
 	namespace STATE

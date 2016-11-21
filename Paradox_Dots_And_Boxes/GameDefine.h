@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <Windows.h>
-
+#include <vector>
 
 #pragma  once
 
@@ -150,6 +150,67 @@ namespace DAB
 		//create a random state with appointed edge number.
 		static State RandomState(size_t edge_num);
 	};
+
+	namespace GAME
+	{
+		typedef std::vector<Edge> ActionDes;
+
+		struct Player
+		{
+			size_t _score;
+			ActionDes (*_func)(State&);
+			std::string _des;
+		};
+
+		class GameState :public State
+		{
+		private:
+			Player _fir_player;
+			Player _sec_player;
+			bool _auto_game;
+
+		public:
+			GameState();
+			GameState(BitBoard board, size_t fir_score, size_t sec_score);
+
+			inline Margin get_margin()
+			{
+				return Margin(_fir_player._score - _sec_player._score);
+			}
+			inline const Player& player(bool is_sec_player)
+			{
+				if (is_sec_player)
+				{
+					return _sec_player;
+				}
+				else
+				{
+					return _fir_player;
+				}
+			}
+			inline const Player& operator[](bool is_sec_player)
+			{
+				return player(is_sec_player);
+			}
+			inline void set_player(bool is_sec_action, Player player)
+			{
+				if (is_sec_action)
+				{
+					_sec_player = player;
+				}
+				else
+				{
+					_fir_player = player;
+				}
+			}
+			inline void set_auto_game(bool auto_game)
+			{
+				_auto_game = auto_game;
+			}
+			
+			
+		};
+	}
 
 	namespace BOARD
 	{
