@@ -76,7 +76,6 @@ namespace DAB
 		return ss.str();
 	}
 	
-
 	//type define.
 	typedef unsigned char Edge;
 	typedef __int64 BitBoard;
@@ -207,7 +206,6 @@ namespace DAB
 			{
 				_auto_game = auto_game;
 			}
-			
 			
 		};
 	}
