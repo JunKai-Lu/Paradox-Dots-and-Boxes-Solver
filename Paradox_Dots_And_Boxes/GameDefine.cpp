@@ -406,13 +406,17 @@ namespace DAB
 	namespace GAME
 	{
 		GameState::GameState() :
-			State()
+			State(),
+			_fir_player{ 0,nullptr,"MCTS" },
+			_sec_player{ 0,nullptr,"MCTS" }
 		{
 
 		}
 
-		GameState::GameState(BitBoard board, size_t fir_score, size_t sec_score) :
-			State(board)
+		GameState::GameState(BitBoard board, Player fir_player, Player sec_player) :
+			State(board),
+			_fir_player(fir_player),
+			_sec_player(sec_player)
 		{
 
 		}

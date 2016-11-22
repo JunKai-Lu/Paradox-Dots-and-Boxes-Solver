@@ -170,7 +170,7 @@ namespace DAB
 
 		public:
 			GameState();
-			GameState(BitBoard board, size_t fir_score, size_t sec_score);
+			GameState(BitBoard board, Player fir_player, Player sec_player);
 
 			inline Margin get_margin()
 			{
