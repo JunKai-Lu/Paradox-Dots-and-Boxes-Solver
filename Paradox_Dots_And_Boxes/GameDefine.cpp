@@ -376,6 +376,177 @@ namespace DAB
 		Cprintf("¡ð\n\n", dot_color);
 	}
 
+	void State::EdgeVisualization()
+	{
+		const WORD edge_color = 14;
+		const WORD action_color = 15;
+		const WORD dot_color = 8;
+		cout << endl;
+		string interval = "     ";
+		for (int y = 0; y < GAME_SIZE; y++)
+		{
+			//horizon edges, first grid.
+			cout << interval;
+			for (int index = y * 5; index < (y * 5) + 5; index++)
+			{
+				//cout << "¡ð";
+				Cprintf("¡ð", dot_color);
+				if (EdgeExist(index))
+				{
+					Cprintf("©¥", edge_color);
+					//cout << "©¥";
+				}
+				else
+				{
+					cout << "  ";
+				}
+			}
+			Cprintf("¡ð" + interval, dot_color);
+			//cout << "¡ð" << endl;
+
+			//horizon edges, second grid.
+			for (int index = y * 5; index < (y * 5) + 5; index++)
+			{
+				//cout << "¡ð";
+				Cprintf("¡ð", dot_color);
+				if (EdgeExist(index))
+				{
+					Cprintf("©¥", edge_color);
+					//cout << "©¥";
+				}
+				else
+				{
+					if (index > 9)
+					{
+						cout << index;
+					}
+					else
+					{
+						cout << 0 << index;
+					}
+				}
+			}
+			Cprintf("¡ð\n", dot_color);
+
+			//vertical edges, first grid.
+			cout << interval;
+			for (int index = 34 - y; index < 59 - y; index += 5)
+			{
+				if (EdgeExist(index))
+				{
+					//cout << "©§";
+					Cprintf("©§", edge_color);
+					int upper_right_hor_edge = (14 - 5 * (index % 5)) + (index / 5);
+					int lower_right_hor_edge = upper_right_hor_edge + 5;
+					int right_vec_edge = index + 5;
+					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
+					{
+						cout << "¡ö";
+					}
+					else
+					{
+						cout << "  ";
+					}
+				}
+				else
+				{
+					cout << "    ";
+				}
+			}
+			if (EdgeExist(59 - y))
+			{
+				//cout << "©§" << endl;
+				Cprintf("©§" + interval, edge_color);
+			}
+			else
+			{
+				cout << "  " + interval;
+			}
+
+			//vertical edges, second grid.
+			for (int index = 34 - y; index < 59 - y; index += 5)
+			{
+				if (EdgeExist(index))
+				{
+					//cout << "©§";
+					Cprintf("©§", edge_color);
+					int upper_right_hor_edge = (14 - 5 * (index % 5)) + (index / 5);
+					int lower_right_hor_edge = upper_right_hor_edge + 5;
+					int right_vec_edge = index + 5;
+					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
+					{
+						cout << "¡ö";
+					}
+					else
+					{
+						cout << "  ";
+					}
+				}
+				else
+				{
+					if (index > 9)
+					{
+						cout << index;
+					}
+					else
+					{
+						cout << 0 << index;
+					}
+					cout << "  ";
+				}
+			}
+
+
+
+			if (EdgeExist(59 - y))
+			{
+				//cout << "©§" << endl;
+				Cprintf("©§\n", edge_color);
+			}
+			else
+			{
+				cout << 59-y << endl;
+			}
+		}
+
+		//print lower horizon edges, first grid.
+		cout << interval;
+		for (int index = 25; index < 30; index++)
+		{
+			//cout << "¡ð";
+			Cprintf("¡ð", dot_color);
+			if (EdgeExist(index))
+			{
+				//cout << "©¥";
+				Cprintf("©¥", edge_color);
+			}
+			else
+			{
+				cout << "  ";
+			}
+		}
+		//cout << "¡ð" << endl;
+		Cprintf("¡ð" + interval, dot_color);
+
+		//print lower horizon edges, second grid.
+		for (int index = 25; index < 30; index++)
+		{
+			//cout << "¡ð";
+			Cprintf("¡ð", dot_color);
+			if (EdgeExist(index))
+			{
+				//cout << "©¥";
+				Cprintf("©¥", edge_color);
+			}
+			else
+			{
+				cout << index;
+			}
+		}
+		//cout << "¡ð" << endl;
+		Cprintf("¡ð\n\n", dot_color);
+	}
+
 	State State::RandomState(size_t edge_num)
 	{
 		BitBoard board = EMPTY_BOARD;

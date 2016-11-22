@@ -9,6 +9,7 @@
 #include "GameDefine.h"
 #include "Solver.h"
 #include "MoveAnalyst.h"
+#include "MCTS.h"
 
 using namespace std;
 
@@ -79,14 +80,87 @@ namespace DAB
 			system("pause");
 		}
 
-		namespace GAME
+		namespace GAME_SHELL
 		{
+			void Show(GAME::GameState& game_state)
+			{
+				game_state.EdgeVisualization();
+				cout << ">> Player 0: score = " << game_state[0]._score << " type = " << game_state[0]._des << endl;
+				cout << ">> Player 1: score = " << game_state[1]._score << " type = " << game_state[1]._des << endl << endl;
+			}
+			void SetPlayer(GAME::GameState& game_state)
+			{
+				InputTip("input player [0/1].");
+				bool player;
+				cin >> player;
+				InputTip("input type [0]HUMAN [1]MCTS");
+				size_t num;
+				cin >> num;
+				if (num == 0)
+				{
+					game_state.set_player(player, { game_state[player]._score, DAB::GAME::HUMAN::HumanRespond ,"Human" });
+				}
+				else
+				{
+					game_state.set_player(player, { game_state[player]._score, DAB::GAME::MCTS::MctsRespond ,"MCTS" });
+				}
+			}
+			void StartAutoGame(GAME::GameState& game_state)
+			{
+
+			}
+			void DoAI(GAME::GameState& game_state)
+			{
+
+			}
+			void DoMan(GAME::GameState& game_state)
+			{
+
+			}
 			void StartGame()
 			{
-				
+				GAME::GameState game_state;
+				CommandList<void(*)(GAME::GameState&)> commands;
+				commands.Add("ai", DoAI, "ai action");
+				commands.Add("man", DoMan, "human action");
+				commands.Add("auto", StartAutoGame, "start auto game.");
+				commands.Add("player", SetPlayer, "set game player");
+				commands.Add("show", Show, "show game info.");
+				commands.AddDescript("return", "return to previous menu.");
+				commands.AddDescript("help", "get command list");
+				system("cls");
+				cout << ">> ";
+				Cprintf("[ Solver Shell ]\n", 2);
+				cout << ">> ";
+				Cprintf("use 'help' to get more command\n\n", 2);
+				for (;;)
+				{
+					cout << ">>> ";
+					string str = GetInput();
+					if (str == "return")
+					{
+						CleanScreen();
+						break;
+					}
+					else if (str == "help")
+					{
+						commands.ShowCommand();
+					}
+					else
+					{
+						if (commands.Exist(str))
+						{
+							commands.Func(str)(game_state);
+						}
+						else
+						{
+							Error("wrong input!");
+						}
+					}
+				}
 			}
 		}
-		namespace SOLVERSHELL
+		namespace SOLVER_SHELL
 		{
 			void Thread(Solver& solver)
 			{
@@ -311,7 +385,7 @@ namespace DAB
 				}
 			}
 		}
-		namespace STATESHELL
+		namespace STATE_SHELL
 		{
 			void ShowAction(State& state)
 			{
@@ -426,6 +500,7 @@ namespace DAB
 				commands.Add("remove",RemoveEdge,"remove a edge in current state.");
 				commands.Add("seed",ChangeSeed,"change random seed.");
 				commands.AddDescript("return", "return to previous menu.");
+				commands.AddDescript("help", "get command list");
 				commands.AddDescript("[0,60]", "to create state with edges.");
 				system("cls");
 				cout << ">> ";
@@ -479,17 +554,15 @@ namespace DAB
 		{
 			CommandList<void(*)()> commands;
 			commands.Add("info", Info, "get info about software." );
-			commands.Add("game", GAME::StartGame, "start a new game.");
-			commands.Add("solver", SOLVERSHELL::StartSolver, "start solver then set aim and parameters");
+			commands.Add("game", GAME_SHELL::StartGame, "start a new game.");
+			commands.Add("solver", SOLVER_SHELL::StartSolver, "start solver then set aim and parameters");
 			commands.Add("cls", CleanScreen, "clean screen.");
-			commands.Add("state", STATESHELL::StartStateShell, "start state-debug");
+			commands.Add("state", STATE_SHELL::StartStateShell, "start state-debug");
 			commands.Add("sample", Sample, "get sample to check.");
 			commands.Add("exit", Exit, "exit program.");
 			commands.Add("debug", Debug, "debug model.");
 			commands.AddDescript("help", "get command list");
-
 			CleanScreen();
-			commands.ShowCommand();
 			for (;;)
 			{
 				cout << ">>> ";

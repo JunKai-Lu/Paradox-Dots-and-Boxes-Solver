@@ -97,6 +97,7 @@ namespace DAB
 		//Show State
 		void Visualization(ActionVec action_vec = 0);
 		void ActionVisualization(ActionVec action_vec = 0);
+		void EdgeVisualization();
 
 		//operator[]
 		inline bool operator[](Edge index) const
