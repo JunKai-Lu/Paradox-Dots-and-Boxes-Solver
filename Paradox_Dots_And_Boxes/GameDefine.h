@@ -151,65 +151,7 @@ namespace DAB
 		static State RandomState(size_t edge_num);
 	};
 
-	namespace GAME
-	{
-		typedef std::vector<Edge> ActionDes;
-
-		struct Player
-		{
-			size_t _score;
-			ActionDes (*_func)(State&);
-			std::string _des;
-		};
-
-		class GameState :public State
-		{
-		private:
-			Player _fir_player;
-			Player _sec_player;
-			bool _auto_game;
-
-		public:
-			GameState();
-			GameState(BitBoard board, Player fir_player, Player sec_player);
-
-			inline Margin get_margin()
-			{
-				return Margin(_fir_player._score - _sec_player._score);
-			}
-			inline const Player& player(bool is_sec_player)
-			{
-				if (is_sec_player)
-				{
-					return _sec_player;
-				}
-				else
-				{
-					return _fir_player;
-				}
-			}
-			inline const Player& operator[](bool is_sec_player)
-			{
-				return player(is_sec_player);
-			}
-			inline void set_player(bool is_sec_action, Player player)
-			{
-				if (is_sec_action)
-				{
-					_sec_player = player;
-				}
-				else
-				{
-					_fir_player = player;
-				}
-			}
-			inline void set_auto_game(bool auto_game)
-			{
-				_auto_game = auto_game;
-			}
-			
-		};
-	}
+	
 
 	namespace BOARD
 	{
@@ -615,5 +557,112 @@ namespace DAB
 
 		//judge whether a edge in a board is a free-edge.
 		bool IsFreeEdge(BitBoard board, Edge edge);
+	}
+
+	namespace GAME
+	{
+		typedef std::vector<Edge> ActionDes;
+
+		struct Player
+		{
+			size_t _score;
+			ActionDes(*_func)(State&);
+			std::string _des;
+		};
+
+		class GameState :public State
+		{
+		private:
+			Player _fir_player;
+			Player _sec_player;
+			bool _auto_game;
+
+			Edge _last_action;
+			bool _last_player;
+
+		public:
+			GameState();
+			GameState(BitBoard board, Player fir_player, Player sec_player);
+
+			//variable
+			inline Margin get_margin()
+			{
+				return Margin(_fir_player._score - _sec_player._score);
+			}
+			inline const Player& player(bool is_sec_player)
+			{
+				if (is_sec_player)
+				{
+					return _sec_player;
+				}
+				else
+				{
+					return _fir_player;
+				}
+			}
+			inline const Player& operator[](bool is_sec_player)
+			{
+				return player(is_sec_player);
+			}
+			inline Edge last_action()
+			{
+				return _last_action;
+			}
+			inline bool last_player()
+			{
+				return _last_player;
+			}
+			inline void set_player(bool is_sec_action, Player player)
+			{
+				if (is_sec_action)
+				{
+					_sec_player = player;
+				}
+				else
+				{
+					_fir_player = player;
+				}
+			}
+			inline void set_auto_game(bool auto_game)
+			{
+				_auto_game = auto_game;
+			}
+
+			//func
+			inline void GameEdgeRemove(bool is_sec_player, Edge edge)
+			{
+				if (is_sec_player)
+				{
+					_sec_player._score -= STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
+				}
+				else
+				{
+					_fir_player._score -= STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
+				}
+				EdgeRemove(edge);
+			}
+			inline void GameEdgeSet(bool is_sec_player, Edge edge)
+			{
+				EdgeSet(edge);
+				_last_action = edge;
+				_last_player = is_sec_player;
+				if (is_sec_player)
+				{
+					_sec_player._score += STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
+				}
+				else
+				{
+					_fir_player._score += STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
+				}
+			}
+			void DoActions(bool is_sec_player, ActionDes actions)
+			{
+				for (auto edge : actions)
+				{
+					GameEdgeSet(is_sec_player, edge);
+					Message("Edge " + I2S(edge), false);
+				}
+			}
+		};
 	}
 }

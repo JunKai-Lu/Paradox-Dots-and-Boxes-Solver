@@ -574,24 +574,7 @@ namespace DAB
 		return State(board);
 	}
 
-	namespace GAME
-	{
-		GameState::GameState() :
-			State(),
-			_fir_player{ 0,nullptr,"MCTS" },
-			_sec_player{ 0,nullptr,"MCTS" }
-		{
-
-		}
-
-		GameState::GameState(BitBoard board, Player fir_player, Player sec_player) :
-			State(board),
-			_fir_player(fir_player),
-			_sec_player(sec_player)
-		{
-
-		}
-	}
+	
 
 	namespace STATE
 	{
@@ -976,6 +959,27 @@ namespace DAB
 			}
 
 			return false;
+		}
+	}
+
+	namespace GAME
+	{
+		GameState::GameState() :
+			State(),
+			_fir_player{ 0,nullptr,"MCTS" },
+			_sec_player{ 0,nullptr,"MCTS" },
+			_last_action(0)
+		{
+
+		}
+
+		GameState::GameState(BitBoard board, Player fir_player, Player sec_player) :
+			State(board),
+			_fir_player(fir_player),
+			_sec_player(sec_player),
+			_last_action(0)
+		{
+
 		}
 	}
 }

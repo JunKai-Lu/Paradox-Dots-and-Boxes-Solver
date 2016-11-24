@@ -111,11 +111,33 @@ namespace DAB
 			}
 			void DoAI(GAME::GameState& game_state)
 			{
-
+				InputTip("input player [0/1]");
+				bool player;
+				cin >> player;
+				GAME::ActionDes ac = GAME::MCTS::MctsRespond(game_state);
+				game_state.DoActions(player, ac);
+				Show(game_state);
 			}
 			void DoMan(GAME::GameState& game_state)
 			{
-
+				InputTip("input player and edge");
+				bool player;
+				size_t edge;
+				cin >> player >> edge;
+				game_state.GameEdgeSet(player, (Edge)edge);
+				Show(game_state);
+			}
+			void Cancel(GAME::GameState& game_state)
+			{
+				if (game_state.EdgeExist(game_state.last_action()))
+				{
+					game_state.GameEdgeRemove(game_state.last_player(), game_state.last_action());
+					Message("cancel success!");
+				}
+				else
+				{
+					Error("cancel failed, edge do not exist!");
+				}
 			}
 			void StartGame()
 			{
@@ -126,6 +148,7 @@ namespace DAB
 				commands.Add("auto", StartAutoGame, "start auto game.");
 				commands.Add("player", SetPlayer, "set game player");
 				commands.Add("show", Show, "show game info.");
+				commands.Add("cancel", Cancel, "cancel last action.");
 				commands.AddDescript("return", "return to previous menu.");
 				commands.AddDescript("help", "get command list");
 				system("cls");
