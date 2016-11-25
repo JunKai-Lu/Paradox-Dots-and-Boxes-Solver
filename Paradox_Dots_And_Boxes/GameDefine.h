@@ -503,6 +503,34 @@ namespace DAB
 			return num;
 		}
 
+		//minimize state by change corner
+		inline void ChangeBoxCorner(BitBoard& board)
+		{
+			if ((board & 0x400000001) == 0x400000000)
+			{
+				BOARD::EdgeRemove(board, 34);
+				BOARD::EdgeSet(board, 0);
+			}
+
+			if ((board & 0x800000000000010) == 0x800000000000000)
+			{
+				BOARD::EdgeRemove(board, 59);
+				BOARD::EdgeSet(board, 4);
+			}
+
+			if ((board & 0x42000000) == 0x40000000)
+			{
+				BOARD::EdgeRemove(board, 30);
+				BOARD::EdgeSet(board, 25);
+			}
+
+			if ((board & 0x80000020000000) == 0x80000000000000)
+			{
+				BOARD::EdgeRemove(board, 55);
+				BOARD::EdgeSet(board, 29);
+			}
+		}
+
 		//get the box that have been rotate for 90'.
 		inline BitBoard RotateBox(BitBoard board)
 		{

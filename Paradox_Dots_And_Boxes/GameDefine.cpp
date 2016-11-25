@@ -635,6 +635,7 @@ namespace DAB
 		//get the minimal state of the box.
 		BitBoard MinimalForm(BitBoard target)
 		{
+			
 			BitBoard min = target;
 			BitBoard prototype = target;
 			BitBoard reversed = ReverseBox(min);
@@ -645,12 +646,14 @@ namespace DAB
 			for (size_t i = 0; i < 3; i++)
 			{
 				prototype = RotateBox(prototype);
+				ChangeBoxCorner(prototype);
 				if (prototype < min)
 				{
 					min = prototype;
 				}
 
 				reversed = RotateBox(reversed);
+				ChangeBoxCorner(reversed);
 				if (reversed < min)
 				{
 					min = reversed;
