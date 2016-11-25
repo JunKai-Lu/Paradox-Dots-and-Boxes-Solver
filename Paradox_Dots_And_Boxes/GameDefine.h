@@ -10,7 +10,7 @@
 
 #define GAME_SIZE 5
 #define MAX_EDGE 60
-#define WARNING
+//#define WARNING
 
 #define EMPTY_BOARD 0
 
@@ -204,7 +204,7 @@ namespace DAB
 		//print bit board.
 		inline void BitPrint(BitBoard board)
 		{
-			for (Edge i = MAX_EDGE - 1; i >= 0; i--)
+			for (Edge i = MAX_EDGE - 1; i >= 0 && i <= MAX_EDGE; i--)
 			{
 				std::cout << EdgeExist(board, i);
 			}
@@ -286,7 +286,7 @@ namespace DAB
 		//print action vector.
 		inline void Print(ActionVec target)
 		{
-			for (Edge i = MAX_EDGE -1; i >= 0; i--)
+			for (Edge i = MAX_EDGE -1; i >= 0 && i <= MAX_EDGE; i--)
 			{
 				std::cout << ActionExist(target, i);
 			}
@@ -557,6 +557,12 @@ namespace DAB
 
 		//judge whether a edge in a board is a free-edge.
 		bool IsFreeEdge(BitBoard board, Edge edge);
+
+		//judge whether a edge is the upper edge of a box that is first box of a dead chain.
+		bool IsUpperEdgeOfFirstBoxOfDeadChain(BitBoard board, Edge edge);
+
+		//judge whether two edge is upper edge of two neighbour box.
+		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b);
 	}
 
 	namespace GAME

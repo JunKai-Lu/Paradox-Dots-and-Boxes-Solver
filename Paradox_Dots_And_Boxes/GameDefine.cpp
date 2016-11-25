@@ -574,8 +574,6 @@ namespace DAB
 		return State(board);
 	}
 
-	
-
 	namespace STATE
 	{
 		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE。
@@ -740,10 +738,249 @@ namespace DAB
 		//get not reasonable state
 		bool IsReasonable(BitBoard board)
 		{
-			if (ExistDeadChain(board) && ExistFreeEdge(board))
+			size_t dead_box = 0;
+			size_t dead_chain = 0;
+			Edge fir_dead_box_upper_edge = MAX_EDGE;
+			for (Edge edge = 0; edge < 25; edge++)
+			{
+				Edge fir_box_lower_edge = edge + 5;
+				Edge fir_box_left_edge = STATE::GetLowerLeftVecEdge(edge);
+				Edge fir_box_right_edge = fir_box_left_edge + 5;
+				if (BOARD::EdgeExist(board, edge) + BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 3)
+				{
+					if (BOARD::EdgeExist(board, edge) == false)
+					{
+						if (IsNotUpperSideHorEdge(edge))
+						{
+							Edge sec_box_upper_edge = edge - 5;
+							Edge sec_box_left_edge = GetLowerLeftVecEdge(edge - 5);
+							Edge sec_box_right_edge = GetLowerLeftVecEdge(edge - 5) + 5;
+							if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2)
+							{
+								dead_chain++;
+								if (dead_chain > 2)
+								{
+									return false;
+								}
+							}
+							else
+							{
+								dead_box++;
+								if (dead_box == 1)
+								{
+									fir_dead_box_upper_edge = edge;
+								}
+								else if (dead_box == 2)
+								{
+									if (IsUpperEdgeOfNeighbourBox(edge, fir_dead_box_upper_edge) == false)
+									{
+										return false;
+									}
+								}
+								else
+								{
+									return false;
+								}
+							}
+						}
+						else
+						{
+							dead_box++;
+							if (dead_box == 1)
+							{
+								fir_dead_box_upper_edge = edge;
+							}
+							else if (dead_box == 2)
+							{
+								if (IsUpperEdgeOfNeighbourBox(edge, fir_dead_box_upper_edge) == false)
+								{
+									return false;
+								}
+							}
+							else
+							{
+								return false;
+							}
+						}
+					}
+					else if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+					{
+						if (IsNotLowerSideHorEdge(fir_box_lower_edge))
+						{
+							Edge sec_box_lower_edge = fir_box_lower_edge + 5;
+							Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
+							Edge sec_box_right_edge = GetLowerLeftVecEdge(fir_box_lower_edge) + 5;
+							if(BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2)
+							{
+								dead_chain++;
+								if (dead_chain > 2)
+								{
+									return false;
+								}
+							}
+							else
+							{
+								dead_box++;
+								if (dead_box == 1)
+								{
+									fir_dead_box_upper_edge = edge;
+								}
+								else if (dead_box == 2)
+								{
+									if (IsUpperEdgeOfNeighbourBox(edge, fir_dead_box_upper_edge) == false)
+									{
+										return false;
+									}
+								}
+								else
+								{
+									return false;
+								}
+							}
+						}
+						else
+						{
+							dead_box++;
+							if (dead_box == 1)
+							{
+								fir_dead_box_upper_edge = edge;
+							}
+							else if (dead_box == 2)
+							{
+								if (IsUpperEdgeOfNeighbourBox(edge, fir_dead_box_upper_edge) == false)
+								{
+									return false;
+								}
+							}
+							else
+							{
+								return false;
+							}
+						}
+					}
+					else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+					{
+						if (IsNotLeftSideVecEdge(fir_box_left_edge))
+						{
+							Edge sec_box_left_edge = fir_box_left_edge - 5;
+							Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
+							Edge sec_box_lower_edge = GetUpperRightHorEdge(fir_box_left_edge - 5) + 5;
+							if(BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_left_edge) == 2)
+							{
+								dead_chain++;
+								if (dead_chain > 2)
+								{
+									return false;
+								}
+							}
+							else
+							{
+								dead_box++;
+								if (dead_box == 1)
+								{
+									fir_dead_box_upper_edge = edge;
+								}
+								else if (dead_box == 2)
+								{
+									if (IsUpperEdgeOfNeighbourBox(edge, fir_dead_box_upper_edge) == false)
+									{
+										return false;
+									}
+								}
+								else
+								{
+									return false;
+								}
+							}
+						}
+						else
+						{
+							dead_box++;
+							if (dead_box == 1)
+							{
+								fir_dead_box_upper_edge = edge;
+							}
+							else if (dead_box == 2)
+							{
+								if (IsUpperEdgeOfNeighbourBox(edge, fir_dead_box_upper_edge) == false)
+								{
+									return false;
+								}
+							}
+							else
+							{
+								return false;
+							}
+						}
+					}
+					else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+					{
+						if (IsNotRightSideVecEdge(fir_box_right_edge))
+						{
+							Edge sec_box_right_edge = fir_box_right_edge + 5;
+							Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
+							Edge sec_box_lower_edge = GetUpperRightHorEdge(fir_box_right_edge) + 5;
+							if (BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2)
+							{
+								dead_chain++;
+								if (dead_chain > 2)
+								{
+									return false;
+								}
+							}
+							else
+							{
+								dead_box++;
+								if (dead_box == 1)
+								{
+									fir_dead_box_upper_edge = edge;
+								}
+								else if (dead_box == 2)
+								{
+									if (IsUpperEdgeOfNeighbourBox(edge, fir_dead_box_upper_edge) == false)
+									{
+										return false;
+									}
+								}
+								else
+								{
+									return false;
+								}
+							}
+						}
+						else
+						{
+							dead_box++;
+							if (dead_box == 1)
+							{
+								fir_dead_box_upper_edge = edge;
+							}
+							else if (dead_box == 2)
+							{
+								if (IsUpperEdgeOfNeighbourBox(edge, fir_dead_box_upper_edge) == false)
+								{
+									return false;
+								}
+							}
+							else
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+
+			//if dead chain and dead box coexist, this is a unreasonable state.
+			if (dead_chain > 0 && dead_box > 0)
 			{
 				return false;
 			}
+			if (dead_chain > 0 && ExistFreeEdge(board))
+			{
+				return false;
+			}
+
 			return true;
 		}
 
@@ -763,7 +1000,9 @@ namespace DAB
 						Edge fir_box_lower_edge = edge + 5;
 						Edge fir_box_left_edge = GetLowerLeftVecEdge(edge);
 						Edge fir_box_right_edge = fir_box_left_edge + 5;
-						if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
+
+						int fir_box_edge_num = BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge);
+						if (fir_box_edge_num == 2)
 						{
 							if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
 							{
@@ -799,6 +1038,12 @@ namespace DAB
 								}
 							}
 						}
+						else if (fir_box_edge_num == 3)
+						{
+							//dead box.
+							return false;
+						}
+
 					}
 					//check the box above the edge
 					if (IsNotUpperSideHorEdge(edge))
@@ -806,7 +1051,9 @@ namespace DAB
 						Edge fir_box_upper_edge = edge - 5;
 						Edge fir_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge);
 						Edge fir_box_right_edge = fir_box_left_edge + 5;
-						if (BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
+
+						int fir_box_edge_num = BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge);						
+						if (fir_box_edge_num == 2)
 						{
 							if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
 							{
@@ -842,6 +1089,11 @@ namespace DAB
 								}
 							}
 						}
+						else if (fir_box_edge_num == 3)
+						{
+							//dead box.
+							return false;
+						}
 					}
 					if (affect_upper_box || affect_lower_box)
 					{
@@ -865,7 +1117,9 @@ namespace DAB
 						Edge fir_box_left_edge = edge - 5;
 						Edge fir_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge);
 						Edge fir_box_lower_edge = fir_box_upper_edge + 5;
-						if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge) == 2)
+
+						int fir_box_edge_num = BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge);
+						if (fir_box_edge_num == 2)
 						{
 							if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
 							{
@@ -901,6 +1155,11 @@ namespace DAB
 								}
 							}
 						}
+						else if (fir_box_edge_num == 3)
+						{
+							//dead box.
+							return false;
+						}
 					}
 
 					//check the box on the right of the edge.
@@ -909,7 +1168,9 @@ namespace DAB
 						Edge fir_box_right_edge = edge + 5;
 						Edge fir_box_upper_edge = GetUpperRightHorEdge(edge);
 						Edge fir_box_lower_edge = fir_box_upper_edge + 5;
-						if (BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 2)
+
+						int fir_box_edge_num = BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_right_edge);
+						if (fir_box_edge_num == 2)
 						{
 							if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
 							{
@@ -945,6 +1206,11 @@ namespace DAB
 								}
 							}
 						}
+						else if (fir_box_edge_num == 3)
+						{
+							//dead box.
+							return false;
+						}
 					}
 					if (affect_left_box || affect_right_box)
 					{
@@ -960,6 +1226,112 @@ namespace DAB
 
 			return false;
 		}
+
+		//judge whether a edge is the upper edge of a box that is first box of a dead chain.
+		bool IsUpperEdgeOfFirstBoxOfDeadChain(BitBoard board, Edge edge)
+		{
+#ifdef WARNING
+			if (edge > 25)
+			{
+				Warning("wrong edge", "STATE::IsUpperEdgeOfFirstBoxOfDeadChain");
+			}
+#endif
+
+			Edge fir_box_lower_edge = edge + 5;
+			Edge fir_box_left_edge = STATE::GetLowerLeftVecEdge(edge);
+			Edge fir_box_right_edge = fir_box_left_edge + 5;
+			if (BOARD::EdgeExist(board, edge) + BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 3)
+			{
+				if (BOARD::EdgeExist(board, edge) == false)
+				{
+					if (IsNotUpperSideHorEdge(edge))
+					{
+						Edge sec_box_upper_edge = edge - 5;
+						Edge sec_box_left_edge = GetLowerLeftVecEdge(edge - 5);
+						Edge sec_box_right_edge = GetLowerLeftVecEdge(edge - 5) + 5;
+						return (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2);
+					}
+					return false;
+				}
+				else if(BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+				{
+					if (IsNotLowerSideHorEdge(fir_box_lower_edge))
+					{
+						Edge sec_box_lower_edge = fir_box_lower_edge + 5;
+						Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
+						Edge sec_box_right_edge = GetLowerLeftVecEdge(fir_box_lower_edge) + 5;
+						return (BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2);
+					}
+					return false;
+				}
+				else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+				{
+					if (IsNotLeftSideVecEdge(fir_box_left_edge))
+					{
+						Edge sec_box_left_edge = fir_box_left_edge - 5;
+						Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
+						Edge sec_box_lower_edge = GetUpperRightHorEdge(fir_box_left_edge - 5) + 5;
+						return (BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_left_edge) == 2);
+					}
+					return false;
+				}
+				else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+				{
+					if (IsNotRightSideVecEdge(fir_box_right_edge))
+					{
+						Edge sec_box_right_edge = fir_box_right_edge + 5;
+						Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
+						Edge sec_box_lower_edge = GetUpperRightHorEdge(fir_box_right_edge) + 5;
+						return (BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2);
+					}
+					return false;
+				}
+			}
+			return false;
+		}
+
+		//judge whether two edge is upper edge of two neighbour box.
+		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b)
+		{
+			//not left side box.
+			if (a % 5 != 0)
+			{
+				if (a - 1 == b)
+				{
+					return true;
+				}
+			}
+
+			//not right side box.
+			if (a % 5 != 4)
+			{
+				if (a + 1 == b)
+				{
+					return true;
+				}
+			}
+
+			//not upper side box.
+			if (a >= 5)
+			{
+				if (a - 5 == b)
+				{
+					return true;
+				}
+			}
+
+			//not lower side box.
+			if (a < 20)
+			{
+				if (a + 5 == b)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 	}
 
 	namespace GAME
