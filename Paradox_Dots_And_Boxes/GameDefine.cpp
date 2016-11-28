@@ -607,7 +607,7 @@ namespace DAB
 			return MAX_EDGE;
 		}
 		
-		//判断某个局面是否没有DEAD BOX
+		//return true if any dead box exist in this state.
 		bool ExistDeadBox(BitBoard board)
 		{
 			return GetDeadBoxRemainEdgeIndex(board) != MAX_EDGE;

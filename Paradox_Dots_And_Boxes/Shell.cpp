@@ -573,8 +573,16 @@ namespace DAB
 			}
 		}
 		
+		void test()
+		{
+			
+			//system("pause");
+		}
+
 		void ShellStart()
 		{
+			test();
+
 			CommandList<void(*)()> commands;
 			commands.Add("info", Info, "get info about software." );
 			commands.Add("game", GAME_SHELL::StartGame, "start a new game.");

@@ -430,4 +430,65 @@ namespace DAB
 			}
 		}
 	}
+
+	namespace MINIMAX
+	{
+		Edge edge_queue[MAX_EDGE] = {
+			12,47,17,42,
+			43,48,13,18,46,41,16,11,
+			6,7,8,53,52,51,23,22,21,36,37,38,
+			39,44,49,54,9,14,19,24,50,45,40,35,20,15,10,5,
+			0,1,2,3,4,59,58,57,56,55,29,28,27,26,25,30,31,32,33,34
+		};
+
+		Margin Minimax(BitBoard board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash)
+		{
+			/*for (;;)
+			{
+				Edge edge = STATE::GetDeadBoxRemainEdgeIndex(board);
+				if (edge != MAX_EDGE)
+				{
+					BOARD::EdgeSet(board, edge);
+					margin += STATE::TheNumOfFullBoxWithTheEdge(board, edge);
+					edge_num++;
+					if (edge_num == aim_edge_num)
+					{
+#ifdef WARNING
+						if (solver_hash.count(board))
+						{
+							return solver_hash[board];
+						}
+						else
+						{
+							stringstream ss;
+							ss << "can not find state: " << board;
+							Warning(ss.str(),"Minimax");
+						}
+#else
+						return solver_hash[board];
+#endif
+					}
+				}
+
+				//standard state.
+				Margin best_margin = -MAX_EDGE;
+				for (size_t i = 0; i < MAX_EDGE; i++)
+				{
+					if (STATE::IsFreeEdge(board, EdgeQueue(i)))
+					{
+						BitBoard new_board = board;
+						BOARD::EdgeSet(new_board, EdgeQueue(i));
+						Margin child_margin = Minimax(new_board, -margin, edge_num, aim_edge_num, solver_hash);
+						if (child_margin > best_margin)
+						{
+							best_margin = child_margin;
+						}
+					}
+				}
+
+				//judge
+			}*/
+			return 0;
+		}
+	}
 }

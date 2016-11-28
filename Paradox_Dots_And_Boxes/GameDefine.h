@@ -10,7 +10,7 @@
 
 #define GAME_SIZE 5
 #define MAX_EDGE 60
-//#define WARNING
+#define WARNING
 
 #define EMPTY_BOARD 0
 

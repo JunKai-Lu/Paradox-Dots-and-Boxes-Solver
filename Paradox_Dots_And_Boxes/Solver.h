@@ -36,6 +36,9 @@ namespace DAB
 	*/
 
 
+	//define STL.
+	typedef std::unordered_map<BitBoard, Margin> SolverHash;
+
 	namespace SOLVER
 	{
 		extern std::timed_mutex cout_mtx;
@@ -113,6 +116,18 @@ namespace DAB
 		{
 			return STATE::IsReasonable(board);
 		}
+	}
+
+	namespace MINIMAX
+	{
+		extern Edge edge_queue[MAX_EDGE];
+		inline Edge EdgeQueue(size_t index)
+		{
+			return edge_queue[index];
+		}
+
+		Margin AlphaBeta(BitBoard board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash, Margin alpha, Margin beta);
+		Margin Minimax(BitBoard board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash);
 	}
 
 	class Solver
