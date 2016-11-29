@@ -10,6 +10,7 @@
 
 #define GAME_SIZE 5
 #define MAX_EDGE 60
+#define MAX_BOX 25
 #define WARNING
 
 #define EMPTY_BOARD 0
@@ -591,6 +592,97 @@ namespace DAB
 
 		//judge whether two edge is upper edge of two neighbour box.
 		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b);
+	}
+
+	namespace CHAIN
+	{
+		enum BoxType
+		{
+			FULL_BOX = 4,
+			DEAD_BOX = 3,
+			CHAIN_BOX = 2,
+			FREE_BOX = 1
+		};
+
+		enum ChainType
+		{
+			UNDEFINED = 0, 
+			CHAIN = 1, 
+			CIRCLE = 2, 
+			OPEN_CHAIN = 3,
+			OPEN_CIRCLE = 4, 
+			DEAD_CHAIN = 5, 
+			DEAD_CIRCLE = 6
+		};
+
+		class Box
+		{
+		private:
+			Edge _index;
+			size_t _belonging_chain;
+			BoxType _type;
+
+			Edge _own_edge[4];
+			Edge _neighbour_box[4];
+
+		public:
+			Box(BitBoard board, Edge index);
+			
+			inline Edge index()
+			{
+				return _index;
+			}
+			inline size_t belonging_chain()
+			{
+				return _belonging_chain;
+			}
+			inline BoxType type()
+			{
+				return _type;
+			}
+		};
+
+		//an class that is used for analysis chain in a raer state.
+		class ChainAnalyst
+		{
+		public:
+			ChainAnalyst();
+
+		private:
+			BitBoard _board;
+
+			Box _boxes[MAX_BOX];
+
+			//chain info
+			size_t _chain_type[10];
+			size_t _chain_num;
+
+			//edge info
+			bool _reasonable_edge[MAX_EDGE];
+
+			//construct function.
+			void ChainAnalysis();
+
+			//register a chain from a box.
+			void RegisterChainFromFreeBox(Edge start_box,Edge ignore_edge);
+
+			//register a circle from a box.
+			void RegisterCircleFromBox(Edge start_box, Edge ignore_edge);
+
+			//merge two chains into a single chain.
+			void MergeChain(Edge fir_chain, Edge sec_chain);
+
+		public:
+
+			//judge whether a action is reasonable
+			inline bool IsReasonableAction(Edge edge)
+			{
+				return _reasonable_edge[edge];
+			}
+			
+			//show info
+			void ShowInfo();
+		};
 	}
 
 	namespace GAME

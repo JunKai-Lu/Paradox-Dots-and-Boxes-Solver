@@ -1337,6 +1337,75 @@ namespace DAB
 
 	}
 
+	namespace CHAIN
+	{
+		Box::Box(BitBoard board, Edge index) :
+			_index(index),
+			_belonging_chain(-1),
+			_neighbour_box{MAX_BOX,MAX_BOX,MAX_BOX,MAX_BOX}
+		{
+			//set own edges.
+			_own_edge[0] = index;
+			_own_edge[1] = STATE::GetUpperRightHorEdge(index);
+			_own_edge[2] = index + 5;
+			_own_edge[3] = STATE::GetUpperRightHorEdge(index) + 5;
+			
+			//set box type
+			size_t edge_num = STATE::GetLowerBoxEdgeNum(board, index);
+			if (edge_num == 4)
+			{
+				_type = FULL_BOX;
+			}
+			else if (edge_num == 3)
+			{
+				_type = DEAD_BOX;
+			}
+			else if (edge_num == 2)
+			{
+				_type = CHAIN_BOX;
+			}
+			else
+			{
+				_type = FREE_BOX;
+			}
+
+			//set neighbour boxes.
+			if (STATE::IsNotUpperSideHorEdge(_own_edge[0]))
+			{
+				_neighbour_box[0] = index - 5;
+			}
+			if (STATE::IsNotLeftSideVecEdge(_own_edge[1]))
+			{
+				_neighbour_box[1] = index - 1;
+			}
+			if (STATE::IsNotLowerSideHorEdge(_own_edge[2]))
+			{
+				_neighbour_box[2] = index + 5;
+			}
+			if (STATE::IsNotRightSideVecEdge(_own_edge[3]))
+			{
+				_neighbour_box[3] = index + 1;
+			}
+		}
+
+		void ChainAnalyst::ChainAnalysis()
+		{
+			//define box.
+			for (Edge edge = 0; edge < MAX_BOX; edge++)
+			{
+				if (_boxes[edge].type == FREE_BOX)
+				{
+					
+				}
+			}
+		}
+
+		void ChainAnalyst::MergeChain(Edge fir_chain, Edge sec_chain)
+		{
+
+		}
+	}
+
 	namespace GAME
 	{
 		GameState::GameState() :
