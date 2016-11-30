@@ -51,8 +51,8 @@ namespace DAB
 				cout << ">> state = " << endl;
 				state.Visualization();
 				cout << ">> margin = " << margin << endl;
-				bool dead_chain = STATE::ExistDeadChain(board);
-				bool free_edge = STATE::ExistFreeEdge(board);
+				//bool dead_chain = STATE::ExistDeadChain(board);
+				//bool free_edge = STATE::ExistFreeEdge(board);
 				//cout << ">> exist dead-chain = " << B2S(dead_chain) << endl;
 				//cout << ">> exist free-edge = " << B2S(free_edge) << endl;
 				cout << ">> is reasonable = " << B2S(STATE::IsReasonable(board)) << endl;
@@ -560,7 +560,7 @@ namespace DAB
 								state = State::RandomState(num);
 								MoveAnalyst ma(state, true);
 								state.ActionVisualization(ma.ActionVec());
-								ActionVec temp = ma.ActionVec();
+								//ActionVec temp = ma.ActionVec();
 								cout << endl;
 							}
 							else

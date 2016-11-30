@@ -462,7 +462,7 @@ namespace DAB
 						{
 							stringstream ss;
 							ss << "can not find state: " << board;
-							Warning(ss.str(),"Minimax");
+							WarningCheck(ss.str(),"Minimax");
 						}
 #else
 						return solver_hash[board];

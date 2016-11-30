@@ -42,7 +42,7 @@ namespace DAB
 		
 		*/
 	}
-	void CprintNum(int num, int color)
+	void CprintNum(int num, WORD color)
 	{
 		char str[4];
 		sprintf_s(str, "%d", num);
@@ -73,11 +73,11 @@ namespace DAB
 
 		cout << endl;
 		string interval = "     ";
-		for (int y = 0; y < GAME_SIZE; y++)
+		for (Edge y = 0; y < GAME_SIZE; y++)
 		{
 			//首先得到横边初始坐标
 			cout << interval;
-			for (int index = y * 5; index < (y * 5) + 5; index++)
+			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
 				Cprintf("○", dot_color);
@@ -105,15 +105,15 @@ namespace DAB
 
 			//然后得到纵边坐标
 			cout << interval;
-			for (int index = 34 - y; index < 59 - y; index+=5)
+			for (Edge index = 34 - y; index < 59 - y; index+=5)
 			{
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
 					Cprintf("┃", edge_color);
-					int upper_right_hor_edge = (14 - 5 * (index % 5)) + (index / 5);
-					int lower_right_hor_edge = upper_right_hor_edge + 5;
-					int right_vec_edge = index + 5;
+					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index); 
+					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
+					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
 					{
 						cout << "■";
@@ -159,7 +159,7 @@ namespace DAB
 
 		//打印最下面的一个边
 		cout << interval;
-		for (int index = 25; index < 30; index++)
+		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
 			Cprintf("○", dot_color);
@@ -193,11 +193,11 @@ namespace DAB
 		const WORD dot_color = 8;
 		cout << endl;
 		string interval = "     ";
-		for (int y = 0; y < GAME_SIZE; y++)
+		for (Edge y = 0; y < GAME_SIZE; y++)
 		{
 			//horizon edges, first grid.
 			cout << interval;
-			for (int index = y * 5; index < (y * 5) + 5; index++)
+			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
 				Cprintf("○", dot_color);
@@ -215,7 +215,7 @@ namespace DAB
 			//cout << "○" << endl;
 
 			//horizon edges, second grid.
-			for (int index = y * 5; index < (y * 5) + 5; index++)
+			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
 				Cprintf("○", dot_color);
@@ -242,15 +242,15 @@ namespace DAB
 
 			//vertical edges, first grid.
 			cout << interval;
-			for (int index = 34 - y; index < 59 - y; index += 5)
+			for (Edge index = 34 - y; index < 59 - y; index += 5)
 			{
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
 					Cprintf("┃", edge_color);
-					int upper_right_hor_edge = (14 - 5 * (index % 5)) + (index / 5);
-					int lower_right_hor_edge = upper_right_hor_edge + 5;
-					int right_vec_edge = index + 5;
+					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index);
+					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
+					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
 					{
 						cout << "■";
@@ -276,15 +276,15 @@ namespace DAB
 			}
 
 			//vertical edges, second grid.
-			for (int index = 34 - y; index < 59 - y; index += 5)
+			for (Edge index = 34 - y; index < 59 - y; index += 5)
 			{
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
 					Cprintf("┃", edge_color);
-					int upper_right_hor_edge = (14 - 5 * (index % 5)) + (index / 5);
-					int lower_right_hor_edge = upper_right_hor_edge + 5;
-					int right_vec_edge = index + 5;
+					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index);
+					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
+					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
 					{
 						cout << "■";
@@ -332,7 +332,7 @@ namespace DAB
 
 		//print lower horizon edges, first grid.
 		cout << interval;
-		for (int index = 25; index < 30; index++)
+		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
 			Cprintf("○", dot_color);
@@ -350,7 +350,7 @@ namespace DAB
 		Cprintf("○" + interval, dot_color);
 
 		//print lower horizon edges, second grid.
-		for (int index = 25; index < 30; index++)
+		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
 			Cprintf("○", dot_color);
@@ -383,11 +383,11 @@ namespace DAB
 		const WORD dot_color = 8;
 		cout << endl;
 		string interval = "     ";
-		for (int y = 0; y < GAME_SIZE; y++)
+		for (Edge y = 0; y < GAME_SIZE; y++)
 		{
 			//horizon edges, first grid.
 			cout << interval;
-			for (int index = y * 5; index < (y * 5) + 5; index++)
+			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
 				Cprintf("○", dot_color);
@@ -405,7 +405,7 @@ namespace DAB
 			//cout << "○" << endl;
 
 			//horizon edges, second grid.
-			for (int index = y * 5; index < (y * 5) + 5; index++)
+			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
 				Cprintf("○", dot_color);
@@ -430,15 +430,15 @@ namespace DAB
 
 			//vertical edges, first grid.
 			cout << interval;
-			for (int index = 34 - y; index < 59 - y; index += 5)
+			for (Edge index = 34 - y; index < 59 - y; index += 5)
 			{
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
 					Cprintf("┃", edge_color);
-					int upper_right_hor_edge = (14 - 5 * (index % 5)) + (index / 5);
-					int lower_right_hor_edge = upper_right_hor_edge + 5;
-					int right_vec_edge = index + 5;
+					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index);
+					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
+					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
 					{
 						cout << "■";
@@ -464,15 +464,15 @@ namespace DAB
 			}
 
 			//vertical edges, second grid.
-			for (int index = 34 - y; index < 59 - y; index += 5)
+			for (Edge index = 34 - y; index < 59 - y; index += 5)
 			{
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
 					Cprintf("┃", edge_color);
-					int upper_right_hor_edge = (14 - 5 * (index % 5)) + (index / 5);
-					int lower_right_hor_edge = upper_right_hor_edge + 5;
-					int right_vec_edge = index + 5;
+					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index);
+					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
+					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
 					{
 						cout << "■";
@@ -511,7 +511,7 @@ namespace DAB
 
 		//print lower horizon edges, first grid.
 		cout << interval;
-		for (int index = 25; index < 30; index++)
+		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
 			Cprintf("○", dot_color);
@@ -529,7 +529,7 @@ namespace DAB
 		Cprintf("○" + interval, dot_color);
 
 		//print lower horizon edges, second grid.
-		for (int index = 25; index < 30; index++)
+		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
 			Cprintf("○", dot_color);
@@ -1233,12 +1233,7 @@ namespace DAB
 		//judge whether a edge is the upper edge of a box that is first box of a dead chain.
 		bool IsUpperEdgeOfFirstBoxOfDeadChain(BitBoard board, Edge edge)
 		{
-#ifdef WARNING
-			if (edge > 25)
-			{
-				Warning("wrong edge", "STATE::IsUpperEdgeOfFirstBoxOfDeadChain");
-			}
-#endif
+			WarningCheck(edge > 25,"wrong edge", "STATE::IsUpperEdgeOfFirstBoxOfDeadChain");
 
 			Edge fir_box_lower_edge = edge + 5;
 			Edge fir_box_left_edge = STATE::GetLowerLeftVecEdge(edge);
@@ -1339,9 +1334,9 @@ namespace DAB
 
 	namespace CHAIN
 	{
-		Box::Box(BitBoard board, Edge index) :
+		BoxInfo::BoxInfo(BitBoard board, Edge index) :
 			_index(index),
-			_belonging_chain(-1),
+			_belonging_chain(MAX_CHAIN),
 			_neighbour_box{MAX_BOX,MAX_BOX,MAX_BOX,MAX_BOX}
 		{
 			//set own edges.
@@ -1354,19 +1349,19 @@ namespace DAB
 			size_t edge_num = STATE::GetLowerBoxEdgeNum(board, index);
 			if (edge_num == 4)
 			{
-				_type = FULL_BOX;
+				_type = BT_FULL_BOX;
 			}
 			else if (edge_num == 3)
 			{
-				_type = DEAD_BOX;
+				_type = BT_DEAD_BOX;
 			}
 			else if (edge_num == 2)
 			{
-				_type = CHAIN_BOX;
+				_type = BT_CHAIN_BOX;
 			}
 			else
 			{
-				_type = FREE_BOX;
+				_type = BT_FREE_BOX;
 			}
 
 			//set neighbour boxes.
@@ -1393,7 +1388,7 @@ namespace DAB
 			//define box.
 			for (Edge edge = 0; edge < MAX_BOX; edge++)
 			{
-				if (_boxes[edge].type == FREE_BOX)
+				if (_boxes[edge].type() == BT_FREE_BOX)
 				{
 					
 				}

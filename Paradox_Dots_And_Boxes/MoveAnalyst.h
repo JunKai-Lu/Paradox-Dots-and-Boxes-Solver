@@ -26,12 +26,7 @@ namespace DAB
 		}
 		inline bool operator[](size_t index)
 		{
-#ifdef WARNING
-			if (index >= 60)
-			{
-				Warning("Wrong index", "MoveAnalyst::operator[]");
-			}
-#endif
+			WarningCheck(index >= 60,"Wrong index", "MoveAnalyst::operator[]");
 			return _action[index];
 		}
 

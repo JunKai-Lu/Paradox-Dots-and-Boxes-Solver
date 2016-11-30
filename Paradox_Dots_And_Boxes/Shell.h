@@ -36,12 +36,7 @@ namespace DAB
 			}
 			inline F Func(std::string command)
 			{
-#ifdef WARNING
-				if (!Exist(command))
-				{
-					Warning("no command", "CommandList::Func");
-				}
-#endif
+				WarningCheck(!Exist(command), "no command", "CommandList::Func");
 				return _func[command];
 			}
 			inline std::string Des(std::string command)
@@ -49,7 +44,7 @@ namespace DAB
 #ifdef WARNING
 				if (!Exist(command))
 				{
-					Warning("no command", "CommandList::Func");
+					WarningCheck("no command", "CommandList::Func");
 				}
 #endif
 				return _des[command];

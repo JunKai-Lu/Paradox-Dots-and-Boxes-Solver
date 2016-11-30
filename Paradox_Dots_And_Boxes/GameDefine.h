@@ -11,6 +11,7 @@
 #define GAME_SIZE 5
 #define MAX_EDGE 60
 #define MAX_BOX 25
+#define MAX_CHAIN 10
 #define WARNING
 
 #define EMPTY_BOARD 0
@@ -25,15 +26,17 @@ namespace DAB
 	void Cprintf(std::string str, WORD color);
 	void CprintNum(int num, int color);
 
-	//output message.
-	inline void Warning(std::string reason, std::string function)
+	/*output message.
+	inline void WarningCheck(std::string reason, std::string function)
 	{
 		Cprintf(">> WARNING: ", 5);
 		Cprintf(reason, 12);
 		Cprintf(" in function ", 8);
 		Cprintf(function + "\n", 7);
 		system("pause");
-	}
+	}*/
+
+	//output msg.
 	inline void Error(std::string reason)
 	{
 		Cprintf(">> ERROR: ", 5);
@@ -55,6 +58,19 @@ namespace DAB
 		std::cout << ">> ";
 		Cprintf(tip, 8);
 		std::cout << std::endl << ">>> ";
+	}
+	inline void WarningCheck(bool condition, std::string reason, std::string function_name)
+	{
+#ifdef WARNING
+		if (condition)
+		{
+			Cprintf(">> WARNING: ", 5);
+			Cprintf(reason, 12);
+			Cprintf(" in function ", 8);
+			Cprintf(function_name + "\n", 7);
+			system("pause");
+		}
+#endif
 	}
 	inline std::string GetInput()
 	{
@@ -103,48 +119,29 @@ namespace DAB
 		//operator[]
 		inline bool operator[](Edge index) const
 		{
-			#ifdef WARNING
-				if (index >= MAX_EDGE || index < 0)
-				{
-					Warning("Wrong index", "State::operator[]");
-				}
-			#endif
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "State::operator[]");
 			return _edge[index];
 		}
 
 		//get whether a edge exist in this state.
 		inline bool EdgeExist(Edge index) const
 		{
-#ifdef WARNING
-			if (index >= MAX_EDGE)
-			{
-				Warning("Wrong index", "State::EdgeExist");
-			}
-#endif
+
+			WarningCheck(index >= MAX_EDGE,"Wrong index", "State::EdgeExist");
 			return _edge[index];
 		}
 
 		//set edge.
 		inline void EdgeSet(Edge index)
 		{
-#ifdef WARNING
-			if (index >= MAX_EDGE)
-			{
-				Warning("Wrong index", "State::EdgeSet");
-			}
-#endif
+			WarningCheck(index >= MAX_EDGE, "Wrong index", "State::EdgeSet");
 			_edge[index] = true;
 		}
 
 		//remove edge.
 		inline void EdgeRemove(Edge index)
 		{
-#ifdef WARNING
-			if (index >= MAX_EDGE)
-			{
-				Warning("Wrong index", "State::EdgeRemove");
-			}
-#endif
+			WarningCheck(index >= MAX_EDGE,"Wrong index", "State::EdgeRemove");
 			_edge[index] = false;
 		}
 
@@ -159,24 +156,14 @@ namespace DAB
 		//get whether a edge exist in this bit board.
 		inline bool EdgeExist(const BitBoard& board, Edge index)
 		{
-		#ifdef WARNING
-			if (index >= MAX_EDGE || index < 0)
-			{
-				Warning("Wrong index", "BOARD::EdgeExist");
-			}
-		#endif
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "BOARD::EdgeExist");
 			return ((board >> index) & 0x1) == 1;
 		}
 
 		//set edge in bit board.
 		inline void EdgeSet(BitBoard& board, Edge index)
 		{
-			#ifdef WARNING
-				if (index >= MAX_EDGE || index < 0)
-				{
-					Warning("Wrong index", "BOARD::EdgeSet");
-				}
-			#endif
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "BOARD::EdgeSet");
 			BitBoard temp = 1;
 			temp = temp << index;
 			board = board | temp;
@@ -185,18 +172,8 @@ namespace DAB
 		//remove edge in bit board.
 		inline void EdgeRemove(BitBoard& board, Edge index)
 		{
-#ifdef WARNING
-			if (index >= MAX_EDGE || index < 0)
-			{
-				Warning("Wrong index", "BOARD::EdgeRemove");
-			}
-
-			if (!BOARD::EdgeExist(board, index))
-			{
-				Warning("edge not exist", "BOARD::EdgeRemove");
-			}
-#endif
-
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "BOARD::EdgeRemove");
+			WarningCheck(!BOARD::EdgeExist(board, index),"edge not exist", "BOARD::EdgeRemove");
 			BitBoard temp = 1;
 			temp = ~(temp << index);
 			board = board & temp;
@@ -261,24 +238,14 @@ namespace DAB
 		//get whether a action exist in this action vec.
 		inline bool ActionExist(const BitBoard target, Edge index)
 		{
-			#ifdef WARNING
-				if (index >= MAX_EDGE || index < 0)
-				{
-					Warning("Wrong index", "ACTIONVEC::ActionExist");
-				}
-			#endif
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "ACTIONVEC::ActionExist");
 			return ((target >> index) & 0x1) == 1;
 		}
 
 		//set action in action vector.
 		inline void ActionSet(ActionVec& target, Edge index)
 		{
-			#ifdef WARNING
-				if (index >= MAX_EDGE || index < 0)
-				{
-					Warning("Wrong index", "ACTIONVEC::ActionSet");
-				}
-			#endif
+			WarningCheck(index >= MAX_EDGE || index < 0, "Wrong index", "ACTIONVEC::ActionSet");
 			BitBoard temp = 1;
 			temp = temp << index;
 			target = target | temp;
@@ -300,24 +267,14 @@ namespace DAB
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge GetLowerLeftVecEdge(Edge hor_edge)
 		{
-#ifdef WARNING
-			if (hor_edge > 24 || hor_edge < 0)
-			{
-				Warning("Wrong index", "STATE::GetLowerLeftVecEdge");
-			}
-#endif
+			WarningCheck(hor_edge > 24 || hor_edge < 0,"Wrong index", "STATE::GetLowerLeftVecEdge");
 			return (34 - (hor_edge / 5)) + 5 * (hor_edge % 5);
 		}
 
 		//得到某个竖边右上的横边的编号（限制为30~54）
 		inline Edge GetUpperRightHorEdge(Edge vec_edge)
 		{
-#ifdef WARNING
-			if (vec_edge > 54 || vec_edge < 30)
-			{
-				Warning("Wrong index", "STATE::GetUpperRightHorEdge");
-			}
-#endif
+			WarningCheck(vec_edge > 54 || vec_edge < 30, "Wrong index", "STATE::GetUpperRightHorEdge");
 			return (14 - 5 * (vec_edge % 5)) + (vec_edge / 5);
 		}
 
@@ -360,12 +317,7 @@ namespace DAB
 		//Get the edge num of the box below a horizon edge.
 		inline size_t GetLowerBoxEdgeNum(BitBoard board, Edge hor_edge)
 		{
-#ifdef WARNING
-			if (hor_edge > 24)
-			{
-				Warning("Wrong index", "STATE::GetLowerBoxEdgeNum");
-			}
-#endif
+			WarningCheck(hor_edge > 24, "Wrong index", "STATE::GetLowerBoxEdgeNum");
 			Edge lower_left_edge = GetLowerLeftVecEdge(hor_edge);
 			return BOARD::EdgeExist(board, hor_edge) + BOARD::EdgeExist(board, lower_left_edge) + BOARD::EdgeExist(board, lower_left_edge + 5) + BOARD::EdgeExist(board, hor_edge + 5);
 		}
@@ -598,24 +550,24 @@ namespace DAB
 	{
 		enum BoxType
 		{
-			FULL_BOX = 4,
-			DEAD_BOX = 3,
-			CHAIN_BOX = 2,
-			FREE_BOX = 1
+			BT_FULL_BOX = 4,
+			BT_DEAD_BOX = 3,
+			BT_CHAIN_BOX = 2,
+			BT_FREE_BOX = 1
 		};
 
 		enum ChainType
 		{
-			UNDEFINED = 0, 
-			CHAIN = 1, 
-			CIRCLE = 2, 
-			OPEN_CHAIN = 3,
-			OPEN_CIRCLE = 4, 
-			DEAD_CHAIN = 5, 
-			DEAD_CIRCLE = 6
+			CT_UNDEFINED = 0, 
+			CT_CHAIN = 1, 
+			CT_CIRCLE = 2, 
+			CT_OPEN_CHAIN = 3,
+			CT_OPEN_CIRCLE = 4, 
+			CT_DEAD_CHAIN = 5, 
+			CT_DEAD_CIRCLE = 6
 		};
 
-		class Box
+		class BoxInfo
 		{
 		private:
 			Edge _index;
@@ -626,7 +578,7 @@ namespace DAB
 			Edge _neighbour_box[4];
 
 		public:
-			Box(BitBoard board, Edge index);
+			BoxInfo(BitBoard board, Edge index);
 			
 			inline Edge index()
 			{
@@ -642,6 +594,43 @@ namespace DAB
 			}
 		};
 
+		class ChainInfo
+		{
+		private:
+			ChainType _type;
+			size_t _boxes_num;
+
+		public:
+			inline ChainInfo():
+				_type(CT_UNDEFINED),
+				_boxes_num(0)
+			{
+
+			}
+
+			inline ChainType type()
+			{
+				return _type;
+			}
+			inline size_t boxes_num()
+			{
+				return _boxes_num;
+			}
+			inline void set_type(ChainType type)
+			{
+				_type = type;
+			}
+			inline void add_box(size_t num = 1)
+			{
+				_boxes_num += num;
+			}
+			inline void Clear()
+			{
+				_type = CT_UNDEFINED;
+				_boxes_num = 0;
+			}
+		};
+
 		//an class that is used for analysis chain in a raer state.
 		class ChainAnalyst
 		{
@@ -651,17 +640,28 @@ namespace DAB
 		private:
 			BitBoard _board;
 
-			Box _boxes[MAX_BOX];
-
-			//chain info
-			size_t _chain_type[10];
-			size_t _chain_num;
+			BoxInfo _boxes[MAX_BOX];
+			ChainInfo _chains[MAX_CHAIN];
 
 			//edge info
 			bool _reasonable_edge[MAX_EDGE];
 
 			//construct function.
 			void ChainAnalysis();
+
+			//get first undefined chain index.
+			inline size_t GetUndefinedChainNum()
+			{
+				for (size_t i = 0; i < MAX_CHAIN; i++)
+				{
+					if (_chains[i].type() == CT_UNDEFINED)
+					{
+						return i;
+					}
+				}
+				Error("chain list is full!");
+				return 0;
+			}
 
 			//register a chain from a box.
 			void RegisterChainFromFreeBox(Edge start_box,Edge ignore_edge);
