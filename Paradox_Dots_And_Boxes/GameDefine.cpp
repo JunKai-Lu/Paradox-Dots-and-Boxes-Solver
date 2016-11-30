@@ -1334,6 +1334,7 @@ namespace DAB
 
 	namespace CHAIN
 	{
+		//construct function.
 		BoxInfo::BoxInfo(BitBoard board, Edge index) :
 			_index(index),
 			_belonging_chain(MAX_CHAIN),
@@ -1382,20 +1383,74 @@ namespace DAB
 				_neighbour_box[3] = index + 1;
 			}
 		}
-
-		void ChainAnalyst::ChainAnalysis()
+		ChainAnalyst::ChainAnalyst(BitBoard board):
+			_board(board),
+			_boxes{
+				BoxInfo(board,0),BoxInfo(board,1),BoxInfo(board,2),BoxInfo(board,3),BoxInfo(board,4),
+				BoxInfo(board,5),BoxInfo(board,6),BoxInfo(board,7),BoxInfo(board,8),BoxInfo(board,9),
+				BoxInfo(board,10),BoxInfo(board,11),BoxInfo(board,12),BoxInfo(board,13),BoxInfo(board,14),
+				BoxInfo(board,15),BoxInfo(board,16),BoxInfo(board,17),BoxInfo(board,18),BoxInfo(board,19),
+				BoxInfo(board,20),BoxInfo(board,21),BoxInfo(board,22),BoxInfo(board,23),BoxInfo(board,24)
+			}
 		{
-			//define box.
-			for (Edge edge = 0; edge < MAX_BOX; edge++)
+			AnalysisChains();
+		}
+
+		//analysis chains in this state.
+		void ChainAnalyst::AnalysisChains()
+		{
+			//register chain start from free box inside the grid.
+			for (size_t i = 0; i < MAX_BOX; i++)
 			{
-				if (_boxes[edge].type() == BT_FREE_BOX)
+				if (_boxes[i].type() == BT_FREE_BOX && _boxes[i].NoBelongingChain())
+				{
+					for (size_t edge_i = 0; edge_i <4; edge_i++)
+					{
+						if (!BOARD::EdgeExist(_board, _boxes[i].own_edge(edge_i)) )
+						{
+							RegisterChainFromFreeBox(i, _boxes[i].neighbour_box(edge_i), _boxes[i].own_edge(edge_i));
+						}
+					}
+
+				}
+			}
+
+			//register chain from chain box in the brim of grid.
+			for (size_t i = 0; i < 5; i++)
+			{
+				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain())
 				{
 					
 				}
 			}
+
 		}
 
-		void ChainAnalyst::MergeChain(Edge fir_chain, Edge sec_chain)
+		//merge two chains into a single chain.
+		void ChainAnalyst::MergeChain(Edge fir_chain, Edge sec_chain, ChainType new_chain_type)
+		{
+			for (size_t i = 0; i < MAX_BOX; i++)
+			{
+				if (_boxes[i].belonging_chain() == sec_chain)
+				{
+					_boxes[i].set_belonging_chain(fir_chain);
+				}
+			}
+
+			_chains[fir_chain].add_box_num(_chains[sec_chain].boxes_num());
+			_chains[fir_chain].set_type(new_chain_type);
+
+			_chains[sec_chain].Clear();
+		}
+
+		//register a chain from a box.
+		void ChainAnalyst::RegisterChainFromFreeBox(Edge start_box, Edge fir_box, Edge ignore_edge)
+		{
+
+		}
+
+		//register a circle from a box.
+		void ChainAnalyst::RegisterCircleFromBox(Edge start_box, Edge fir_box, Edge ignore_edge)
 		{
 
 		}

@@ -571,9 +571,9 @@ namespace DAB
 		{
 		private:
 			Edge _index;
-			size_t _belonging_chain;
 			BoxType _type;
-
+			size_t _belonging_chain;
+			
 			Edge _own_edge[4];
 			Edge _neighbour_box[4];
 
@@ -584,13 +584,31 @@ namespace DAB
 			{
 				return _index;
 			}
+			inline BoxType type()
+			{
+				return _type;
+			}
 			inline size_t belonging_chain()
 			{
 				return _belonging_chain;
 			}
-			inline BoxType type()
+			inline Edge own_edge(size_t index)
 			{
-				return _type;
+				return _own_edge[index];
+			}
+			inline Edge neighbour_box(size_t index)
+			{
+				return _neighbour_box[index];
+			}
+
+			inline void set_belonging_chain(size_t index)
+			{
+				_belonging_chain = index;
+			}
+
+			inline bool NoBelongingChain()
+			{
+				return _belonging_chain == MAX_CHAIN;
 			}
 		};
 
@@ -620,7 +638,7 @@ namespace DAB
 			{
 				_type = type;
 			}
-			inline void add_box(size_t num = 1)
+			inline void add_box_num(size_t num = 1)
 			{
 				_boxes_num += num;
 			}
@@ -635,7 +653,7 @@ namespace DAB
 		class ChainAnalyst
 		{
 		public:
-			ChainAnalyst();
+			ChainAnalyst(BitBoard board);
 
 		private:
 			BitBoard _board;
@@ -646,8 +664,8 @@ namespace DAB
 			//edge info
 			bool _reasonable_edge[MAX_EDGE];
 
-			//construct function.
-			void ChainAnalysis();
+			//analysis chains in this state.
+			void AnalysisChains();
 
 			//get first undefined chain index.
 			inline size_t GetUndefinedChainNum()
@@ -663,14 +681,21 @@ namespace DAB
 				return 0;
 			}
 
+			//add box to the chain.
+			inline void AddBoxToChain(Edge box, Edge chain)
+			{
+				_boxes[box].set_belonging_chain(chain);
+				_chains[chain].add_box_num();
+			}
+
 			//register a chain from a box.
-			void RegisterChainFromFreeBox(Edge start_box,Edge ignore_edge);
+			void RegisterChainFromFreeBox(Edge start_box, Edge fir_box, Edge ignore_edge);
 
 			//register a circle from a box.
-			void RegisterCircleFromBox(Edge start_box, Edge ignore_edge);
+			void RegisterCircleFromBox(Edge start_box, Edge fir_box, Edge ignore_edge);
 
 			//merge two chains into a single chain.
-			void MergeChain(Edge fir_chain, Edge sec_chain);
+			void MergeChain(Edge fir_chain, Edge sec_chain, ChainType new_chain_type);
 
 		public:
 
