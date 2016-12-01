@@ -1334,7 +1334,7 @@ namespace DAB
 
 	namespace CHAIN
 	{
-		//construct function.
+		//constructor function.
 		BoxInfo::BoxInfo(BitBoard board, Edge index) :
 			_index(index),
 			_belonging_chain(MAX_CHAIN),
@@ -1383,6 +1383,8 @@ namespace DAB
 				_neighbour_box[3] = index + 1;
 			}
 		}
+		
+		//constructor function
 		ChainAnalyst::ChainAnalyst(BitBoard board):
 			_board(board),
 			_boxes{
@@ -1395,6 +1397,8 @@ namespace DAB
 		{
 			AnalysisChains();
 		}
+		
+		
 
 		//analysis chains in this state.
 		void ChainAnalyst::AnalysisChains()
@@ -1408,19 +1412,58 @@ namespace DAB
 					{
 						if (!BOARD::EdgeExist(_board, _boxes[i].own_edge(edge_i)) )
 						{
-							RegisterChainFromFreeBox(i, _boxes[i].neighbour_box(edge_i), _boxes[i].own_edge(edge_i));
+							RegisterChainFromBox(i,_boxes[i].neighbour_box(edge_i), _boxes[i].own_edge(edge_i));
 						}
 					}
-
 				}
 			}
 
 			//register chain from chain box in the brim of grid.
-			for (size_t i = 0; i < 5; i++)
+			for (size_t i = 0; i < 5; i++)//upper boxes.
+			{
+				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !BOARD::EdgeExist(_board,_boxes[i].UpperEdge()))
+				{
+					RegisterChainFromBox(MAX_BOX,_boxes[i].index(), _boxes[i].UpperEdge());
+				}
+			}
+
+			for (size_t i = 0; i < 25; i+=5)//left boxes.
+			{
+				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !BOARD::EdgeExist(_board, _boxes[i].LeftEdge()))
+				{
+					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].LeftEdge());
+				}
+			}
+
+			for (size_t i = 20; i < 25; i++)//lower boxes.
+			{
+				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !BOARD::EdgeExist(_board, _boxes[i].LowerEdge()))
+				{
+					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].LowerEdge());
+				}
+			}
+
+			for (size_t i = 4; i < 25; i += 5)//right boxes.
+			{
+				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !BOARD::EdgeExist(_board, _boxes[i].RightEdge()))
+				{
+					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].RightEdge());
+				}
+			}
+
+			//register circle from chain box inside the grid.
+			for (size_t i = 0; i < MAX_BOX; i++)
 			{
 				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain())
 				{
-					
+					for (size_t edge_i = 0; edge_i < 4; edge_i++)
+					{
+						if (!BOARD::EdgeExist(_board, _boxes[i].own_edge(edge_i)))
+						{
+							RegisterCircleFromBox(i,_boxes[i].neighbour_box(edge_i), _boxes[i].own_edge(edge_i));
+							break;
+						}
+					}
 				}
 			}
 
@@ -1444,7 +1487,7 @@ namespace DAB
 		}
 
 		//register a chain from a box.
-		void ChainAnalyst::RegisterChainFromFreeBox(Edge start_box, Edge fir_box, Edge ignore_edge)
+		void ChainAnalyst::RegisterChainFromBox(Edge start_box, Edge fir_box, Edge ignore_edge)
 		{
 
 		}

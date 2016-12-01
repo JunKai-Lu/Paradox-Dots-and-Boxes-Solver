@@ -580,6 +580,7 @@ namespace DAB
 		public:
 			BoxInfo(BitBoard board, Edge index);
 			
+			
 			inline Edge index()
 			{
 				return _index;
@@ -610,6 +611,23 @@ namespace DAB
 			{
 				return _belonging_chain == MAX_CHAIN;
 			}
+			inline Edge UpperEdge()
+			{
+				return _own_edge[0];
+			}
+			inline Edge LeftEdge()
+			{
+				return _own_edge[1];
+			}
+			inline Edge LowerEdge()
+			{
+				return _own_edge[2];
+			}
+			inline Edge RightEdge()
+			{
+				return _own_edge[3];
+			}
+
 		};
 
 		class ChainInfo
@@ -625,7 +643,6 @@ namespace DAB
 			{
 
 			}
-
 			inline ChainType type()
 			{
 				return _type;
@@ -689,7 +706,7 @@ namespace DAB
 			}
 
 			//register a chain from a box.
-			void RegisterChainFromFreeBox(Edge start_box, Edge fir_box, Edge ignore_edge);
+			void RegisterChainFromBox(Edge start_box, Edge fir_box, Edge ignore_edge);
 
 			//register a circle from a box.
 			void RegisterCircleFromBox(Edge start_box, Edge fir_box, Edge ignore_edge);
