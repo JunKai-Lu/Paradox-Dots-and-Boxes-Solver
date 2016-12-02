@@ -1398,8 +1398,6 @@ namespace DAB
 			AnalysisChains();
 		}
 		
-		
-
 		//analysis chains in this state.
 		void ChainAnalyst::AnalysisChains()
 		{
@@ -1489,7 +1487,50 @@ namespace DAB
 		//register a chain from a box.
 		void ChainAnalyst::RegisterChainFromBox(Edge start_box, Edge fir_box, Edge ignore_edge)
 		{
+			if (!_boxes[fir_box].type() == BT_CHAIN_BOX)
+			{
+				return;
+			}
 
+			Edge check_box_index = fir_box;
+			Edge source_edge_index = ignore_edge;
+			size_t new_chain = GetFirUndefinedChainIndex();
+
+			for (;;)
+			{
+				if (_boxes[check_box_index].type() == BT_CHAIN_BOX)
+				{
+					_chains[new_chain].add_box_num();
+					_boxes[check_box_index].set_belonging_chain(new_chain);
+
+					//next box.
+					for (size_t i = 0; i < 4; i++)
+					{
+						if (_boxes[check_box_index].own_edge[i] != ignore_edge && !BOARD::EdgeExist(_board, _boxes[check_box_index].own_edge[i]))
+						{
+							if (_boxes[check_box_index].IsNotEmptyNeighbour(i) )
+							{
+								source_edge_index = _boxes[check_box_index].own_edge(i);
+								check_box_index = _boxes[check_box_index].neighbour_box(i);
+							}
+							else
+							{
+								//register chain type.
+								//TODO
+								return;
+							}
+							break;
+						}
+					}
+				}
+				else if(_boxes[check_box_index].type() == BT_FREE_BOX)
+				{
+					if (check_box_index == start_box)
+					{
+
+					}
+				}
+			}
 		}
 
 		//register a circle from a box.

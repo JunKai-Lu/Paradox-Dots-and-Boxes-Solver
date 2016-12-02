@@ -611,6 +611,10 @@ namespace DAB
 			{
 				return _belonging_chain == MAX_CHAIN;
 			}
+			inline bool IsNotEmptyNeighbour(size_t index)
+			{
+				return _neighbour_box[index] != MAX_BOX;
+			}
 			inline Edge UpperEdge()
 			{
 				return _own_edge[0];
@@ -665,7 +669,7 @@ namespace DAB
 				_boxes_num = 0;
 			}
 		};
-
+		
 		//an class that is used for analysis chain in a raer state.
 		class ChainAnalyst
 		{
@@ -685,7 +689,7 @@ namespace DAB
 			void AnalysisChains();
 
 			//get first undefined chain index.
-			inline size_t GetUndefinedChainNum()
+			inline size_t GetFirUndefinedChainIndex()
 			{
 				for (size_t i = 0; i < MAX_CHAIN; i++)
 				{
@@ -713,6 +717,8 @@ namespace DAB
 
 			//merge two chains into a single chain.
 			void MergeChain(Edge fir_chain, Edge sec_chain, ChainType new_chain_type);
+
+			
 
 		public:
 
