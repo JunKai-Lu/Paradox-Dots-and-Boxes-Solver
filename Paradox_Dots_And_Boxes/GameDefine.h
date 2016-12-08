@@ -24,7 +24,7 @@ namespace DAB
 {
 	//colorful print.
 	void Cprintf(std::string str, WORD color);
-	void CprintNum(int num, int color);
+	void CprintNum(int num, WORD color);
 
 	/*output message.
 	inline void WarningCheck(std::string reason, std::string function)
@@ -148,8 +148,6 @@ namespace DAB
 		//create a random state with appointed edge number.
 		static State RandomState(size_t edge_num);
 	};
-
-	
 
 	namespace BOARD
 	{
@@ -545,8 +543,6 @@ namespace DAB
 		//judge whether two edge is upper edge of two neighbour box.
 		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b);
 	}
-
-	
 
 	namespace GAME
 	{

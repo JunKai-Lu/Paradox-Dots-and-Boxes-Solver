@@ -108,7 +108,7 @@ namespace DAB
 		void ThreadComputeStorageToCache(Storage& original_storage, StorageCache& storage_cache, bool allow_filter, size_t thread_index);
 
 		/*
-		* Judge whether a state is valuable. some valuelss state would can be recognized by this function.
+		* Determind whether a state is valuable. some valuelss state would can be recognized by this function.
 		* parameters:
 		* [board] is the state that need be judge.
 		*/

@@ -21,14 +21,15 @@ namespace DAB
 	//state type means different period of state.
 	enum StateType
 	{
-		FrontState = 0,
-		FrontStateWithDeadBox = 1,
+		ST_FrontState = 0,
+		ST_FrontStateWithDeadBox = 1,
 
-		RearState = 2,
-		RearStateWithDeadBox = 3,
-		RearStateWithDeadChain = 4
+		ST_RearState = 2,
+		ST_RearStateWithDeadBox = 3,
+		ST_RearStateWithDeadChain = 4
 	};
 
+	//box type means boxes with different number of edges.
 	enum BoxType
 	{
 		BT_FULL_BOX = 4,
@@ -37,6 +38,7 @@ namespace DAB
 		BT_FREE_BOX = 1
 	};
 
+	//chain type is used to difine the prop of chain.
 	enum ChainType
 	{
 		CT_UNDEFINED = 0,
@@ -48,6 +50,7 @@ namespace DAB
 		CT_DEAD_CIRCLE = 6
 	};
 
+	//box info that are included in chain analyst.
 	class BoxInfo
 	{
 	private:
@@ -115,6 +118,7 @@ namespace DAB
 
 	};
 
+	//chain info that are included in chain analyst.
 	class ChainInfo
 	{
 	private:
@@ -151,7 +155,7 @@ namespace DAB
 		}
 	};
 
-	//an class that is used for analysis chain in a raer state.
+	//an class that is used for analysing chain in a rear-state.
 	class ChainAnalyst
 	{
 	public:
@@ -211,5 +215,33 @@ namespace DAB
 
 		//show info
 		void ShowInfo();
+	};
+
+	//determind the type of this state.
+	StateType DetermindStateType(BitBoard board);
+
+	//a action analyst is used for generate reasonable actions with filter.
+	class ActionAnalyst
+	{
+	private:
+		BitBoard _board;
+		bool _action[MAX_EDGE];
+
+	public:
+		ActionAnalyst(BitBoard board);
+		inline bool operator[](size_t index)
+		{
+			return action(index);
+		}
+		inline void set_action(size_t index)
+		{
+			WarningCheck(index < MAX_EDGE, "wrong index", "ActionAnalyst::set_action");
+			_action[index] = true;
+		}
+		inline bool action(size_t index)
+		{
+			WarningCheck(index < MAX_EDGE, "wrong index", "ActionAnalyst::set_action");
+			return _action[index];
+		}
 	};
 }
