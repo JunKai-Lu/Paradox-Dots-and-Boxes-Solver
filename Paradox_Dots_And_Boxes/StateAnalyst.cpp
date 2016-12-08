@@ -303,8 +303,30 @@ namespace DAB
 		}
 	}
 
+	//constructor function
+	//TODO
 	ActionAnalyst::ActionAnalyst(BitBoard board):_board(board)
 	{
+		for (size_t i = 0; i < MAX_EDGE; i++)
+		{
+			_action[i] = false;
+		}
+		StateType st = DetermindStateType(board);
+		if (st == ST_FrontStateWithDeadBox || st == ST_RearStateWithDeadBox)
+		{
 
+		}
+		else if (st == ST_FrontState)
+		{
+
+		}
+		else if (st == ST_RearStateWithDeadChain)
+		{
+
+		}
+		else if (st == ST_RearStateWithDeadChain)
+		{
+
+		}
 	}
 }
