@@ -575,7 +575,6 @@ namespace DAB
 		
 		void test()
 		{
-			
 			//system("pause");
 		}
 
@@ -616,7 +615,6 @@ namespace DAB
 				}
 			}
 			Message("DabShell finish.");
-		}
+		}		
 	}
-	
 }

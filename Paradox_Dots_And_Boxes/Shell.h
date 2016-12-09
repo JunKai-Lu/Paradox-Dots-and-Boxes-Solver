@@ -11,7 +11,6 @@
 
 namespace DAB
 {
-	
 	namespace SHELL
 	{
 		template<typename F>
@@ -36,7 +35,7 @@ namespace DAB
 			}
 			inline F Func(std::string command)
 			{
-				WarningCheck(!Exist(command), "no command", "CommandList::Func");
+				WarningCheck(!Exist(command), "no command", __FILE__ , __LINE__ , __FUNCTION__);
 				return _func[command];
 			}
 			inline std::string Des(std::string command)
@@ -44,7 +43,7 @@ namespace DAB
 #ifdef WARNING
 				if (!Exist(command))
 				{
-					WarningCheck("no command", "CommandList::Func");
+					WarningCheck("no command", __FILE__ , __LINE__ , __FUNCTION__);
 				}
 #endif
 				return _des[command];
@@ -62,8 +61,6 @@ namespace DAB
 				cout << endl << endl;
 			}
 		};
-
 		void ShellStart();
 	}
-	
 }

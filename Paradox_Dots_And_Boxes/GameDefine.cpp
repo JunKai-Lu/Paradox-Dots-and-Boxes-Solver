@@ -1233,7 +1233,7 @@ namespace DAB
 		//judge whether a edge is the upper edge of a box that is first box of a dead chain.
 		bool IsUpperEdgeOfFirstBoxOfDeadChain(BitBoard board, Edge edge)
 		{
-			WarningCheck(edge > 25,"wrong edge", "STATE::IsUpperEdgeOfFirstBoxOfDeadChain");
+			WarningCheck(edge > 25,"wrong edge", __FILE__ , __LINE__ , __FUNCTION__);
 
 			Edge fir_box_lower_edge = edge + 5;
 			Edge fir_box_left_edge = STATE::GetLowerLeftVecEdge(edge);

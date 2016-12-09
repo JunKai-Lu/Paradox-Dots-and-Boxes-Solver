@@ -26,17 +26,28 @@ namespace DAB
 	void Cprintf(std::string str, WORD color);
 	void CprintNum(int num, WORD color);
 
-	/*output message.
-	inline void WarningCheck(std::string reason, std::string function)
-	{
-		Cprintf(">> WARNING: ", 5);
-		Cprintf(reason, 12);
-		Cprintf(" in function ", 8);
-		Cprintf(function + "\n", 7);
-		system("pause");
-	}*/
-
 	//output msg.
+	inline std::string GetInput()
+	{
+		char buffer[50];
+		std::cin.getline(buffer, 50);
+		return std::string(buffer);
+	}
+	inline std::string B2S(bool b)
+	{
+		if (b)
+		{
+			return "true";
+		}
+		return "false";
+	}
+	inline std::string I2S(size_t i)
+	{
+		std::stringstream ss;
+		ss << i;
+		return ss.str();
+	}
+	
 	inline void Error(std::string reason)
 	{
 		Cprintf(">> ERROR: ", 5);
@@ -59,39 +70,25 @@ namespace DAB
 		Cprintf(tip, 8);
 		std::cout << std::endl << ">>> ";
 	}
-	inline void WarningCheck(bool condition, std::string reason, std::string function_name)
+	inline void WarningCheck(bool condition, std::string reason, std::string file, int line, std::string function)
 	{
 #ifdef WARNING
 		if (condition)
 		{
 			Cprintf(">> WARNING: ", 5);
 			Cprintf(reason, 12);
-			Cprintf(" in function ", 8);
-			Cprintf(function_name + "\n", 7);
+			std::cout << std::endl;
+			Cprintf("[File]: " + file, 7);
+			std::cout << std::endl;
+			Cprintf("[Line]: " + I2S(line), 7);
+			std::cout << std::endl;
+			Cprintf("[Func]: " + function, 7);
+			std::cout << std::endl;
 			system("pause");
 		}
 #endif
 	}
-	inline std::string GetInput()
-	{
-		char buffer[50];
-		std::cin.getline(buffer, 50);
-		return std::string(buffer);
-	}
-	inline std::string B2S(bool b)
-	{
-		if (b)
-		{
-			return "true";
-		}
-		return "false";
-	}
-	inline std::string I2S(size_t i)
-	{
-		std::stringstream ss;
-		ss << i;
-		return ss.str();
-	}
+	
 	
 	//type define.
 	typedef unsigned char Edge;
@@ -119,7 +116,7 @@ namespace DAB
 		//operator[]
 		inline bool operator[](Edge index) const
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "State::operator[]");
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			return _edge[index];
 		}
 
@@ -127,21 +124,21 @@ namespace DAB
 		inline bool EdgeExist(Edge index) const
 		{
 
-			WarningCheck(index >= MAX_EDGE,"Wrong index", "State::EdgeExist");
+			WarningCheck(index >= MAX_EDGE,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			return _edge[index];
 		}
 
 		//set edge.
 		inline void EdgeSet(Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE, "Wrong index", "State::EdgeSet");
+			WarningCheck(index >= MAX_EDGE, "Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			_edge[index] = true;
 		}
 
 		//remove edge.
 		inline void EdgeRemove(Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE,"Wrong index", "State::EdgeRemove");
+			WarningCheck(index >= MAX_EDGE,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			_edge[index] = false;
 		}
 
@@ -154,14 +151,14 @@ namespace DAB
 		//get whether a edge exist in this bit board.
 		inline bool EdgeExist(const BitBoard& board, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "BOARD::EdgeExist");
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			return ((board >> index) & 0x1) == 1;
 		}
 
 		//set edge in bit board.
 		inline void EdgeSet(BitBoard& board, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "BOARD::EdgeSet");
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			BitBoard temp = 1;
 			temp = temp << index;
 			board = board | temp;
@@ -170,8 +167,8 @@ namespace DAB
 		//remove edge in bit board.
 		inline void EdgeRemove(BitBoard& board, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "BOARD::EdgeRemove");
-			WarningCheck(!BOARD::EdgeExist(board, index),"edge not exist", "BOARD::EdgeRemove");
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WarningCheck(!BOARD::EdgeExist(board, index),"edge not exist", __FILE__ , __LINE__ , __FUNCTION__);
 			BitBoard temp = 1;
 			temp = ~(temp << index);
 			board = board & temp;
@@ -236,14 +233,14 @@ namespace DAB
 		//get whether a action exist in this action vec.
 		inline bool ActionExist(const BitBoard target, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", "ACTIONVEC::ActionExist");
+			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			return ((target >> index) & 0x1) == 1;
 		}
 
 		//set action in action vector.
 		inline void ActionSet(ActionVec& target, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0, "Wrong index", "ACTIONVEC::ActionSet");
+			WarningCheck(index >= MAX_EDGE || index < 0, "Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			BitBoard temp = 1;
 			temp = temp << index;
 			target = target | temp;
@@ -265,14 +262,14 @@ namespace DAB
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge GetLowerLeftVecEdge(Edge hor_edge)
 		{
-			WarningCheck(hor_edge > 24 || hor_edge < 0,"Wrong index", "STATE::GetLowerLeftVecEdge");
+			WarningCheck(hor_edge > 24 || hor_edge < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			return (34 - (hor_edge / 5)) + 5 * (hor_edge % 5);
 		}
 
 		//得到某个竖边右上的横边的编号（限制为30~54）
 		inline Edge GetUpperRightHorEdge(Edge vec_edge)
 		{
-			WarningCheck(vec_edge > 54 || vec_edge < 30, "Wrong index", "STATE::GetUpperRightHorEdge");
+			WarningCheck(vec_edge > 54 || vec_edge < 30, "Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			return (14 - 5 * (vec_edge % 5)) + (vec_edge / 5);
 		}
 
@@ -315,7 +312,7 @@ namespace DAB
 		//Get the edge num of the box below a horizon edge.
 		inline size_t GetLowerBoxEdgeNum(BitBoard board, Edge hor_edge)
 		{
-			WarningCheck(hor_edge > 24, "Wrong index", "STATE::GetLowerBoxEdgeNum");
+			WarningCheck(hor_edge > 24, "Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			Edge lower_left_edge = GetLowerLeftVecEdge(hor_edge);
 			return BOARD::EdgeExist(board, hor_edge) + BOARD::EdgeExist(board, lower_left_edge) + BOARD::EdgeExist(board, lower_left_edge + 5) + BOARD::EdgeExist(board, hor_edge + 5);
 		}

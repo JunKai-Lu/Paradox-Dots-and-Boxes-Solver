@@ -194,6 +194,22 @@ namespace DAB
 			_chains[chain].add_box_num();
 		}
 
+		//show boxes info.
+		inline void ShowBoxInfo()
+		{
+			for (auto& box : _boxes)
+			{
+				if (box.index() % 5 == 0)
+				{
+					cout << endl;
+				}
+				cout << box.type() << " ";
+			}
+		}
+
+		//show chains info.
+		void ShowChainInfo();
+
 		//register a chain from a box.
 		void RegisterChainFromBox(Edge start_box, Edge fir_box, Edge ignore_edge);
 
@@ -235,12 +251,12 @@ namespace DAB
 		}
 		inline void set_action(size_t index)
 		{
-			WarningCheck(index < MAX_EDGE, "wrong index", "ActionAnalyst::set_action");
+			WarningCheck(index < MAX_EDGE, "wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			_action[index] = true;
 		}
 		inline bool action(size_t index)
 		{
-			WarningCheck(index < MAX_EDGE, "wrong index", "ActionAnalyst::set_action");
+			WarningCheck(index < MAX_EDGE, "wrong index", __FILE__ , __LINE__ , __FUNCTION__);
 			return _action[index];
 		}
 	};
