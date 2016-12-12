@@ -304,7 +304,6 @@ namespace DAB
 	}
 
 	//constructor function
-	//TODO
 	ActionAnalyst::ActionAnalyst(BitBoard board):_board(board)
 	{
 		for (size_t i = 0; i < MAX_EDGE; i++)

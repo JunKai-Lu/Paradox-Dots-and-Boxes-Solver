@@ -8,6 +8,11 @@
 
 #pragma  once
 
+#define REP(n) for(size_t rep_i = 0; rep_i < n;rep_i++)
+#define LOOP(i,n) for(size_t i = 0; i < n;i++)
+
+#define WINDOWS
+
 #define GAME_SIZE 5
 #define MAX_EDGE 60
 #define MAX_BOX 25
@@ -92,11 +97,11 @@ namespace DAB
 	
 	//type define.
 	typedef unsigned char Edge;
-	typedef __int64 BitBoard;
-	typedef __int64 ActionVec;
+	typedef long long BitBoard;
+	typedef long long ActionVec;
 	typedef short Margin;
 
-	//Data struct :bool[60]
+	//Data struct : bool[60]
 	class State
 	{
 	private:

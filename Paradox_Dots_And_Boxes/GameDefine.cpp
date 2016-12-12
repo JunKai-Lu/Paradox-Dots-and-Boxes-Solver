@@ -11,6 +11,7 @@ namespace DAB
 {
 	void Cprintf(string str, WORD color)
 	{
+#ifdef WINDOWS
 		WORD colorOld;
 		HANDLE handle = ::GetStdHandle(STD_OUTPUT_HANDLE);
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -19,6 +20,7 @@ namespace DAB
 		SetConsoleTextAttribute(handle, color);
 		cout << str;
 		SetConsoleTextAttribute(handle, colorOld);
+#endif
 		/*
 		Cprintf("o", 1);//ÉîÀ¶
 		Cprintf("o", 2);//¾üÂÌ
