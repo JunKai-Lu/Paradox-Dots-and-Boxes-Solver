@@ -253,9 +253,9 @@ namespace DAB
 			}
 			else
 			{
-				WarningCheck(true, "wrong state in box " + I2S(checking_box_index), __FILE__ , __LINE__ , __FUNCTION__);
+				WARNING_CHECK(true, "wrong state in box " + I2S(checking_box_index));
 			}
-			WarningCheck(count >= MAX_BOX, "infinite loop", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(count >= MAX_BOX, "infinite loop");
 		}
 	}
 
@@ -287,7 +287,7 @@ namespace DAB
 					{
 						if (_boxes[checking_box_index].own_edge(i) != ignore_edge && !BOARD::EdgeExist(_board, _boxes[checking_box_index].own_edge(i)))
 						{
-							WarningCheck(_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle", __FILE__ , __LINE__ , __FUNCTION__);
+							WARNING_CHECK(_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
 							ignoring_edge_index = _boxes[checking_box_index].own_edge(i);
 							checking_box_index = _boxes[checking_box_index].neighbour_box(i);
 							break;
@@ -297,9 +297,9 @@ namespace DAB
 			}
 			else
 			{
-				WarningCheck(true, "wrong state in box " + I2S(checking_box_index), __FILE__ , __LINE__ , __FUNCTION__);
+				WARNING_CHECK(true, "wrong state in box " + I2S(checking_box_index));
 			}
-			WarningCheck(count >= MAX_BOX, "infinite loop", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(count >= MAX_BOX, "infinite loop");
 		}
 	}
 

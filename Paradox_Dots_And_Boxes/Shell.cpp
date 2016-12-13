@@ -618,4 +618,22 @@ namespace DAB
 			Message("DabShell finish.");
 		}		
 	}
+
+	ShellBase::ShellBase(str name, ShellBase* parent_shell):
+		_name(name),
+		_parent_shell(parent_shell)
+	{
+		//get path
+		_path = GetPath();
+	}
+	str ShellBase::GetPath()
+	{
+		if (_parent_shell == nullptr)
+		{
+			return "DAB@root/";
+		}
+		return _parent_shell->GetPath() + _name + "/";
+	}
+
+
 }

@@ -26,7 +26,7 @@ namespace DAB
 		}
 		inline bool operator[](size_t index)
 		{
-			WarningCheck(index >= 60,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= 60,"Wrong index");
 			return _action[index];
 		}
 

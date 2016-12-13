@@ -251,12 +251,12 @@ namespace DAB
 		}
 		inline void set_action(size_t index)
 		{
-			WarningCheck(index < MAX_EDGE, "wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index < MAX_EDGE, "wrong index");
 			_action[index] = true;
 		}
 		inline bool action(size_t index)
 		{
-			WarningCheck(index < MAX_EDGE, "wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index < MAX_EDGE, "wrong index");
 			return _action[index];
 		}
 	};

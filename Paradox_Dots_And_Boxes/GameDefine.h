@@ -8,16 +8,20 @@
 
 #pragma  once
 
+//MACROS
+#define WINDOWS
+#define WARNING
+#define WARNING_CHECK(condition,reason) WarningCheck(condition,reason,__FILE__,__LINE__,__FUNCTION__);
+
+//NICKNAME
 #define REP(n) for(size_t rep_i = 0; rep_i < n;rep_i++)
 #define LOOP(i,n) for(size_t i = 0; i < n;i++)
 
-#define WINDOWS
-
+//CONSTANTS
 #define GAME_SIZE 5
 #define MAX_EDGE 60
 #define MAX_BOX 25
 #define MAX_CHAIN 10
-#define WARNING
 
 #define EMPTY_BOARD 0
 
@@ -94,12 +98,13 @@ namespace DAB
 #endif
 	}
 	
-	
+
 	//type define.
 	typedef unsigned char Edge;
 	typedef long long BitBoard;
 	typedef long long ActionVec;
 	typedef short Margin;
+	typedef std::string str;
 
 	//Data struct : bool[60]
 	class State
@@ -121,7 +126,7 @@ namespace DAB
 		//operator[]
 		inline bool operator[](Edge index) const
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE || index < 0,"Wrong index");
 			return _edge[index];
 		}
 
@@ -129,21 +134,21 @@ namespace DAB
 		inline bool EdgeExist(Edge index) const
 		{
 
-			WarningCheck(index >= MAX_EDGE,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE,"Wrong index");
 			return _edge[index];
 		}
 
 		//set edge.
 		inline void EdgeSet(Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE, "Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE, "Wrong index");
 			_edge[index] = true;
 		}
 
 		//remove edge.
 		inline void EdgeRemove(Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE,"Wrong index");
 			_edge[index] = false;
 		}
 
@@ -156,14 +161,14 @@ namespace DAB
 		//get whether a edge exist in this bit board.
 		inline bool EdgeExist(const BitBoard& board, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE || index < 0,"Wrong index");
 			return ((board >> index) & 0x1) == 1;
 		}
 
 		//set edge in bit board.
 		inline void EdgeSet(BitBoard& board, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE || index < 0,"Wrong index");
 			BitBoard temp = 1;
 			temp = temp << index;
 			board = board | temp;
@@ -172,8 +177,8 @@ namespace DAB
 		//remove edge in bit board.
 		inline void EdgeRemove(BitBoard& board, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
-			WarningCheck(!BOARD::EdgeExist(board, index),"edge not exist", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE || index < 0,"Wrong index");
+			WARNING_CHECK(!BOARD::EdgeExist(board, index),"edge not exist");
 			BitBoard temp = 1;
 			temp = ~(temp << index);
 			board = board & temp;
@@ -238,14 +243,14 @@ namespace DAB
 		//get whether a action exist in this action vec.
 		inline bool ActionExist(const BitBoard target, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE || index < 0,"Wrong index");
 			return ((target >> index) & 0x1) == 1;
 		}
 
 		//set action in action vector.
 		inline void ActionSet(ActionVec& target, Edge index)
 		{
-			WarningCheck(index >= MAX_EDGE || index < 0, "Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(index >= MAX_EDGE || index < 0, "Wrong index");
 			BitBoard temp = 1;
 			temp = temp << index;
 			target = target | temp;
@@ -267,14 +272,14 @@ namespace DAB
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge GetLowerLeftVecEdge(Edge hor_edge)
 		{
-			WarningCheck(hor_edge > 24 || hor_edge < 0,"Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(hor_edge > 24 || hor_edge < 0,"Wrong index");
 			return (34 - (hor_edge / 5)) + 5 * (hor_edge % 5);
 		}
 
 		//得到某个竖边右上的横边的编号（限制为30~54）
 		inline Edge GetUpperRightHorEdge(Edge vec_edge)
 		{
-			WarningCheck(vec_edge > 54 || vec_edge < 30, "Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(vec_edge > 54 || vec_edge < 30, "Wrong index");
 			return (14 - 5 * (vec_edge % 5)) + (vec_edge / 5);
 		}
 
@@ -317,7 +322,7 @@ namespace DAB
 		//Get the edge num of the box below a horizon edge.
 		inline size_t GetLowerBoxEdgeNum(BitBoard board, Edge hor_edge)
 		{
-			WarningCheck(hor_edge > 24, "Wrong index", __FILE__ , __LINE__ , __FUNCTION__);
+			WARNING_CHECK(hor_edge > 24, "Wrong index");
 			Edge lower_left_edge = GetLowerLeftVecEdge(hor_edge);
 			return BOARD::EdgeExist(board, hor_edge) + BOARD::EdgeExist(board, lower_left_edge) + BOARD::EdgeExist(board, lower_left_edge + 5) + BOARD::EdgeExist(board, hor_edge + 5);
 		}
