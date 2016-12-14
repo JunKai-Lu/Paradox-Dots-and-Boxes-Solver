@@ -619,21 +619,33 @@ namespace DAB
 		}		
 	}
 
+	//ShellBase
 	ShellBase::ShellBase(str name, ShellBase* parent_shell):
 		_name(name),
-		_parent_shell(parent_shell)
+		_parent_shell(parent_shell),
+		_exit_flag(false)
 	{
-		//get path
-		_path = GetPath();
-	}
-	str ShellBase::GetPath()
-	{
+		//set path
 		if (_parent_shell == nullptr)
 		{
-			return "DAB@root/";
+			_path = "DAB@root/";
 		}
-		return _parent_shell->GetPath() + _name + "/";
+		else
+		{
+			_path = _parent_shell->path() + _name + "/";
+		}
+	}
+	ShellBase::~ShellBase()
+	{
+		ShellManager::set_current_shell(_parent_shell);
+		ShellManager::RemoveShell(this);
 	}
 
+	//Shell
+	
 
+	//ShellManager
+	std::map<str, ShellBase*> ShellManager::_shell_list;
+	ShellBase* ShellManager::_current_shell;
+	
 }
