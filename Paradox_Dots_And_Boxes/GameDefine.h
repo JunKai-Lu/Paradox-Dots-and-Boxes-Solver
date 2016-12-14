@@ -10,8 +10,6 @@
 
 #pragma  once
 
-
-
 //CONSTANTS
 #define GAME_SIZE 5
 #define MAX_EDGE 60
@@ -26,9 +24,6 @@
 
 namespace DAB
 {
-	
-	
-
 	//type define.
 	typedef unsigned char Edge;
 	typedef long long BitBoard;

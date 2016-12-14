@@ -14,50 +14,8 @@ namespace DAB
 {
 	namespace SHELL
 	{
-		template<typename F>
-		class CommandList
-		{
-		private:
-			std::map<std::string, F> _func;
-			std::map<std::string, std::string> _des;
-		public:
-			inline void Add(std::string command, F func, std::string des)
-			{
-				_func[command] = func;
-				_des[command] = des;
-			}
-			inline void AddDescript(std::string command, std::string des)
-			{
-				_des[command] = des;
-			}
-			inline bool Exist(std::string command)
-			{
-				return _func.count(command) > 0;
-			}
-			inline F Func(std::string command)
-			{
-				WARNING_CHECK(!Exist(command), "no command");
-				return _func[command];
-			}
-			inline std::string Des(std::string command)
-			{
-				WARNING_CHECK(!Exist(command),"no command");
-				return _des[command];
-			}
-			inline void ShowCommand()
-			{
-				cout << endl << ">> ";
-				Cprintf("[ COMMAND LIST ]\n\n", 14);
-				for (auto command : _des)
-				{
-					cout << "   '";
-					Cprintf(command.first, 12);
-					cout << "'" << string("          ").substr(0, 10 - command.first.length()) << command.second << endl;
-				}
-				cout << endl << endl;
-			}
-		};
-		void ShellStart();
+		void CleanScreen(str name);
+
 	}
 
 	//class ShellBase is the abstract class of shell.
@@ -65,9 +23,7 @@ namespace DAB
 	{
 	private:
 		str _name;
-		str _path;
 		ShellBase* _parent_shell;
-		bool _exit_flag;
 
 	public:
 		ShellBase(str name, ShellBase* parent_shell);
@@ -76,11 +32,28 @@ namespace DAB
 		{
 			return _name;
 		}
-		inline str path()
+		
+		inline ShellBase* parent_shell()
 		{
-			return _path;
+			return _parent_shell;
 		}
-		virtual void Run() = delete;
+		inline void ShowPath()
+		{
+			if (_parent_shell == nullptr)
+			{
+				Cprintf("DAB", 5);
+				std::cout << " @ ";
+				Cprintf(_name, 2);
+			}
+			else
+			{
+				std::cout << "/";
+				_parent_shell->ShowPath();
+				Cprintf(_name, 2);
+				
+			}
+		}
+		virtual void Run() = NULL;
 		~ShellBase();
 	};
 
@@ -97,7 +70,8 @@ namespace DAB
 	public:
 		Shell(str name, ShellBase* parent_shell, datatype data) :
 			ShellBase(name, parent_shell),
-			_data(data)
+			_data(data),
+			_extra_command([](str a, datatype& b)->bool {return false; })
 		{
 			//default commands
 			if (parent_shell != nullptr)
@@ -109,11 +83,8 @@ namespace DAB
 				AddDescript("return", "exit DAB-Shell.");
 			}
 
-			
-			AddFunction("help", [](datatype& data)->void {ShowCommandList()}, "get command list");
-			AddFunction("show", [](datatype& data)->void {cout << data}, "demonstrate data.");
-			//AddDescript("help", "get command list");
-			//AddDescript("data", "demonstrate data.")
+			AddFunction("help", [&](datatype& data)->void { ShowCommandList(); }, "get command list");
+			AddFunction("cls", [&](datatype& data)->void { SHELL::CleanScreen(this->name()); }, "clean screen.");
 		}
 		~Shell() = default;
 
@@ -173,10 +144,39 @@ namespace DAB
 		}
 		void Run()
 		{
-
+			ShellManager::set_current_shell(this);
+			SHELL::CleanScreen(name());
+			for (;;)
+			{
+				ShellManager::InputTip();
+				str command = GetInput();
+				if (command == "return")//check return command.
+				{
+					if (parent_shell() != nullptr)
+					{
+						SHELL::CleanScreen(parent_shell()->name());
+					}
+					break;
+				}
+				else
+				{
+					if (!_extra_command(command,_data))//check extra commands.
+					{
+						if (FuncExist(command))//check commands list.
+						{
+							GetFunc(command)(_data);
+						}
+						else
+						{
+							Error("command not found.");//error
+						}
+					}
+				}
+			}
 		}
 	};
 
+	//class ShellManager is a static class which is used for manage shells.
 	class ShellManager
 	{
 	private:
@@ -202,7 +202,7 @@ namespace DAB
 		{
 			_shell_list.erase(shell->name());
 		}
-
+		
 		//current shell
 		static inline ShellBase* current_shell()
 		{
@@ -216,15 +216,67 @@ namespace DAB
 		{
 			return _current_shell != nullptr;
 		}
-		static inline void Tip(str tip = "")
+		static inline void InputTip(str tip = "")
 		{
 			WARNING_CHECK(!exist_current_shell(), "current shell not exist");
-			std::cout << _current_shell->path();
-			Cprintf(tip, 8);
-			std::cout << std::endl << " ~# ";
+			_current_shell->ShowPath();
+			if (tip != "")
+			{
+				std::cout <<"/";
+			}
+			Cprintf(tip, 10);
+			std::cout << ": >> ";
 		}
 		
-		void Init();
+		//shell root
+		static void RootInit();
 	};
 	
 }
+
+/*
+template<typename F>
+class CommandList
+{
+private:
+std::map<std::string, F> _func;
+std::map<std::string, std::string> _des;
+public:
+inline void Add(std::string command, F func, std::string des)
+{
+_func[command] = func;
+_des[command] = des;
+}
+inline void AddDescript(std::string command, std::string des)
+{
+_des[command] = des;
+}
+inline bool Exist(std::string command)
+{
+return _func.count(command) > 0;
+}
+inline F Func(std::string command)
+{
+WARNING_CHECK(!Exist(command), "no command");
+return _func[command];
+}
+inline std::string Des(std::string command)
+{
+WARNING_CHECK(!Exist(command),"no command");
+return _des[command];
+}
+inline void ShowCommand()
+{
+cout << endl << ">> ";
+Cprintf("[ COMMAND LIST ]\n\n", 14);
+for (auto command : _des)
+{
+cout << "   '";
+Cprintf(command.first, 12);
+cout << "'" << string("          ").substr(0, 10 - command.first.length()) << command.second << endl;
+}
+cout << endl << endl;
+}
+};
+void ShellStart();
+*/

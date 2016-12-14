@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Shell.h"
+#include "PersonalDef.h"
 
 using namespace DAB;
 using namespace std;
@@ -7,7 +8,7 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	SHELL::ShellStart();
+	ShellManager::RootInit();
 	return 0;
 }
 

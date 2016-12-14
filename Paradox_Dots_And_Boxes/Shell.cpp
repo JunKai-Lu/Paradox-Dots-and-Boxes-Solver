@@ -17,27 +17,18 @@ namespace DAB
 {
 	namespace SHELL
 	{
-		void Info()
-		{
-			Cprintf("=============================================\n", 8);
-			Cprintf("    PARADOX Dots and Boxes AI\n", 14);
-			Cprintf("    This software is under GPL lincense\n", 14);
-			Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
-			Cprintf("=============================================\n\n", 8);
-		}
-		void CleanScreen()
+		void CleanScreen(str name)
 		{
 			system("cls");
-			Info();
 			cout << ">> ";
-			Cprintf("[ DAB Shell ]\n", 2);
+			Cprintf("[ Shell ", 6);
+			Cprintf("<" + name + ">", 14);
+			Cprintf(" ]\n", 6);
+
 			cout << ">> ";
 			Cprintf("use 'help' to get more command\n\n", 2);
-		}	
-		void Exit()
-		{
-			exit(0);
 		}
+		
 		void Sample()
 		{
 			size_t layer = SOLVER::GetCurrentLayer();
@@ -62,7 +53,7 @@ namespace DAB
 					Message("sample finish.");
 					break;
 				}
-				InputTip("input 'return' to stop sample. or other input to continue.");
+				ShellManager::InputTip("input 'return' to stop sample. or other input to continue.");
 				char buffer[50];
 				cin.getline(buffer, 50);
 				if (string(buffer) == "return")
@@ -70,7 +61,7 @@ namespace DAB
 					break;
 				}
 			}
-			CleanScreen();
+			
 		}
 		void Debug()
 		{
@@ -90,10 +81,10 @@ namespace DAB
 			}
 			void SetPlayer(GAME::GameState& game_state)
 			{
-				InputTip("input player [0/1].");
+				ShellManager::InputTip("input player [0/1].");
 				bool player;
 				cin >> player;
-				InputTip("input type [0]HUMAN [1]MCTS");
+				ShellManager::InputTip("input type [0]HUMAN [1]MCTS");
 				size_t num;
 				cin >> num;
 				if (num == 0)
@@ -111,7 +102,7 @@ namespace DAB
 			}
 			void DoAI(GAME::GameState& game_state)
 			{
-				InputTip("input player [0/1]");
+				ShellManager::InputTip("input player [0/1]");
 				bool player;
 				cin >> player;
 				GAME::ActionDes ac = GAME::MCTS::MctsRespond(game_state);
@@ -120,7 +111,7 @@ namespace DAB
 			}
 			void DoMan(GAME::GameState& game_state)
 			{
-				InputTip("input player and edge");
+				ShellManager::InputTip("input player and edge");
 				bool player;
 				size_t edge;
 				cin >> player >> edge;
@@ -162,7 +153,7 @@ namespace DAB
 					string str = GetInput();
 					if (str == "return")
 					{
-						CleanScreen();
+						//CleanScreen();
 						break;
 					}
 					else if (str == "help")
@@ -188,7 +179,7 @@ namespace DAB
 			void Thread(Solver& solver)
 			{
 				cout << ">> current thread num = " << solver.thread_num() << endl;
-				InputTip("input thread num");
+				ShellManager::InputTip("input thread num");
 				size_t num;
 				cin >> num;
 				if (num > 0 && num <= MAX_ALLOW_THREAD)
@@ -200,7 +191,7 @@ namespace DAB
 			void FileCache(Solver& solver)
 			{
 				cout << ">> use file cache = " << B2S(solver.file_cache()) << endl;
-				InputTip("input y to allow file cache.");
+				ShellManager::InputTip("input y to allow file cache.");
 				string str = GetInput();
 				if (str == "y")
 				{
@@ -216,7 +207,7 @@ namespace DAB
 			void Filter(Solver& solver)
 			{
 				cout << ">> use filter = " << B2S(solver.use_filter()) << endl;
-				InputTip("input y to enable filter.");
+				ShellManager::InputTip("input y to enable filter.");
 				string str = GetInput();
 				if (str == "y")
 				{
@@ -256,7 +247,7 @@ namespace DAB
 			}
 			void Set(Solver& solver)
 			{
-				InputTip("input solver aim('next' of layer number)");
+				ShellManager::InputTip("input solver aim('next' of layer number)");
 				char buffer[50];
 				cin.getline(buffer, 50);
 				size_t aim_layer;
@@ -272,14 +263,14 @@ namespace DAB
 				if (aim_layer < current && aim_layer >0)
 				{
 					Message("aim layer = " + I2S(aim_layer));
-					InputTip("input allow thread number (max = "+I2S(MAX_ALLOW_THREAD)+" )");
+					ShellManager::InputTip("input allow thread number (max = "+I2S(MAX_ALLOW_THREAD)+" )");
 					cin.getline(buffer, 50);
 					size_t thread_num = atoi(buffer);
 					if (thread_num <= MAX_ALLOW_THREAD && thread_num > 0)
 					{
 						Message("thread num = " + I2S(thread_num));
 						bool use_file_cache;
-						InputTip("input 'y' to use file cache.");
+						ShellManager::InputTip("input 'y' to use file cache.");
 						cin.getline(buffer, 50);
 						if (string(buffer) == "y")
 						{
@@ -293,7 +284,7 @@ namespace DAB
 						}
 
 						bool use_filter;
-						InputTip("input 'y' to use filter.");
+						ShellManager::InputTip("input 'y' to use filter.");
 						cin.getline(buffer, 50);
 						if (string(buffer) == "y")
 						{
@@ -338,7 +329,7 @@ namespace DAB
 			}
 			void Aim(Solver& solver)
 			{
-				InputTip("input solver aim('next' of layer number)");
+				ShellManager::InputTip("input solver aim('next' of layer number)");
 				char buffer[50];
 				cin.getline(buffer, 50);
 				size_t aim_layer;
@@ -387,7 +378,7 @@ namespace DAB
 					string str = GetInput();
 					if (str == "return")
 					{
-						CleanScreen();
+						//CleanScreen();
 						break;
 					}
 					else if (str == "help")
@@ -441,7 +432,7 @@ namespace DAB
 			}
 			void RemoveEdge(State& state)
 			{
-				InputTip("input the edge index that need remove.");
+				ShellManager::InputTip("input the edge index that need remove.");
 				size_t num;
 				cin >> num;
 				Edge edge = (Edge)num;
@@ -538,7 +529,7 @@ namespace DAB
 					string str(buffer);
 					if (str == "return")
 					{
-						CleanScreen();
+						//CleanScreen();
 						break;
 					}
 					else if (str == "help")
@@ -584,16 +575,12 @@ namespace DAB
 			test();
 
 			CommandList<void(*)()> commands;
-			commands.Add("info", Info, "get info about software." );
 			commands.Add("game", GAME_SHELL::StartGame, "start a new game.");
 			commands.Add("solver", SOLVER_SHELL::StartSolver, "start solver then set aim and parameters");
-			commands.Add("cls", CleanScreen, "clean screen.");
 			commands.Add("state", STATE_SHELL::StartStateShell, "start state-debug");
 			commands.Add("sample", Sample, "get sample to check.");
-			commands.Add("exit", Exit, "exit program.");
 			commands.Add("debug", Debug, "debug model.");
 			commands.AddDescript("help", "get command list");
-			CleanScreen();
 			for (;;)
 			{
 				cout << ">>> ";
@@ -622,18 +609,9 @@ namespace DAB
 	//ShellBase
 	ShellBase::ShellBase(str name, ShellBase* parent_shell):
 		_name(name),
-		_parent_shell(parent_shell),
-		_exit_flag(false)
+		_parent_shell(parent_shell)
 	{
-		//set path
-		if (_parent_shell == nullptr)
-		{
-			_path = "DAB@root/";
-		}
-		else
-		{
-			_path = _parent_shell->path() + _name + "/";
-		}
+		ShellManager::RegisterShell(this);
 	}
 	ShellBase::~ShellBase()
 	{
@@ -641,11 +619,21 @@ namespace DAB
 		ShellManager::RemoveShell(this);
 	}
 
-	//Shell
-	
-
 	//ShellManager
 	std::map<str, ShellBase*> ShellManager::_shell_list;
 	ShellBase* ShellManager::_current_shell;
-	
+	void ShellManager::RootInit()
+	{
+		Shell<void*> root("root", nullptr, nullptr);
+		std::function<void(void*)> info = [](void* h)->void {
+			Cprintf("=============================================\n", 8);
+			Cprintf("    PARADOX Dots and Boxes AI\n", 14);
+			Cprintf("    This software is under GPL lincense\n", 14);
+			Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
+			Cprintf("=============================================\n\n", 8);
+		};
+		root.AddFunction("info", info, "get info about software.");
+		
+		root.Run();
+	}
 }
