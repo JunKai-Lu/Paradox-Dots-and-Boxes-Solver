@@ -15,7 +15,9 @@ namespace DAB
 	namespace SHELL
 	{
 		void CleanScreen(str name);
-
+		void SolverShell(void* v);
+		void StateShell(void* v);
+		void GameShell(void* v);
 	}
 
 	//class ShellBase is the abstract class of shell.

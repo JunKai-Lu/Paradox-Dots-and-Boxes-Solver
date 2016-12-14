@@ -28,8 +28,27 @@ namespace DAB
 			cout << ">> ";
 			Cprintf("use 'help' to get more command\n\n", 2);
 		}
-		
-		void Sample()
+		void SolverShell(void* v)
+		{
+
+		}
+		void StateShell(void* v)
+		{
+
+		}
+		void GameShell(void* v)
+		{
+
+		}
+		void Info(void* v)
+		{
+			Cprintf("=============================================\n", 8);
+			Cprintf("    PARADOX Dots and Boxes AI\n", 14);
+			Cprintf("    This software is under GPL lincense\n", 14);
+			Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
+			Cprintf("=============================================\n\n", 8);
+		}
+		void Sample(void* v)
 		{
 			size_t layer = SOLVER::GetCurrentLayer();
 			ifstream final_file(SOLVER::GetFinalFileName(layer));
@@ -63,7 +82,7 @@ namespace DAB
 			}
 			
 		}
-		void Debug()
+		void Debug(void* v)
 		{
 			State s(576460752303423487);
 			s.Visualization();
@@ -71,6 +90,7 @@ namespace DAB
 			system("pause");
 		}
 
+		/*
 		namespace GAME_SHELL
 		{
 			void Show(GAME::GameState& game_state)
@@ -574,12 +594,7 @@ namespace DAB
 		{
 			test();
 
-			CommandList<void(*)()> commands;
-			commands.Add("game", GAME_SHELL::StartGame, "start a new game.");
-			commands.Add("solver", SOLVER_SHELL::StartSolver, "start solver then set aim and parameters");
-			commands.Add("state", STATE_SHELL::StartStateShell, "start state-debug");
-			commands.Add("sample", Sample, "get sample to check.");
-			commands.Add("debug", Debug, "debug model.");
+			
 			commands.AddDescript("help", "get command list");
 			for (;;)
 			{
@@ -604,6 +619,7 @@ namespace DAB
 			}
 			Message("DabShell finish.");
 		}		
+		*/
 	}
 
 	//ShellBase
@@ -625,15 +641,12 @@ namespace DAB
 	void ShellManager::RootInit()
 	{
 		Shell<void*> root("root", nullptr, nullptr);
-		std::function<void(void*)> info = [](void* h)->void {
-			Cprintf("=============================================\n", 8);
-			Cprintf("    PARADOX Dots and Boxes AI\n", 14);
-			Cprintf("    This software is under GPL lincense\n", 14);
-			Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
-			Cprintf("=============================================\n\n", 8);
-		};
-		root.AddFunction("info", info, "get info about software.");
-		
+		root.AddFunction("info", SHELL::Info, "get info about software.");
+		root.AddFunction("solver", SHELL::SolverShell, "start solver then set aim and parameters");
+		root.AddFunction("game", SHELL::GameShell, "start a new game.");
+		root.AddFunction("state", SHELL::StateShell, "start state-debug");
+		root.AddFunction("sample", SHELL::Sample, "get sample to check.");
+		root.AddFunction("debug", SHELL::Debug, "debug mode.");
 		root.Run();
 	}
 }
