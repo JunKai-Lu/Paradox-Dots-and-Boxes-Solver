@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <set>
 #include <sstream>
 #include <functional>
 
@@ -22,13 +23,17 @@ namespace DAB
 		ShellBase* _parent_shell;
 
 	public:
-		ShellBase(str name, ShellBase* parent_shell);
+		ShellBase(str name);
 		ShellBase(ShellBase& sb) = delete;
 		inline str name()
 		{
 			return _name;
 		}
 
+		inline void set_parent_shell(ShellBase* parent)
+		{
+			_parent_shell = parent;
+		}
 		inline ShellBase* parent_shell()
 		{
 			return _parent_shell;
@@ -60,27 +65,23 @@ namespace DAB
 	private:
 		std::map<str, std::function<void(datatype&)> > _func;
 		std::map<str, std::string> _des;
+		std::set<str> _child;
 		datatype _data;
 		std::function<bool(str, datatype&)> _extra_command;
 
 	public:
-		Shell(str name, ShellBase* parent_shell, datatype data) :
-			ShellBase(name, parent_shell),
+		Shell(str name) :
+			ShellBase(name),
+			_extra_command([](str a, datatype& b)->bool {return false; })
+		{
+			ShellInit();
+		}
+		Shell(str name, datatype data) :
+			ShellBase(name),
 			_data(data),
 			_extra_command([](str a, datatype& b)->bool {return false; })
 		{
-			//default commands
-			if (parent_shell != nullptr)
-			{
-				AddDescript("return", "return to previous menu.");
-			}
-			else
-			{
-				AddDescript("return", "exit DAB-Shell.");
-			}
-
-			AddFunction("help", [&](datatype& data)->void { ShowCommandList(); }, "get command list");
-			AddFunction("cls", [&](datatype& data)->void { SHELL::CleanScreen(this->name()); }, "clean screen.");
+			ShellInit();
 		}
 		~Shell() = default;
 
@@ -94,6 +95,10 @@ namespace DAB
 		inline bool FuncExist(str command)
 		{
 			return _func.count(command) > 0;
+		}
+		inline bool ChildExist(str command)
+		{
+			return _child.count(command) > 0;
 		}
 		inline bool DesExist(str command)
 		{
@@ -111,6 +116,12 @@ namespace DAB
 		}
 
 		//add function or descript
+		inline void AddChildShell(str child_name, str des)
+		{
+			_des[child_name] = des;
+			_child.insert(child_name);
+			WARNING_CHECK(!ShellManager::ShellExist(child_name), "shell not found");
+		}
 		inline void AddFunction(str command, std::function<void(datatype&)> func, str des)
 		{
 			_func[command] = func;
@@ -126,48 +137,82 @@ namespace DAB
 		}
 
 		//Run Shell
-		inline void ShowCommandList()
+		inline void ShellInit()
 		{
-			cout << endl << ">> ";
-			Cprintf("[ COMMAND LIST ]\n\n", 14);
-			for (auto command : _des)
-			{
-				cout << "   '";
-				Cprintf(command.first, 12);
-				cout << "'" << string("          ").substr(0, 10 - command.first.length()) << command.second << endl;
-			}
-			cout << endl << endl;
+			AddDescript("return", "return to previous menu.");
+			AddFunction("help", [&](datatype& data)->void {
+				cout << endl << ">> ";
+				Cprintf("[ COMMAND LIST ]\n\n", 14);
+				for (auto command : _des)
+				{
+					cout << "   '";
+					Cprintf(command.first, 12);
+					cout << "'" << string("          ").substr(0, 10 - command.first.length()) << command.second << endl;
+				}
+				cout << endl << endl;
+			}, "get command list");
+			AddFunction("cls", [&](datatype& data)->void { 
+				system("cls");
+				cout << ">> ";
+				Cprintf("[ Shell ", 6);
+				Cprintf("<" + this->name() + ">", 14);
+				Cprintf(" ]\n", 6);
+
+				cout << ">> ";
+				Cprintf("use 'help' to get more command\n\n", 2);
+			}, "clean screen.");
 		}
 		void Run()
 		{
 			ShellManager::set_current_shell(this);
-			SHELL::CleanScreen(name());
+			SHELL::ROOT_SHELL::CleanScreen(this->name());
+
 			for (;;)
 			{
+				/*
+				* command check order
+				* 1.return
+				* 2.function
+				* 3.child shell
+				* 4.extra command
+				*/
+				ShellManager::set_current_shell(this);
 				ShellManager::InputTip();
 				str command = GetInput();
-				if (command == "return")//check return command.
+
+				//return command
+				if (command == "return")
 				{
 					if (parent_shell() != nullptr)
 					{
-						SHELL::CleanScreen(parent_shell()->name());
+						SHELL::ROOT_SHELL::CleanScreen(parent_shell()->name());
 					}
 					break;
 				}
-				else
+
+				//function command check
+				if (FuncExist(command))
 				{
-					if (!_extra_command(command, _data))//check extra commands.
-					{
-						if (FuncExist(command))//check commands list.
-						{
-							GetFunc(command)(_data);
-						}
-						else
-						{
-							Error("command not found.");//error
-						}
-					}
+					GetFunc(command)(_data);
+					continue;
 				}
+
+				//child shell check
+				if (ChildExist(command))
+				{
+					ShellManager::GetShell(command)->set_parent_shell(this);
+					ShellManager::GetShell(command)->Run();
+					continue;
+				}
+
+				//extra command check
+				if (_extra_command(command, _data))
+				{
+					continue;
+				}
+
+				//error
+				Error("command not found.");
 			}
 		}
 	};
@@ -178,7 +223,7 @@ namespace DAB
 	private:
 		static std::map<str, ShellBase*> _shell_list;
 		static ShellBase* _current_shell;
-		static std::function<void()> root_init;
+		static std::function<void()> _init_func;
 
 	public:
 		//Shell Manage
@@ -191,13 +236,13 @@ namespace DAB
 			WARNING_CHECK(!ShellExist(name), "shell not exist");
 			return _shell_list[name];
 		}
-		static inline void RegisterShell(ShellBase* shell)
-		{
-			_shell_list[shell->name()] = shell;
-		}
 		static inline void RemoveShell(ShellBase* shell)
 		{
 			_shell_list.erase(shell->name());
+		}
+		static inline void RegisterShell(ShellBase* shell)
+		{
+			_shell_list[shell->name()] = shell;
 		}
 
 		//current shell
@@ -236,15 +281,14 @@ namespace DAB
 {
 	namespace SHELL
 	{
-		void RootInit();
-		void CleanScreen(str name);
-		void Info(void* v);
-		void Sample(void* v);
-		void Debug(void* v);
-		void SolverShell(void* v, ShellBase* parent);
-		void StateShell(void* v, ShellBase* parent);
-		void GameShell(void* v, ShellBase* parent);
+		void ShellInit();
 
+		namespace ROOT_SHELL
+		{
+			void Info(void* v);
+			void Sample(void* v);
+			void Debug(void* v);
+		}
 		namespace GAME_SHELL
 		{
 			void Show(GAME::GameState& game_state);

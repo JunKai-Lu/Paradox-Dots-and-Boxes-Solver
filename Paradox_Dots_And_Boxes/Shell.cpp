@@ -13,14 +13,16 @@
 
 using namespace std;
 
+#define REGISTER_SHELL(name,type) Shell<type>* name = new Shell<type>(#name)
+#define REGISTER_SHELL_DATA(name,type,original_data) Shell<type>* name = new Shell<type>(#name, original_data)
+
 //source code of shell
 namespace DAB
 {
-
 	//ShellBase
-	ShellBase::ShellBase(str name, ShellBase* parent_shell) :
+	ShellBase::ShellBase(str name) :
 		_name(name),
-		_parent_shell(parent_shell)
+		_parent_shell(nullptr)
 	{
 		ShellManager::RegisterShell(this);
 	}
@@ -35,7 +37,9 @@ namespace DAB
 	ShellBase* ShellManager::_current_shell;
 	void ShellManager::Run()
 	{
-		root_init();
+		_init_func();
+		WARNING_CHECK(!ShellExist("root"), "shell 'root' not found");
+		GetShell("root")->Run();
 	}
 }
 
@@ -43,57 +47,44 @@ namespace DAB
 namespace DAB
 {
 	//initialize function
-	std::function<void()> ShellManager::root_init = SHELL::RootInit;
+	std::function<void()> ShellManager::_init_func = SHELL::ShellInit;
 
 	namespace SHELL
 	{
-		void RootInit()
+		void ShellInit()
 		{
-			Shell<void*> root("root", nullptr, nullptr);
-			root.AddFunction("info", SHELL::Info, "get info about software.");
-			root.AddFunction("solver", [&](void* v)->void {SHELL::SolverShell(v, &root); }, "start solver then set aim and parameters");
-			root.AddFunction("game", [&](void* v)->void {SHELL::GameShell(v, &root); }, "start a new game.");
-			root.AddFunction("state", [&](void* v)->void {SHELL::StateShell(v, &root); }, "start state-debug");
-			root.AddFunction("sample", SHELL::Sample, "get sample to check.");
-			root.AddFunction("debug", SHELL::Debug, "debug mode.");
-			root.Run();
-		}
-		void CleanScreen(str name)
-		{
-			system("cls");
-			cout << ">> ";
-			Cprintf("[ Shell ", 6);
-			Cprintf("<" + name + ">", 14);
-			Cprintf(" ]\n", 6);
+			REGISTER_SHELL(root, void*);
+			REGISTER_SHELL(solver, Solver);
+			REGISTER_SHELL(game, GAME::GameState);
+			REGISTER_SHELL(state, State);
 
-			cout << ">> ";
-			Cprintf("use 'help' to get more command\n\n", 2);
-		}
-		void SolverShell(void* v, ShellBase* parent)
-		{
-			Shell<Solver> solver_shell("solver", parent, Solver());
-			solver_shell.AddFunction("thread", SOLVER_SHELL::Thread, "change thread number");
-			solver_shell.AddFunction("cache", SOLVER_SHELL::FileCache, "set whether to use file cache.");
-			solver_shell.AddFunction("filter", SOLVER_SHELL::Filter, "set thether to use filter.");
-			solver_shell.AddFunction("layer", SOLVER_SHELL::ChangeLayer, "change current layer");
-			solver_shell.AddFunction("start", SOLVER_SHELL::Start, "execute solver.");
-			solver_shell.AddFunction("set", SOLVER_SHELL::Set, "change all solver set.");
-			solver_shell.AddFunction("show", SOLVER_SHELL::Show, "show current solver parameters.");
-			//SOLVER_SHELL::Set(solver_shell.data());
-			solver_shell.Run();
-		}
-		void StateShell(void* v, ShellBase* parent)
-		{
-			Shell<State> state_shell("state", parent, State());
-			state_shell.AddFunction("next", STATE_SHELL::NextState, "set random edge in current state.");
-			state_shell.AddFunction("show", STATE_SHELL::ShowState, "show current state.");
-			state_shell.AddFunction("action", STATE_SHELL::ShowAction, "get free-edges index.");
-			state_shell.AddFunction("save", STATE_SHELL::SaveState, "save current state.");
-			state_shell.AddFunction("load", STATE_SHELL::LoadState, "load a state.");
-			state_shell.AddFunction("remove", STATE_SHELL::RemoveEdge, "remove a edge in current state.");
-			state_shell.AddFunction("seed", STATE_SHELL::ChangeSeed, "change random seed.");
-			state_shell.AddDescript("(0,60]", "to create state with edges.");
-			state_shell.AddExtarCommand([](str command, State& state)->bool {
+			//root
+			root->AddFunction("info", ROOT_SHELL::Info, "get info about software.");
+			root->AddFunction("sample", ROOT_SHELL::Sample, "get sample to check.");
+			root->AddFunction("debug", ROOT_SHELL::Debug, "debug mode.");
+			root->AddChildShell("solver", "start solver then set aim and parameters");
+			root->AddChildShell("game", "start a new game.");
+			root->AddChildShell("state", "start state-debug");
+			
+			//solver
+			solver->AddFunction("thread", SOLVER_SHELL::Thread, "change thread number");
+			solver->AddFunction("cache", SOLVER_SHELL::FileCache, "set whether to use file cache.");
+			solver->AddFunction("filter", SOLVER_SHELL::Filter, "set thether to use filter.");
+			solver->AddFunction("layer", SOLVER_SHELL::ChangeLayer, "change current layer");
+			solver->AddFunction("start", SOLVER_SHELL::Start, "execute solver.");
+			solver->AddFunction("set", SOLVER_SHELL::Set, "change all solver set.");
+			solver->AddFunction("show", SOLVER_SHELL::Show, "show current solver parameters.");
+
+			//state
+			state->AddFunction("next", STATE_SHELL::NextState, "set random edge in current state.");
+			state->AddFunction("show", STATE_SHELL::ShowState, "show current state.");
+			state->AddFunction("action", STATE_SHELL::ShowAction, "get free-edges index.");
+			state->AddFunction("save", STATE_SHELL::SaveState, "save current state.");
+			state->AddFunction("load", STATE_SHELL::LoadState, "load a state.");
+			state->AddFunction("remove", STATE_SHELL::RemoveEdge, "remove a edge in current state.");
+			state->AddFunction("seed", STATE_SHELL::ChangeSeed, "change random seed.");
+			state->AddDescript("(0,60]", "to create state with edges.");
+			state->AddExtarCommand([](str command, State& state)->bool {
 				size_t num = atoi(command.c_str());
 				if (num < 60 && num > 0)
 				{
@@ -107,70 +98,85 @@ namespace DAB
 				}
 				return false;
 			});
-			state_shell.Run();
-		}
-		void GameShell(void* v, ShellBase* parent)
-		{
-			Shell<GAME::GameState> game_shell("game", parent, GAME::GameState());
-			game_shell.AddFunction("ai", GAME_SHELL::DoAI, "ai action");
-			game_shell.AddFunction("man", GAME_SHELL::DoMan, "human action");
-			game_shell.AddFunction("auto", GAME_SHELL::StartAutoGame, "start auto game.");
-			game_shell.AddFunction("player", GAME_SHELL::SetPlayer, "set game player");
-			game_shell.AddFunction("show", GAME_SHELL::Show, "show game info.");
-			game_shell.AddFunction("cancel", GAME_SHELL::Cancel, "cancel last action.");
 
-			game_shell.Run();
+			//game
+			game->AddFunction("ai", GAME_SHELL::DoAI, "ai action");
+			game->AddFunction("man", GAME_SHELL::DoMan, "human action");
+			game->AddFunction("auto", GAME_SHELL::StartAutoGame, "start auto game.");
+			game->AddFunction("player", GAME_SHELL::SetPlayer, "set game player");
+			game->AddFunction("show", GAME_SHELL::Show, "show game info.");
+			game->AddFunction("cancel", GAME_SHELL::Cancel, "cancel last action.");
+
 		}
-		void Info(void* v)
+		
+		
+		namespace ROOT_SHELL
 		{
-			Cprintf("=============================================\n", 8);
-			Cprintf("    PARADOX Dots and Boxes AI\n", 14);
-			Cprintf("    This software is under GPL lincense\n", 14);
-			Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
-			Cprintf("=============================================\n\n", 8);
-		}
-		void Sample(void* v)
-		{
-			size_t layer = SOLVER::GetCurrentLayer();
-			ifstream final_file(SOLVER::GetFinalFileName(layer));
-			for (;;)
+			void Info(void* v)
 			{
-				BitBoard board;
-				Margin margin;
-				final_file >> board >> margin;
-				State state(board);
-				cout << ">> state = " << endl;
-				state.Visualization();
-				cout << ">> margin = " << margin << endl;
-				//bool dead_chain = STATE::ExistDeadChain(board);
-				//bool free_edge = STATE::ExistFreeEdge(board);
-				//cout << ">> exist dead-chain = " << B2S(dead_chain) << endl;
-				//cout << ">> exist free-edge = " << B2S(free_edge) << endl;
-				cout << ">> is reasonable = " << B2S(STATE::IsReasonable(board)) << endl;
-				if (final_file.eof())
-				{
-					Error("no more states.");
-					Message("sample finish.");
-					break;
-				}
-				ShellManager::InputTip("input 'return' to stop sample. or other input to continue.");
-				char buffer[50];
-				cin.getline(buffer, 50);
-				if (string(buffer) == "return")
-				{
-					break;
-				}
+				Cprintf("=============================================\n", 8);
+				Cprintf("    PARADOX Dots and Boxes AI\n", 14);
+				Cprintf("    This software is under GPL lincense\n", 14);
+				Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
+				Cprintf("=============================================\n\n", 8);
 			}
+			void Sample(void* v)
+			{
+				size_t layer = SOLVER::GetCurrentLayer();
+				ifstream final_file(SOLVER::GetFinalFileName(layer));
+				for (;;)
+				{
+					BitBoard board;
+					Margin margin;
+					final_file >> board >> margin;
+					State state(board);
+					cout << ">> state = " << endl;
+					state.Visualization();
+					cout << ">> margin = " << margin << endl;
+					//bool dead_chain = STATE::ExistDeadChain(board);
+					//bool free_edge = STATE::ExistFreeEdge(board);
+					//cout << ">> exist dead-chain = " << B2S(dead_chain) << endl;
+					//cout << ">> exist free-edge = " << B2S(free_edge) << endl;
+					cout << ">> is reasonable = " << B2S(STATE::IsReasonable(board)) << endl;
+					if (final_file.eof())
+					{
+						Error("no more states.");
+						Message("sample finish.");
+						break;
+					}
+					ShellManager::InputTip("input 'return' to stop sample. or other input to continue.");
+					char buffer[50];
+					cin.getline(buffer, 50);
+					if (string(buffer) == "return")
+					{
+						break;
+					}
+				}
 
-		}
-		void Debug(void* v)
-		{
-			State s(576460752303423487);
-			s.Visualization();
-			cout << B2S(STATE::IsReasonable(576460752303423487));
-			system("pause");
-		}
+			}
+			void Debug(void* v)
+			{
+				State s(576460752303423487);
+				s.Visualization();
+				cout << B2S(STATE::IsReasonable(576460752303423487));
+				system("pause");
+			}
+			void CleanScreen(str name)
+			{
+				system("cls");
+				if (name == "root")
+				{
+					Info(nullptr);
+				}
+				cout << ">> ";
+				Cprintf("[ Shell ", 6);
+				Cprintf("<" + name + ">", 14);
+				Cprintf(" ]\n", 6);
 
+				cout << ">> ";
+				Cprintf("use 'help' to get more command\n\n", 2);
+			}
+		}
 		namespace GAME_SHELL
 		{
 			void Show(GAME::GameState& game_state)
