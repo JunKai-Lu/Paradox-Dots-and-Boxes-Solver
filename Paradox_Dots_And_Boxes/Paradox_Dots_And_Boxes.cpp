@@ -2,13 +2,12 @@
 #include "Shell.h"
 #include "PersonalDef.h"
 
-using namespace DAB;
 using namespace std;
 
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	ShellManager::Run();
+	DAB::SHELL::ShellManager::Run();
 	return 0;
 }
 

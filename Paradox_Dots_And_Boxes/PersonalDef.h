@@ -15,7 +15,6 @@
 #define REP(n) for(size_t rep_i = 0; rep_i < n;rep_i++)
 #define LOOP(i,n) for(size_t i = 0; i < n;i++)
 
-
 namespace DAB
 {
 	typedef std::string str;

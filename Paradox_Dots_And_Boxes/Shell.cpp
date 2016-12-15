@@ -19,38 +19,60 @@ using namespace std;
 //source code of shell
 namespace DAB
 {
-	//ShellBase
-	ShellBase::ShellBase(str name) :
-		_name(name),
-		_parent_shell(nullptr)
+	namespace SHELL
 	{
-		ShellManager::RegisterShell(this);
-	}
-	ShellBase::~ShellBase()
-	{
-		ShellManager::set_current_shell(_parent_shell);
-		ShellManager::RemoveShell(this);
-	}
+		//ShellBase
+		ShellBase::ShellBase(str name) :
+			_name(name),
+			_parent_shell(nullptr)
+		{
+			ShellManager::RegisterShell(this);
+		}
+		ShellBase::~ShellBase()
+		{
+			ShellManager::set_current_shell(_parent_shell);
+			ShellManager::RemoveShell(this);
+		}
 
-	//ShellManager
-	std::map<str, ShellBase*> ShellManager::_shell_list;
-	ShellBase* ShellManager::_current_shell;
-	void ShellManager::Run()
-	{
-		_init_func();
-		WARNING_CHECK(!ShellExist("root"), "shell 'root' not found");
-		GetShell("root")->Run();
+		//ShellManager
+		std::map<str, ShellBase*> ShellManager::_shell_list;
+		ShellBase* ShellManager::_current_shell;
+		void ShellManager::CleanScreen(str name)
+		{
+			system("cls");
+			if (name == "root")
+			{
+				Cprintf("=============================================\n", 8);
+				Cprintf("    PARADOX Dots and Boxes AI\n", 9);
+				Cprintf("    This software is under GPL lincense\n", 9);
+				Cprintf("    Copyright @ Junkai-Lu 2016\n", 9);
+				Cprintf("=============================================\n\n", 8);
+			}
+			cout << ">> ";
+			Cprintf("[ Shell ", 6);
+			Cprintf("<" + name + ">", 14);
+			Cprintf(" ]\n", 6);
+
+			cout << ">> ";
+			Cprintf("use 'help' to get more command\n\n", 2);
+		}
+
+		void ShellManager::Run()
+		{
+			_init_func();
+			WARNING_CHECK(!ShellExist("root"), "shell 'root' not found");
+			GetShell("root")->Run();
+		}
 	}
 }
 
 //game extern.
 namespace DAB
 {
-	//initialize function
-	std::function<void()> ShellManager::_init_func = SHELL::ShellInit;
-
 	namespace SHELL
 	{
+		//initialize function
+		std::function<void()> ShellManager::_init_func = ShellInit;
 		void ShellInit()
 		{
 			REGISTER_SHELL(root, void*);
@@ -59,13 +81,12 @@ namespace DAB
 			REGISTER_SHELL(state, State);
 
 			//root
-			root->AddFunction("info", ROOT_SHELL::Info, "get info about software.");
 			root->AddFunction("sample", ROOT_SHELL::Sample, "get sample to check.");
 			root->AddFunction("debug", ROOT_SHELL::Debug, "debug mode.");
 			root->AddChildShell("solver", "start solver then set aim and parameters");
 			root->AddChildShell("game", "start a new game.");
 			root->AddChildShell("state", "start state-debug");
-			
+
 			//solver
 			solver->AddFunction("thread", SOLVER_SHELL::Thread, "change thread number");
 			solver->AddFunction("cache", SOLVER_SHELL::FileCache, "set whether to use file cache.");
@@ -108,18 +129,9 @@ namespace DAB
 			game->AddFunction("cancel", GAME_SHELL::Cancel, "cancel last action.");
 
 		}
-		
-		
+
 		namespace ROOT_SHELL
 		{
-			void Info(void* v)
-			{
-				Cprintf("=============================================\n", 8);
-				Cprintf("    PARADOX Dots and Boxes AI\n", 14);
-				Cprintf("    This software is under GPL lincense\n", 14);
-				Cprintf("    Copyright @ Junkai-Lu 2016\n", 14);
-				Cprintf("=============================================\n\n", 8);
-			}
 			void Sample(void* v)
 			{
 				size_t layer = SOLVER::GetCurrentLayer();
@@ -160,21 +172,6 @@ namespace DAB
 				s.Visualization();
 				cout << B2S(STATE::IsReasonable(576460752303423487));
 				system("pause");
-			}
-			void CleanScreen(str name)
-			{
-				system("cls");
-				if (name == "root")
-				{
-					Info(nullptr);
-				}
-				cout << ">> ";
-				Cprintf("[ Shell ", 6);
-				Cprintf("<" + name + ">", 14);
-				Cprintf(" ]\n", 6);
-
-				cout << ">> ";
-				Cprintf("use 'help' to get more command\n\n", 2);
 			}
 		}
 		namespace GAME_SHELL
