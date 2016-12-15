@@ -13,10 +13,51 @@
 
 using namespace std;
 
+//source code of shell
 namespace DAB
 {
+
+	//ShellBase
+	ShellBase::ShellBase(str name, ShellBase* parent_shell) :
+		_name(name),
+		_parent_shell(parent_shell)
+	{
+		ShellManager::RegisterShell(this);
+	}
+	ShellBase::~ShellBase()
+	{
+		ShellManager::set_current_shell(_parent_shell);
+		ShellManager::RemoveShell(this);
+	}
+
+	//ShellManager
+	std::map<str, ShellBase*> ShellManager::_shell_list;
+	ShellBase* ShellManager::_current_shell;
+	void ShellManager::Run()
+	{
+		root_init();
+	}
+}
+
+//game extern.
+namespace DAB
+{
+	//initialize function
+	std::function<void()> ShellManager::root_init = SHELL::RootInit;
+
 	namespace SHELL
 	{
+		void RootInit()
+		{
+			Shell<void*> root("root", nullptr, nullptr);
+			root.AddFunction("info", SHELL::Info, "get info about software.");
+			root.AddFunction("solver", [&](void* v)->void {SHELL::SolverShell(v, &root); }, "start solver then set aim and parameters");
+			root.AddFunction("game", [&](void* v)->void {SHELL::GameShell(v, &root); }, "start a new game.");
+			root.AddFunction("state", [&](void* v)->void {SHELL::StateShell(v, &root); }, "start state-debug");
+			root.AddFunction("sample", SHELL::Sample, "get sample to check.");
+			root.AddFunction("debug", SHELL::Debug, "debug mode.");
+			root.Run();
+		}
 		void CleanScreen(str name)
 		{
 			system("cls");
@@ -28,17 +69,57 @@ namespace DAB
 			cout << ">> ";
 			Cprintf("use 'help' to get more command\n\n", 2);
 		}
-		void SolverShell(void* v)
+		void SolverShell(void* v, ShellBase* parent)
 		{
-
+			Shell<Solver> solver_shell("solver", parent, Solver());
+			solver_shell.AddFunction("thread", SOLVER_SHELL::Thread, "change thread number");
+			solver_shell.AddFunction("cache", SOLVER_SHELL::FileCache, "set whether to use file cache.");
+			solver_shell.AddFunction("filter", SOLVER_SHELL::Filter, "set thether to use filter.");
+			solver_shell.AddFunction("layer", SOLVER_SHELL::ChangeLayer, "change current layer");
+			solver_shell.AddFunction("start", SOLVER_SHELL::Start, "execute solver.");
+			solver_shell.AddFunction("set", SOLVER_SHELL::Set, "change all solver set.");
+			solver_shell.AddFunction("show", SOLVER_SHELL::Show, "show current solver parameters.");
+			//SOLVER_SHELL::Set(solver_shell.data());
+			solver_shell.Run();
 		}
-		void StateShell(void* v)
+		void StateShell(void* v, ShellBase* parent)
 		{
-
+			Shell<State> state_shell("state", parent, State());
+			state_shell.AddFunction("next", STATE_SHELL::NextState, "set random edge in current state.");
+			state_shell.AddFunction("show", STATE_SHELL::ShowState, "show current state.");
+			state_shell.AddFunction("action", STATE_SHELL::ShowAction, "get free-edges index.");
+			state_shell.AddFunction("save", STATE_SHELL::SaveState, "save current state.");
+			state_shell.AddFunction("load", STATE_SHELL::LoadState, "load a state.");
+			state_shell.AddFunction("remove", STATE_SHELL::RemoveEdge, "remove a edge in current state.");
+			state_shell.AddFunction("seed", STATE_SHELL::ChangeSeed, "change random seed.");
+			state_shell.AddDescript("(0,60]", "to create state with edges.");
+			state_shell.AddExtarCommand([](str command, State& state)->bool {
+				size_t num = atoi(command.c_str());
+				if (num < 60 && num > 0)
+				{
+					cout << ">> create state, edges = " << num << endl;
+					state = State::RandomState(num);
+					MoveAnalyst ma(state, true);
+					state.ActionVisualization(ma.ActionVec());
+					//ActionVec temp = ma.ActionVec();
+					cout << endl;
+					return true;
+				}
+				return false;
+			});
+			state_shell.Run();
 		}
-		void GameShell(void* v)
+		void GameShell(void* v, ShellBase* parent)
 		{
+			Shell<GAME::GameState> game_shell("game", parent, GAME::GameState());
+			game_shell.AddFunction("ai", GAME_SHELL::DoAI, "ai action");
+			game_shell.AddFunction("man", GAME_SHELL::DoMan, "human action");
+			game_shell.AddFunction("auto", GAME_SHELL::StartAutoGame, "start auto game.");
+			game_shell.AddFunction("player", GAME_SHELL::SetPlayer, "set game player");
+			game_shell.AddFunction("show", GAME_SHELL::Show, "show game info.");
+			game_shell.AddFunction("cancel", GAME_SHELL::Cancel, "cancel last action.");
 
+			game_shell.Run();
 		}
 		void Info(void* v)
 		{
@@ -80,7 +161,7 @@ namespace DAB
 					break;
 				}
 			}
-			
+
 		}
 		void Debug(void* v)
 		{
@@ -90,7 +171,6 @@ namespace DAB
 			system("pause");
 		}
 
-		/*
 		namespace GAME_SHELL
 		{
 			void Show(GAME::GameState& game_state)
@@ -148,49 +228,6 @@ namespace DAB
 				else
 				{
 					Error("cancel failed, edge do not exist!");
-				}
-			}
-			void StartGame()
-			{
-				GAME::GameState game_state;
-				CommandList<void(*)(GAME::GameState&)> commands;
-				commands.Add("ai", DoAI, "ai action");
-				commands.Add("man", DoMan, "human action");
-				commands.Add("auto", StartAutoGame, "start auto game.");
-				commands.Add("player", SetPlayer, "set game player");
-				commands.Add("show", Show, "show game info.");
-				commands.Add("cancel", Cancel, "cancel last action.");
-				commands.AddDescript("return", "return to previous menu.");
-				commands.AddDescript("help", "get command list");
-				system("cls");
-				cout << ">> ";
-				Cprintf("[ Solver Shell ]\n", 2);
-				cout << ">> ";
-				Cprintf("use 'help' to get more command\n\n", 2);
-				for (;;)
-				{
-					cout << ">>> ";
-					string str = GetInput();
-					if (str == "return")
-					{
-						//CleanScreen();
-						break;
-					}
-					else if (str == "help")
-					{
-						commands.ShowCommand();
-					}
-					else
-					{
-						if (commands.Exist(str))
-						{
-							commands.Func(str)(game_state);
-						}
-						else
-						{
-							Error("wrong input!");
-						}
-					}
 				}
 			}
 		}
@@ -283,7 +320,7 @@ namespace DAB
 				if (aim_layer < current && aim_layer >0)
 				{
 					Message("aim layer = " + I2S(aim_layer));
-					ShellManager::InputTip("input allow thread number (max = "+I2S(MAX_ALLOW_THREAD)+" )");
+					ShellManager::InputTip("input allow thread number (max = " + I2S(MAX_ALLOW_THREAD) + " )");
 					cin.getline(buffer, 50);
 					size_t thread_num = atoi(buffer);
 					if (thread_num <= MAX_ALLOW_THREAD && thread_num > 0)
@@ -371,51 +408,6 @@ namespace DAB
 				else
 				{
 					Error("wrong input!");
-				}
-			}
-			void StartSolver()
-			{
-				Solver solver(60, false, false, 1);
-				CommandList<void(*)(Solver&)> commands;
-				commands.Add("thread", Thread, "change thread number");
-				commands.Add("cache", FileCache, "set whether to use file cache.");
-				commands.Add("filter", Filter, "set thether to use filter.");
-				commands.Add("layer", ChangeLayer, "change current layer");
-				commands.Add("start", Start, "execute solver.");
-				commands.Add("set", Set, "change all solver set.");
-				commands.Add("show", Show, "show current solver parameters.");
-				commands.AddDescript("return", "return to previous menu.");
-
-				Set(solver);
-				system("cls");
-				cout << ">> ";
-				Cprintf("[ Solver Shell ]\n", 2);
-				cout << ">> ";
-				Cprintf("use 'help' to get more command\n\n", 2);
-				for (;;)
-				{
-					cout << ">>> ";
-					string str = GetInput();
-					if (str == "return")
-					{
-						//CleanScreen();
-						break;
-					}
-					else if (str == "help")
-					{
-						commands.ShowCommand();
-					}
-					else
-					{
-						if (commands.Exist(str))
-						{
-							commands.Func(str)(solver);
-						}
-						else
-						{
-							Error("wrong input!");
-						}
-					}
 				}
 			}
 		}
@@ -522,131 +514,6 @@ namespace DAB
 					Error("no more free-edge!");
 				}
 			}
-			void StartStateShell()
-			{
-				State state;
-				CommandList<void(*)(State&)> commands;	
-				commands.Add("next",NextState,"set random edge in current state.");
-				commands.Add("show",ShowState,"show current state.");
-				commands.Add("action",ShowAction,"get free-edges index.");
-				commands.Add("save",SaveState,"save current state.");
-				commands.Add("load",LoadState,"load a state.");
-				commands.Add("remove",RemoveEdge,"remove a edge in current state.");
-				commands.Add("seed",ChangeSeed,"change random seed.");
-				commands.AddDescript("return", "return to previous menu.");
-				commands.AddDescript("help", "get command list");
-				commands.AddDescript("[0,60]", "to create state with edges.");
-				system("cls");
-				cout << ">> ";
-				Cprintf("[ State Debug Shell ]\n", 2);
-				cout << ">> ";
-				Cprintf("use 'help' to get more command\n\n", 2);
-				for (;;)
-				{
-					cout << ">>> ";
-					char buffer[50];
-					cin.getline(buffer, 50);
-					string str(buffer);
-					if (str == "return")
-					{
-						//CleanScreen();
-						break;
-					}
-					else if (str == "help")
-					{
-						commands.ShowCommand();
-					}
-					else
-					{
-						if (commands.Exist(str))
-						{
-							commands.Func(str)(state);
-						}
-						else
-						{
-							size_t num = atoi(buffer);
-							if (num < 60 && num > 0)
-							{
-								cout << ">> create state, edges = " << num << endl;
-								state = State::RandomState(num);
-								MoveAnalyst ma(state, true);
-								state.ActionVisualization(ma.ActionVec());
-								//ActionVec temp = ma.ActionVec();
-								cout << endl;
-							}
-							else
-							{
-								Error("wrong input!");
-							}
-						}
-					}
-				}
-			}
 		}
-		
-		void test()
-		{
-			
-			//system("pause");
-		}
-
-		void ShellStart()
-		{
-			test();
-
-			
-			commands.AddDescript("help", "get command list");
-			for (;;)
-			{
-				cout << ">>> ";
-				string com = GetInput();
-				if (commands.Exist(com))
-				{
-					commands.Func(com)();
-				}
-				else
-				{
-					if (com == "help")
-					{
-						commands.ShowCommand();
-					}
-					else
-					{
-						Error("wrong command");
-						cout << endl;
-					}
-				}
-			}
-			Message("DabShell finish.");
-		}		
-		*/
-	}
-
-	//ShellBase
-	ShellBase::ShellBase(str name, ShellBase* parent_shell):
-		_name(name),
-		_parent_shell(parent_shell)
-	{
-		ShellManager::RegisterShell(this);
-	}
-	ShellBase::~ShellBase()
-	{
-		ShellManager::set_current_shell(_parent_shell);
-		ShellManager::RemoveShell(this);
-	}
-
-	//ShellManager
-	std::map<str, ShellBase*> ShellManager::_shell_list;
-	ShellBase* ShellManager::_current_shell;
-	void ShellManager::RootInit()
-	{
-		Shell<void*> root("root", nullptr, nullptr);
-		root.AddFunction("info", SHELL::Info, "get info about software.");
-		root.AddFunction("solver", SHELL::SolverShell, "start solver then set aim and parameters");
-		root.AddFunction("game", SHELL::GameShell, "start a new game.");
-		root.AddFunction("state", SHELL::StateShell, "start state-debug");
-		root.AddFunction("sample", SHELL::Sample, "get sample to check.");
-		root.AddFunction("debug", SHELL::Debug, "debug mode.");
-		root.Run();
 	}
 }

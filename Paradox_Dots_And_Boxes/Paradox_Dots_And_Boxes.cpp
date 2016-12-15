@@ -8,7 +8,7 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	ShellManager::RootInit();
+	ShellManager::Run();
 	return 0;
 }
 

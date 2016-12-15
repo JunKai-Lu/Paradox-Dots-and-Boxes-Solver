@@ -7,19 +7,13 @@
 #include <functional>
 
 #include "GameDefine.h"
+#include "Solver.h"
 
 #pragma  once
 
+//source code of shell
 namespace DAB
 {
-	namespace SHELL
-	{
-		void CleanScreen(str name);
-		void SolverShell(void* v);
-		void StateShell(void* v);
-		void GameShell(void* v);
-	}
-
 	//class ShellBase is the abstract class of shell.
 	class ShellBase
 	{
@@ -34,7 +28,7 @@ namespace DAB
 		{
 			return _name;
 		}
-		
+
 		inline ShellBase* parent_shell()
 		{
 			return _parent_shell;
@@ -45,14 +39,14 @@ namespace DAB
 			{
 				Cprintf("DAB", 5);
 				std::cout << " @ ";
-				Cprintf(_name, 2);
+				Cprintf(_name, 14);
 			}
 			else
 			{
-				std::cout << "/";
 				_parent_shell->ShowPath();
-				Cprintf(_name, 2);
-				
+				std::cout << "/";
+				Cprintf(_name, 10);
+
 			}
 		}
 		virtual void Run() = NULL;
@@ -67,8 +61,8 @@ namespace DAB
 		std::map<str, std::function<void(datatype&)> > _func;
 		std::map<str, std::string> _des;
 		datatype _data;
-		std::function<bool(str,datatype&)> _extra_command;
-		
+		std::function<bool(str, datatype&)> _extra_command;
+
 	public:
 		Shell(str name, ShellBase* parent_shell, datatype data) :
 			ShellBase(name, parent_shell),
@@ -162,7 +156,7 @@ namespace DAB
 				}
 				else
 				{
-					if (!_extra_command(command,_data))//check extra commands.
+					if (!_extra_command(command, _data))//check extra commands.
 					{
 						if (FuncExist(command))//check commands list.
 						{
@@ -184,6 +178,7 @@ namespace DAB
 	private:
 		static std::map<str, ShellBase*> _shell_list;
 		static ShellBase* _current_shell;
+		static std::function<void()> root_init;
 
 	public:
 		//Shell Manage
@@ -204,7 +199,7 @@ namespace DAB
 		{
 			_shell_list.erase(shell->name());
 		}
-		
+
 		//current shell
 		static inline ShellBase* current_shell()
 		{
@@ -224,61 +219,61 @@ namespace DAB
 			_current_shell->ShowPath();
 			if (tip != "")
 			{
-				std::cout <<"/";
+				std::cout << "/";
 			}
 			Cprintf(tip, 10);
 			std::cout << ": >> ";
 		}
-		
+
 		//shell root
-		static void RootInit();
+		static void Run();
 	};
-	
+
 }
 
-/*
-template<typename F>
-class CommandList
+//game extern.
+namespace DAB
 {
-private:
-std::map<std::string, F> _func;
-std::map<std::string, std::string> _des;
-public:
-inline void Add(std::string command, F func, std::string des)
-{
-_func[command] = func;
-_des[command] = des;
+	namespace SHELL
+	{
+		void RootInit();
+		void CleanScreen(str name);
+		void Info(void* v);
+		void Sample(void* v);
+		void Debug(void* v);
+		void SolverShell(void* v, ShellBase* parent);
+		void StateShell(void* v, ShellBase* parent);
+		void GameShell(void* v, ShellBase* parent);
+
+		namespace GAME_SHELL
+		{
+			void Show(GAME::GameState& game_state);
+			void SetPlayer(GAME::GameState& game_state);
+			void StartAutoGame(GAME::GameState& game_state);
+			void DoAI(GAME::GameState& game_state);
+			void DoMan(GAME::GameState& game_state);
+			void Cancel(GAME::GameState& game_state);
+		}
+		namespace SOLVER_SHELL
+		{
+			void Thread(Solver& solver);
+			void FileCache(Solver& solver);
+			void Filter(Solver& solver);
+			void ChangeLayer(Solver& solver);
+			void Start(Solver& solver);
+			void Set(Solver& solver);
+			void Show(Solver& solver);
+			void Aim(Solver& solver);
+		}
+		namespace STATE_SHELL
+		{
+			void ShowAction(State& state);
+			void SaveState(State& state);
+			void LoadState(State& state);
+			void RemoveEdge(State& state);
+			void ChangeSeed(State& state);
+			void ShowState(State& state);
+			void NextState(State& state);
+		}
+	}
 }
-inline void AddDescript(std::string command, std::string des)
-{
-_des[command] = des;
-}
-inline bool Exist(std::string command)
-{
-return _func.count(command) > 0;
-}
-inline F Func(std::string command)
-{
-WARNING_CHECK(!Exist(command), "no command");
-return _func[command];
-}
-inline std::string Des(std::string command)
-{
-WARNING_CHECK(!Exist(command),"no command");
-return _des[command];
-}
-inline void ShowCommand()
-{
-cout << endl << ">> ";
-Cprintf("[ COMMAND LIST ]\n\n", 14);
-for (auto command : _des)
-{
-cout << "   '";
-Cprintf(command.first, 12);
-cout << "'" << string("          ").substr(0, 10 - command.first.length()) << command.second << endl;
-}
-cout << endl << endl;
-}
-};
-void ShellStart();
-*/

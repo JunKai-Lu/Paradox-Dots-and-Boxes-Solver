@@ -20,6 +20,23 @@ using namespace std;
 namespace DAB
 {
 	//Constructor Function.
+
+	Solver::Solver() :
+		_aim_layer(60),
+		_file_cache(false),
+		_thread_num(1),
+		_use_filter(false),
+		_log("SolverLog.log", std::ios::app)
+	{
+	}
+	Solver::Solver(const Solver& solver) :
+		_aim_layer(solver._aim_layer),
+		_file_cache(solver._file_cache),
+		_thread_num(solver._thread_num),
+		_use_filter(solver._use_filter),
+		_log("SolverLog.log", std::ios::app)
+	{
+	}
 	Solver::Solver(size_t aim_layer, bool file_cache, bool use_filter, size_t thread_num) :
 		_aim_layer(aim_layer),
 		_file_cache(file_cache),
@@ -27,20 +44,6 @@ namespace DAB
 		_use_filter(use_filter),
 		_log("SolverLog.log",std::ios::app)
 	{
-		_log << "========== Solver Start ==========" << endl;
-		_log << "start time = " << SOLVER::GetLogTimeStr() << endl;
-		_log << "aim layer = " << _aim_layer << endl;
-		_log << "current layer = " << SOLVER::GetCurrentLayer() << endl;
-		_log << "thread num = " << _thread_num << endl;
-		_log << "file cache = " << _file_cache << endl;
-		_log << "==================================" << endl << endl;
-
-		/*if (_current_layer < _aim_layer)
-		{
-			std::cout << ">>>SYSTEM:[ your aim have been solved ]" << std::endl;
-			system("pause");
-			return;
-		}*/
 	}
 
 	//Load data of last solved layer and return them as n parts;

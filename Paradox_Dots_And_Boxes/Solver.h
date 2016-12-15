@@ -149,6 +149,8 @@ namespace DAB
 		* [thread_num] is the theard number that solver is able to use
 		* [auto_execute] can control whether this solver would start automaticlly after it finish load datas.
 		*/
+		Solver();
+		Solver(const Solver& solver);
 		Solver(size_t aim_layer, bool file_cache, bool use_filter, size_t thread_num);
 
 		/*
