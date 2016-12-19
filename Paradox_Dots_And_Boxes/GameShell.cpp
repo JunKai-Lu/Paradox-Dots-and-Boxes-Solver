@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-#include "Shell.h"
+#include "GameShell.h"
 #include "GameDefine.h"
 #include "Solver.h"
 #include "MoveAnalyst.h"

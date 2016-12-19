@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Shell.h"
+#include "GameShell.h"
 #include "PersonalDef.h"
 
 using namespace std;
