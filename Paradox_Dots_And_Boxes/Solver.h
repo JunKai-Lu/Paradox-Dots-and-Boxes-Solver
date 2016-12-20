@@ -23,8 +23,6 @@
 
 namespace dots_and_boxes
 {
-	
-
 	/*
 	naming rules
 	[./data ]								is the folder to save all solver data.
@@ -34,7 +32,6 @@ namespace dots_and_boxes
 	[./data/layer_x/layer_x_solver.dat]		is the info about solver of layer x.
 	[./data/solver.dat]						is the info about solver.
 	*/
-
 
 	//define STL.
 	typedef std::unordered_map<BitBoard, Margin> SolverHash;
