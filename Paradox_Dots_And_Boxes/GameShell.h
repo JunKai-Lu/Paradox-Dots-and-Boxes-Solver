@@ -7,7 +7,6 @@
 #include <sstream>
 #include <functional>
 
-#include "GeneralGameShell.h"
 #include "GameDefine.h"
 #include "Solver.h"
 
