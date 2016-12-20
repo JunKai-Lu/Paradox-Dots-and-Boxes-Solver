@@ -8,7 +8,7 @@
 
 #pragma  once
 
-namespace DAB
+namespace dots_and_boxes
 {
 	typedef std::pair<BitBoard, Margin> SolverState;
 	typedef std::vector<SolverState> Storage;

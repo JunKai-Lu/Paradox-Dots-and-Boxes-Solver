@@ -17,7 +17,7 @@ using namespace std;
 #define REGISTER_SHELL_DATA(name,type,original_data) Shell<type>* name = new Shell<type>(#name, original_data)
 
 //source code of shell
-namespace DAB
+namespace dots_and_boxes
 {
 	namespace SHELL
 	{
@@ -67,7 +67,7 @@ namespace DAB
 }
 
 //game extern.
-namespace DAB
+namespace dots_and_boxes
 {
 	namespace SHELL
 	{
@@ -145,11 +145,11 @@ namespace DAB
 					cout << ">> state = " << endl;
 					state.Visualization();
 					cout << ">> margin = " << margin << endl;
-					//bool dead_chain = STATE::ExistDeadChain(board);
-					//bool free_edge = STATE::ExistFreeEdge(board);
+					//bool dead_chain = state::ExistDeadChain(board);
+					//bool free_edge = state::ExistFreeEdge(board);
 					//cout << ">> exist dead-chain = " << B2S(dead_chain) << endl;
 					//cout << ">> exist free-edge = " << B2S(free_edge) << endl;
-					cout << ">> is reasonable = " << B2S(STATE::IsReasonable(board)) << endl;
+					cout << ">> is reasonable = " << B2S(state::IsReasonable(board)) << endl;
 					if (final_file.eof())
 					{
 						Error("no more states.");
@@ -170,7 +170,7 @@ namespace DAB
 			{
 				State s(576460752303423487);
 				s.Visualization();
-				cout << B2S(STATE::IsReasonable(576460752303423487));
+				cout << B2S(state::IsReasonable(576460752303423487));
 				system("pause");
 			}
 		}
@@ -433,7 +433,7 @@ namespace DAB
 			void SaveState(State& state)
 			{
 				ofstream ofs("free-edge.dat");
-				ofs << BOARD::Create(state);
+				ofs << boardCreate(state);
 				Message("state have been saved successfully.");
 			}
 			void LoadState(State& state)
@@ -481,13 +481,13 @@ namespace DAB
 			}
 			void NextState(State& state)
 			{
-				BitBoard board = BOARD::Create(state);
+				BitBoard board = boardCreate(state);
 				for (;;)
 				{
-					Edge next_edge = STATE::GetDeadBoxRemainEdgeIndex(board);
+					Edge next_edge = state::GetDeadBoxRemainEdgeIndex(board);
 					if (next_edge != MAX_EDGE)
 					{
-						BOARD::EdgeSet(board, next_edge);
+						boardEdgeSet(board, next_edge);
 						state.EdgeSet(next_edge);
 						cout << ">> take edge = " << size_t(next_edge) << endl;
 					}
@@ -499,7 +499,7 @@ namespace DAB
 				vector<Edge> actions;
 				for (Edge edge = 0; edge < MAX_EDGE; edge++)
 				{
-					if (STATE::IsFreeEdge(board, edge))
+					if (state::IsFreeEdge(board, edge))
 					{
 						actions.push_back(edge);
 					}

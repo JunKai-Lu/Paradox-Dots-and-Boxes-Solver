@@ -13,67 +13,8 @@
 
 #pragma  once
 
-namespace DAB
-{
-	namespace console
-	{
-		typedef Color general_game_shell::console::color::Hello;
-		//output msg.
-		inline std::string B2S(bool b)
-		{
-			if (b)
-			{
-				return "true";
-			}
-			return "false";
-		}
-		inline std::string I2S(size_t i)
-		{
-			std::stringstream ss;
-			ss << i;
-			return ss.str();
-		}
-
-		inline void Error(std::string reason)
-		{
-			std::cout << std::endl;
-			Cprintf(">> ERROR: ", 12);
-			Cprintf(reason, 15);
-			std::cout << std::endl << std::endl;
-		}
-		inline void Message(std::string message, bool show_MSG = true)
-		{
-			std::cout << ">> ";
-			if (show_MSG)
-			{
-				Cprintf("MSG: ", 2);
-			}
-			Cprintf(message, 10);
-			std::cout << std::endl << std::endl;
-		}
-		inline void WarningCheck(bool condition, std::string reason, std::string file, int line, std::string function)
-		{
-#ifdef WARNING
-			if (condition)
-			{
-				Cprintf(">> WARNING: ", 5);
-				Cprintf(reason, 12);
-				std::cout << std::endl;
-				Cprintf("[File]: " + file, 8);
-				std::cout << std::endl;
-				Cprintf("[Line]: " + I2S(line), 8);
-				std::cout << std::endl;
-				Cprintf("[Func]: " + function, 8);
-				std::cout << std::endl;
-				system("pause");
-			}
-#endif
-		}
-	}
-}
-
 //source code of shell
-namespace DAB
+namespace dots_and_boxes
 {
 	namespace SHELL
 	{
@@ -333,7 +274,7 @@ namespace DAB
 }
 
 //game extern.
-namespace DAB
+namespace dots_and_boxes
 {
 	namespace SHELL
 	{

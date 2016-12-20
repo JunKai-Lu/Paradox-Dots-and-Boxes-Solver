@@ -6,9 +6,8 @@
 
 using namespace std;
 
-namespace DAB
+namespace dots_and_boxes
 {
-	
 	//Default construct function would use memory as cache.
 	StorageCache::StorageCache() :
 		_memory_method(true),
@@ -117,5 +116,4 @@ namespace DAB
 			}
 		}
 	}
-
 }

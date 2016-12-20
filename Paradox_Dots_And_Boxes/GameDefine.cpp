@@ -3,11 +3,12 @@
 #include <vector>
 
 #include "GameDefine.h"
-
+#include "PersonalDef.h"
+//#include "GeneralGameShell.h"
 
 using namespace std;
 
-namespace DAB
+namespace dots_and_boxes
 {
 	State::State()
 	{
@@ -21,15 +22,15 @@ namespace DAB
 	{
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
-			_edge[i] = BOARD::EdgeExist(bit_board,i);
+			_edge[i] = boardEdgeExist(bit_board,i);
 		}
 	}
 
 	void State::Visualization(ActionVec action_vec)
 	{
-		const WORD edge_color = 14;
-		const WORD action_color = 15;
-		const WORD dot_color = 8;
+		const console::color::Color edge_color = console::color::yellow;
+		const console::color::Color action_color = console::color::white;
+		const console::color::Color dot_color = console::color::gray;
 
 		cout << endl;
 		string interval = "     ";
@@ -40,17 +41,17 @@ namespace DAB
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
-				Cprintf("○", dot_color);
+				console::Cprintf("○", dot_color);
 				if (EdgeExist(index))
 				{
-					Cprintf("━", edge_color);
+					console::Cprintf("━", edge_color);
 					//cout << "━";
 				}
 				else
 				{
 					if (ACTIONVEC::ActionExist(action_vec,index))
 					{
-						Cprintf("┈", action_color);
+						console::Cprintf("┈", action_color);
 						//cout << "┈";
 					}
 					else
@@ -60,7 +61,7 @@ namespace DAB
 					
 				}
 			}
-			Cprintf("○\n", dot_color);
+			console::Cprintf("○\n", dot_color);
 			//cout << "○" << endl;
 
 			//然后得到纵边坐标
@@ -70,8 +71,8 @@ namespace DAB
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
-					Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index); 
+					console::Cprintf("┃", edge_color);
+					Edge upper_right_hor_edge = state::GetUpperRightHorEdge(index); 
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
@@ -88,7 +89,7 @@ namespace DAB
 					if (ACTIONVEC::ActionExist(action_vec, index))
 					{
 						//cout << "┊";
-						Cprintf("┊", action_color);
+						console::Cprintf("┊", action_color);
 					}
 					else
 					{
@@ -101,14 +102,14 @@ namespace DAB
 			if (EdgeExist(59 - y))
 			{
 				//cout << "┃" << endl;
-				Cprintf("┃\n", edge_color);
+				console::Cprintf("┃\n", edge_color);
 			}
 			else
 			{
 				if (ACTIONVEC::ActionExist(action_vec, 59-y))
 				{
 					//cout << "┊" << endl;
-					Cprintf("┊\n", action_color);
+					console::Cprintf("┊\n", action_color);
 				}
 				else
 				{
@@ -122,18 +123,18 @@ namespace DAB
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
-			Cprintf("○", dot_color);
+			console::Cprintf("○", dot_color);
 			if (EdgeExist(index))
 			{
 				//cout << "━";
-				Cprintf("━", edge_color);
+				console::Cprintf("━", edge_color);
 			}
 			else
 			{
 				if (ACTIONVEC::ActionExist(action_vec, index))
 				{
 					//cout << "┈";
-					Cprintf("┈", action_color);
+					console::Cprintf("┈", action_color);
 				}
 				else
 				{
@@ -142,15 +143,15 @@ namespace DAB
 			}
 		}
 		//cout << "○" << endl;
-		Cprintf("○\n\n", dot_color);
+		console::Cprintf("○\n\n", dot_color);
 	}
 
 	void State::ActionVisualization(ActionVec action_vec)
 
 	{
-		const WORD edge_color = 14;
-		const WORD action_color = 15;
-		const WORD dot_color = 8;
+		const console::color::Color edge_color = console::color::yellow;
+		const console::color::Color action_color = console::color::white;
+		const console::color::Color dot_color = console::color::gray;
 		cout << endl;
 		string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
@@ -160,10 +161,10 @@ namespace DAB
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
-				Cprintf("○", dot_color);
+				console::Cprintf("○", dot_color);
 				if (EdgeExist(index))
 				{
-					Cprintf("━", edge_color);
+					console::Cprintf("━", edge_color);
 					//cout << "━";
 				}
 				else
@@ -171,24 +172,24 @@ namespace DAB
 					cout << "  ";
 				}
 			}
-			Cprintf("○" + interval, dot_color);
+			console::Cprintf("○" + interval, dot_color);
 			//cout << "○" << endl;
 
 			//horizon edges, second grid.
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
-				Cprintf("○", dot_color);
+				console::Cprintf("○", dot_color);
 				if (EdgeExist(index))
 				{
-					Cprintf("━", edge_color);
+					console::Cprintf("━", edge_color);
 					//cout << "━";
 				}
 				else
 				{
 					if (ACTIONVEC::ActionExist(action_vec, index))
 					{
-						Cprintf("┈", action_color);
+						console::Cprintf("┈", action_color);
 						//cout << "┈";
 					}
 					else
@@ -198,7 +199,7 @@ namespace DAB
 
 				}
 			}
-			Cprintf("○\n", dot_color);
+			console::Cprintf("○\n", dot_color);
 
 			//vertical edges, first grid.
 			cout << interval;
@@ -207,8 +208,8 @@ namespace DAB
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
-					Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index);
+					console::Cprintf("┃", edge_color);
+					Edge upper_right_hor_edge = state::GetUpperRightHorEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
@@ -228,7 +229,7 @@ namespace DAB
 			if (EdgeExist(59 - y))
 			{
 				//cout << "┃" << endl;
-				Cprintf("┃" + interval, edge_color);
+				console::Cprintf("┃" + interval, edge_color);
 			}
 			else
 			{
@@ -241,8 +242,8 @@ namespace DAB
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
-					Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index);
+					console::Cprintf("┃", edge_color);
+					Edge upper_right_hor_edge = state::GetUpperRightHorEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
@@ -259,7 +260,7 @@ namespace DAB
 					if (ACTIONVEC::ActionExist(action_vec, index))
 					{
 						//cout << "┊";
-						Cprintf("┊", action_color);
+						console::Cprintf("┊", action_color);
 					}
 					else
 					{
@@ -274,14 +275,14 @@ namespace DAB
 			if (EdgeExist(59 - y))
 			{
 				//cout << "┃" << endl;
-				Cprintf("┃\n", edge_color);
+				console::Cprintf("┃\n", edge_color);
 			}
 			else
 			{
 				if (ACTIONVEC::ActionExist(action_vec, 59 - y))
 				{
 					//cout << "┊" << endl;
-					Cprintf("┊\n", action_color);
+					console::Cprintf("┊\n", action_color);
 				}
 				else
 				{
@@ -295,11 +296,11 @@ namespace DAB
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
-			Cprintf("○", dot_color);
+			console::Cprintf("○", dot_color);
 			if (EdgeExist(index))
 			{
 				//cout << "━";
-				Cprintf("━", edge_color);
+				console::Cprintf("━", edge_color);
 			}
 			else
 			{	
@@ -307,24 +308,24 @@ namespace DAB
 			}
 		}
 		//cout << "○" << endl;
-		Cprintf("○" + interval, dot_color);
+		console::Cprintf("○" + interval, dot_color);
 
 		//print lower horizon edges, second grid.
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
-			Cprintf("○", dot_color);
+			console::Cprintf("○", dot_color);
 			if (EdgeExist(index))
 			{
 				//cout << "━";
-				Cprintf("━", edge_color);
+				console::Cprintf("━", edge_color);
 			}
 			else
 			{
 				if (ACTIONVEC::ActionExist(action_vec, index))
 				{
 					//cout << "┈";
-					Cprintf("┈", action_color);
+					console::Cprintf("┈", action_color);
 				}
 				else
 				{
@@ -333,14 +334,14 @@ namespace DAB
 			}
 		}
 		//cout << "○" << endl;
-		Cprintf("○\n\n", dot_color);
+		console::Cprintf("○\n\n", dot_color);
 	}
 
 	void State::EdgeVisualization()
 	{
-		const WORD edge_color = 14;
-		const WORD action_color = 15;
-		const WORD dot_color = 8;
+		const console::color::Color edge_color = console::color::yellow;
+		const console::color::Color action_color = console::color::white;
+		const console::color::Color dot_color = console::color::gray;
 		cout << endl;
 		string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
@@ -350,10 +351,10 @@ namespace DAB
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
-				Cprintf("○", dot_color);
+				console::Cprintf("○", dot_color);
 				if (EdgeExist(index))
 				{
-					Cprintf("━", edge_color);
+					console::Cprintf("━", edge_color);
 					//cout << "━";
 				}
 				else
@@ -361,17 +362,17 @@ namespace DAB
 					cout << "  ";
 				}
 			}
-			Cprintf("○" + interval, dot_color);
+			console::Cprintf("○" + interval, dot_color);
 			//cout << "○" << endl;
 
 			//horizon edges, second grid.
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
-				Cprintf("○", dot_color);
+				console::Cprintf("○", dot_color);
 				if (EdgeExist(index))
 				{
-					Cprintf("━", edge_color);
+					console::Cprintf("━", edge_color);
 					//cout << "━";
 				}
 				else
@@ -386,7 +387,7 @@ namespace DAB
 					}
 				}
 			}
-			Cprintf("○\n", dot_color);
+			console::Cprintf("○\n", dot_color);
 
 			//vertical edges, first grid.
 			cout << interval;
@@ -395,8 +396,8 @@ namespace DAB
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
-					Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index);
+					console::Cprintf("┃", edge_color);
+					Edge upper_right_hor_edge = state::GetUpperRightHorEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
@@ -416,7 +417,7 @@ namespace DAB
 			if (EdgeExist(59 - y))
 			{
 				//cout << "┃" << endl;
-				Cprintf("┃" + interval, edge_color);
+				console::Cprintf("┃" + interval, edge_color);
 			}
 			else
 			{
@@ -429,8 +430,8 @@ namespace DAB
 				if (EdgeExist(index))
 				{
 					//cout << "┃";
-					Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = STATE::GetUpperRightHorEdge(index);
+					console::Cprintf("┃", edge_color);
+					Edge upper_right_hor_edge = state::GetUpperRightHorEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (EdgeExist(upper_right_hor_edge) && EdgeExist(lower_right_hor_edge) && EdgeExist(right_vec_edge))
@@ -461,7 +462,7 @@ namespace DAB
 			if (EdgeExist(59 - y))
 			{
 				//cout << "┃" << endl;
-				Cprintf("┃\n", edge_color);
+				console::Cprintf("┃\n", edge_color);
 			}
 			else
 			{
@@ -474,11 +475,11 @@ namespace DAB
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
-			Cprintf("○", dot_color);
+			console::Cprintf("○", dot_color);
 			if (EdgeExist(index))
 			{
 				//cout << "━";
-				Cprintf("━", edge_color);
+				console::Cprintf("━", edge_color);
 			}
 			else
 			{
@@ -486,17 +487,17 @@ namespace DAB
 			}
 		}
 		//cout << "○" << endl;
-		Cprintf("○" + interval, dot_color);
+		console::Cprintf("○" + interval, dot_color);
 
 		//print lower horizon edges, second grid.
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
-			Cprintf("○", dot_color);
+			console::Cprintf("○", dot_color);
 			if (EdgeExist(index))
 			{
 				//cout << "━";
-				Cprintf("━", edge_color);
+				console::Cprintf("━", edge_color);
 			}
 			else
 			{
@@ -504,7 +505,7 @@ namespace DAB
 			}
 		}
 		//cout << "○" << endl;
-		Cprintf("○\n\n", dot_color);
+		console::Cprintf("○\n\n", dot_color);
 	}
 
 	State State::RandomState(size_t edge_num)
@@ -515,7 +516,7 @@ namespace DAB
 		{
 			for (Edge edge = 0; edge < MAX_EDGE; edge++)
 			{
-				if (STATE::IsFreeEdge(board, edge))
+				if (state::IsFreeEdge(board, edge))
 				{
 					moves.push_back(edge);
 				}
@@ -523,7 +524,7 @@ namespace DAB
 			if (moves.size() != 0)
 			{
 				size_t rnd = rand() % moves.size();
-				BOARD::EdgeSet(board, moves[rnd]);
+				boardEdgeSet(board, moves[rnd]);
 				moves.clear();
 			}
 			else
@@ -534,7 +535,7 @@ namespace DAB
 		return State(board);
 	}
 
-	namespace STATE
+	namespace state
 	{
 		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE。
 		Edge GetDeadBoxRemainEdgeIndex(BitBoard board)
@@ -542,23 +543,23 @@ namespace DAB
 			for (Edge hor_edge = 0; hor_edge < 25; hor_edge++)
 			{
 				Edge lower_hor_edge = hor_edge + 5;
-				Edge lower_left_vec_edge = STATE::GetLowerLeftVecEdge(hor_edge);
+				Edge lower_left_vec_edge = state::GetLowerLeftVecEdge(hor_edge);
 				Edge lower_right_vec_edge = lower_left_vec_edge + 5;
-				if ((BOARD::EdgeExist(board, hor_edge) + BOARD::EdgeExist(board, lower_hor_edge) + BOARD::EdgeExist(board, lower_left_vec_edge) + BOARD::EdgeExist(board, lower_right_vec_edge)) == 3)
+				if ((boardEdgeExist(board, hor_edge) + boardEdgeExist(board, lower_hor_edge) + boardEdgeExist(board, lower_left_vec_edge) + boardEdgeExist(board, lower_right_vec_edge)) == 3)
 				{
-					if (!BOARD::EdgeExist(board, hor_edge))
+					if (!boardEdgeExist(board, hor_edge))
 					{
 						return hor_edge;
 					}
-					else if (!BOARD::EdgeExist(board, lower_hor_edge))
+					else if (!boardEdgeExist(board, lower_hor_edge))
 					{
 						return lower_hor_edge;
 					}
-					else if (!BOARD::EdgeExist(board, lower_left_vec_edge))
+					else if (!boardEdgeExist(board, lower_left_vec_edge))
 					{
 						return lower_left_vec_edge;
 					}
-					else if (!BOARD::EdgeExist(board, lower_right_vec_edge))
+					else if (!boardEdgeExist(board, lower_right_vec_edge))
 					{
 						return lower_right_vec_edge;
 					}
@@ -582,7 +583,7 @@ namespace DAB
 				Edge edge = GetDeadBoxRemainEdgeIndex(temp);
 				if (edge != MAX_EDGE)
 				{
-					BOARD::EdgeSet(temp,edge);
+					boardEdgeSet(temp,edge);
 				}
 				else
 				{
@@ -630,51 +631,51 @@ namespace DAB
 				Edge fir_box_lower_edge = fir_box_upper_edge + 5;
 				Edge fir_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge);
 				Edge fir_box_right_edge = fir_box_left_edge + 5;
-				if ((BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge)) == 3)
+				if ((boardEdgeExist(board, fir_box_upper_edge) + boardEdgeExist(board, fir_box_lower_edge) + boardEdgeExist(board, fir_box_left_edge) + boardEdgeExist(board, fir_box_right_edge)) == 3)
 				{
-					if (!BOARD::EdgeExist(board, fir_box_upper_edge))
+					if (!boardEdgeExist(board, fir_box_upper_edge))
 					{
 						//check upper box
 						if (IsNotUpperSideHorEdge(fir_box_upper_edge))
 						{
 							Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
-							if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 2)
+							if (boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_left_edge + 5) + boardEdgeExist(board, fir_box_upper_edge - 5) == 2)
 							{
 								return true;
 							}
 						}
 					}
-					else if (!BOARD::EdgeExist(board, fir_box_lower_edge))
+					else if (!boardEdgeExist(board, fir_box_lower_edge))
 					{
 						//check lower box
 						if (IsNotLowerSideHorEdge(fir_box_lower_edge))
 						{
-							Edge sec_box_left_edge = STATE::GetLowerLeftVecEdge(fir_box_lower_edge);
-							if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 2)
+							Edge sec_box_left_edge = state::GetLowerLeftVecEdge(fir_box_lower_edge);
+							if (boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_left_edge + 5) + boardEdgeExist(board, fir_box_lower_edge + 5) == 2)
 							{
 								return true;
 							}
 						}
 					}
-					else if (!BOARD::EdgeExist(board, fir_box_left_edge))
+					else if (!boardEdgeExist(board, fir_box_left_edge))
 					{
 						//check left box
 						if (IsNotLeftSideVecEdge(fir_box_left_edge))
 						{
 							Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-							if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 2)
+							if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_upper_edge + 5) + boardEdgeExist(board, fir_box_left_edge - 5) == 2)
 							{
 								return true;
 							}
 						}
 					}
-					else if (!BOARD::EdgeExist(board, fir_box_right_edge))
+					else if (!boardEdgeExist(board, fir_box_right_edge))
 					{
 						//check right box
 						if (IsNotRightSideVecEdge(fir_box_right_edge))
 						{
 							Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-							if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 2)
+							if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_upper_edge + 5) + boardEdgeExist(board, fir_box_right_edge + 5) == 2)
 							{
 								return true;
 							}
@@ -707,18 +708,18 @@ namespace DAB
 			for (Edge edge = 0; edge < 25; edge++)
 			{
 				Edge fir_box_lower_edge = edge + 5;
-				Edge fir_box_left_edge = STATE::GetLowerLeftVecEdge(edge);
+				Edge fir_box_left_edge = state::GetLowerLeftVecEdge(edge);
 				Edge fir_box_right_edge = fir_box_left_edge + 5;
-				if (BOARD::EdgeExist(board, edge) + BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 3)
+				if (boardEdgeExist(board, edge) + boardEdgeExist(board, fir_box_lower_edge) + boardEdgeExist(board, fir_box_left_edge) + boardEdgeExist(board, fir_box_right_edge) == 3)
 				{
-					if (BOARD::EdgeExist(board, edge) == false)
+					if (boardEdgeExist(board, edge) == false)
 					{
 						if (IsNotUpperSideHorEdge(edge))
 						{
 							Edge sec_box_upper_edge = edge - 5;
 							Edge sec_box_left_edge = GetLowerLeftVecEdge(edge - 5);
 							Edge sec_box_right_edge = GetLowerLeftVecEdge(edge - 5) + 5;
-							if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2)
+							if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_right_edge) == 2)
 							{
 								dead_chain++;
 								if (dead_chain > 2)
@@ -766,14 +767,14 @@ namespace DAB
 							}
 						}
 					}
-					else if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+					else if (boardEdgeExist(board, fir_box_lower_edge) == false)
 					{
 						if (IsNotLowerSideHorEdge(fir_box_lower_edge))
 						{
 							Edge sec_box_lower_edge = fir_box_lower_edge + 5;
 							Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
 							Edge sec_box_right_edge = GetLowerLeftVecEdge(fir_box_lower_edge) + 5;
-							if(BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2)
+							if(boardEdgeExist(board, sec_box_lower_edge) + boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_right_edge) == 2)
 							{
 								dead_chain++;
 								if (dead_chain > 2)
@@ -821,14 +822,14 @@ namespace DAB
 							}
 						}
 					}
-					else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+					else if (boardEdgeExist(board, fir_box_left_edge) == false)
 					{
 						if (IsNotLeftSideVecEdge(fir_box_left_edge))
 						{
 							Edge sec_box_left_edge = fir_box_left_edge - 5;
 							Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
 							Edge sec_box_lower_edge = GetUpperRightHorEdge(fir_box_left_edge - 5) + 5;
-							if(BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_left_edge) == 2)
+							if(boardEdgeExist(board, sec_box_lower_edge) + boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_left_edge) == 2)
 							{
 								dead_chain++;
 								if (dead_chain > 2)
@@ -876,14 +877,14 @@ namespace DAB
 							}
 						}
 					}
-					else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+					else if (boardEdgeExist(board, fir_box_right_edge) == false)
 					{
 						if (IsNotRightSideVecEdge(fir_box_right_edge))
 						{
 							Edge sec_box_right_edge = fir_box_right_edge + 5;
 							Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
 							Edge sec_box_lower_edge = GetUpperRightHorEdge(fir_box_right_edge) + 5;
-							if (BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2)
+							if (boardEdgeExist(board, sec_box_lower_edge) + boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_right_edge) == 2)
 							{
 								dead_chain++;
 								if (dead_chain > 2)
@@ -953,7 +954,7 @@ namespace DAB
 			//Check horizon edges.
 			if (IsHorEdge(edge))
 			{
-				if (BOARD::EdgeExist(board, edge) == false)
+				if (boardEdgeExist(board, edge) == false)
 				{
 					//check the box below the edge.
 					bool affect_upper_box = false;
@@ -964,37 +965,37 @@ namespace DAB
 						Edge fir_box_left_edge = GetLowerLeftVecEdge(edge);
 						Edge fir_box_right_edge = fir_box_left_edge + 5;
 
-						int fir_box_edge_num = BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge);
+						int fir_box_edge_num = boardEdgeExist(board, fir_box_lower_edge) + boardEdgeExist(board, fir_box_left_edge) + boardEdgeExist(board, fir_box_right_edge);
 						if (fir_box_edge_num == 2)
 						{
-							if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+							if (boardEdgeExist(board, fir_box_lower_edge) == false)
 							{
 								if (IsNotLowerSideHorEdge(fir_box_lower_edge))
 								{
 									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
-									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 2)
+									if (boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_left_edge + 5) + boardEdgeExist(board, fir_box_lower_edge + 5) == 2)
 									{
 										affect_lower_box = true;
 									}
 								}
 							}
-							else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+							else if (boardEdgeExist(board, fir_box_left_edge) == false)
 							{
 								if (IsNotLeftSideVecEdge(fir_box_left_edge))
 								{
 									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 2)
+									if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_upper_edge + 5) + boardEdgeExist(board, fir_box_left_edge - 5) == 2)
 									{
 										affect_lower_box = true;
 									}
 								}
 							}
-							else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+							else if (boardEdgeExist(board, fir_box_right_edge) == false)
 							{
 								if (IsNotRightSideVecEdge(fir_box_right_edge))
 								{
 									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 2)
+									if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_upper_edge + 5) + boardEdgeExist(board, fir_box_right_edge + 5) == 2)
 									{
 										affect_lower_box = true;
 									}
@@ -1015,37 +1016,37 @@ namespace DAB
 						Edge fir_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge);
 						Edge fir_box_right_edge = fir_box_left_edge + 5;
 
-						int fir_box_edge_num = BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge);						
+						int fir_box_edge_num = boardEdgeExist(board, fir_box_upper_edge) + boardEdgeExist(board, fir_box_left_edge) + boardEdgeExist(board, fir_box_right_edge);						
 						if (fir_box_edge_num == 2)
 						{
-							if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
+							if (boardEdgeExist(board, fir_box_upper_edge) == false)
 							{
 								if (IsNotUpperSideHorEdge(fir_box_upper_edge))
 								{
 									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
-									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 2)
+									if (boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_left_edge + 5) + boardEdgeExist(board, fir_box_upper_edge - 5) == 2)
 									{
 										affect_upper_box = true;
 									}
 								}
 							}
-							else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+							else if (boardEdgeExist(board, fir_box_left_edge) == false)
 							{
 								if (IsNotLeftSideVecEdge(fir_box_left_edge))
 								{
 									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 2)
+									if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_upper_edge + 5) + boardEdgeExist(board, fir_box_left_edge - 5) == 2)
 									{
 										affect_upper_box = true;
 									}
 								}
 							}
-							else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+							else if (boardEdgeExist(board, fir_box_right_edge) == false)
 							{
 								if (IsNotRightSideVecEdge(fir_box_right_edge))
 								{
 									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 2)
+									if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_upper_edge + 5) + boardEdgeExist(board, fir_box_right_edge + 5) == 2)
 									{
 										affect_upper_box = true;
 									}
@@ -1070,7 +1071,7 @@ namespace DAB
 			}
 			else if (IsVecEdge(edge))
 			{
-				if (BOARD::EdgeExist(board, edge) == false)
+				if (boardEdgeExist(board, edge) == false)
 				{
 					//check the box on the left of the edge.
 					bool affect_left_box = false;
@@ -1081,37 +1082,37 @@ namespace DAB
 						Edge fir_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge);
 						Edge fir_box_lower_edge = fir_box_upper_edge + 5;
 
-						int fir_box_edge_num = BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_left_edge);
+						int fir_box_edge_num = boardEdgeExist(board, fir_box_lower_edge) + boardEdgeExist(board, fir_box_upper_edge) + boardEdgeExist(board, fir_box_left_edge);
 						if (fir_box_edge_num == 2)
 						{
-							if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+							if (boardEdgeExist(board, fir_box_left_edge) == false)
 							{
 								if (IsNotLeftSideVecEdge(fir_box_left_edge))
 								{
 									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
-									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_left_edge - 5) == 2)
+									if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_upper_edge + 5) + boardEdgeExist(board, fir_box_left_edge - 5) == 2)
 									{
 										affect_left_box = true;
 									}
 								}
 							}
-							else if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
+							else if (boardEdgeExist(board, fir_box_upper_edge) == false)
 							{
 								if (IsNotUpperSideHorEdge(fir_box_upper_edge))
 								{
 									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
-									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 2)
+									if (boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_left_edge + 5) + boardEdgeExist(board, fir_box_upper_edge - 5) == 2)
 									{
 										affect_left_box = true;
 									}
 								}
 							}
-							else if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+							else if (boardEdgeExist(board, fir_box_lower_edge) == false)
 							{
 								if (IsNotLowerSideHorEdge(fir_box_lower_edge))
 								{
 									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
-									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 2)
+									if (boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_left_edge + 5) + boardEdgeExist(board, fir_box_lower_edge + 5) == 2)
 									{
 										affect_left_box = true;
 									}
@@ -1132,37 +1133,37 @@ namespace DAB
 						Edge fir_box_upper_edge = GetUpperRightHorEdge(edge);
 						Edge fir_box_lower_edge = fir_box_upper_edge + 5;
 
-						int fir_box_edge_num = BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_upper_edge) + BOARD::EdgeExist(board, fir_box_right_edge);
+						int fir_box_edge_num = boardEdgeExist(board, fir_box_lower_edge) + boardEdgeExist(board, fir_box_upper_edge) + boardEdgeExist(board, fir_box_right_edge);
 						if (fir_box_edge_num == 2)
 						{
-							if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+							if (boardEdgeExist(board, fir_box_right_edge) == false)
 							{
 								if (IsNotRightSideVecEdge(fir_box_right_edge))
 								{
 									Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
-									if (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_upper_edge + 5) + BOARD::EdgeExist(board, fir_box_right_edge + 5) == 2)
+									if (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_upper_edge + 5) + boardEdgeExist(board, fir_box_right_edge + 5) == 2)
 									{
 										affect_right_box = true;
 									}
 								}
 							}
-							else if (BOARD::EdgeExist(board, fir_box_upper_edge) == false)
+							else if (boardEdgeExist(board, fir_box_upper_edge) == false)
 							{
 								if (IsNotUpperSideHorEdge(fir_box_upper_edge))
 								{
 									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_upper_edge - 5);
-									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_upper_edge - 5) == 2)
+									if (boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_left_edge + 5) + boardEdgeExist(board, fir_box_upper_edge - 5) == 2)
 									{
 										affect_right_box = true;
 									}
 								}
 							}
-							else if (BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+							else if (boardEdgeExist(board, fir_box_lower_edge) == false)
 							{
 								if (IsNotLowerSideHorEdge(fir_box_lower_edge))
 								{
 									Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
-									if (BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_left_edge + 5) + BOARD::EdgeExist(board, fir_box_lower_edge + 5) == 2)
+									if (boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_left_edge + 5) + boardEdgeExist(board, fir_box_lower_edge + 5) == 2)
 									{
 										affect_right_box = true;
 									}
@@ -1196,51 +1197,51 @@ namespace DAB
 			WARNING_CHECK(edge > 25,"wrong edge");
 
 			Edge fir_box_lower_edge = edge + 5;
-			Edge fir_box_left_edge = STATE::GetLowerLeftVecEdge(edge);
+			Edge fir_box_left_edge = state::GetLowerLeftVecEdge(edge);
 			Edge fir_box_right_edge = fir_box_left_edge + 5;
-			if (BOARD::EdgeExist(board, edge) + BOARD::EdgeExist(board, fir_box_lower_edge) + BOARD::EdgeExist(board, fir_box_left_edge) + BOARD::EdgeExist(board, fir_box_right_edge) == 3)
+			if (boardEdgeExist(board, edge) + boardEdgeExist(board, fir_box_lower_edge) + boardEdgeExist(board, fir_box_left_edge) + boardEdgeExist(board, fir_box_right_edge) == 3)
 			{
-				if (BOARD::EdgeExist(board, edge) == false)
+				if (boardEdgeExist(board, edge) == false)
 				{
 					if (IsNotUpperSideHorEdge(edge))
 					{
 						Edge sec_box_upper_edge = edge - 5;
 						Edge sec_box_left_edge = GetLowerLeftVecEdge(edge - 5);
 						Edge sec_box_right_edge = GetLowerLeftVecEdge(edge - 5) + 5;
-						return (BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2);
+						return (boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_right_edge) == 2);
 					}
 					return false;
 				}
-				else if(BOARD::EdgeExist(board, fir_box_lower_edge) == false)
+				else if(boardEdgeExist(board, fir_box_lower_edge) == false)
 				{
 					if (IsNotLowerSideHorEdge(fir_box_lower_edge))
 					{
 						Edge sec_box_lower_edge = fir_box_lower_edge + 5;
 						Edge sec_box_left_edge = GetLowerLeftVecEdge(fir_box_lower_edge);
 						Edge sec_box_right_edge = GetLowerLeftVecEdge(fir_box_lower_edge) + 5;
-						return (BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_left_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2);
+						return (boardEdgeExist(board, sec_box_lower_edge) + boardEdgeExist(board, sec_box_left_edge) + boardEdgeExist(board, sec_box_right_edge) == 2);
 					}
 					return false;
 				}
-				else if (BOARD::EdgeExist(board, fir_box_left_edge) == false)
+				else if (boardEdgeExist(board, fir_box_left_edge) == false)
 				{
 					if (IsNotLeftSideVecEdge(fir_box_left_edge))
 					{
 						Edge sec_box_left_edge = fir_box_left_edge - 5;
 						Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_left_edge - 5);
 						Edge sec_box_lower_edge = GetUpperRightHorEdge(fir_box_left_edge - 5) + 5;
-						return (BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_left_edge) == 2);
+						return (boardEdgeExist(board, sec_box_lower_edge) + boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_left_edge) == 2);
 					}
 					return false;
 				}
-				else if (BOARD::EdgeExist(board, fir_box_right_edge) == false)
+				else if (boardEdgeExist(board, fir_box_right_edge) == false)
 				{
 					if (IsNotRightSideVecEdge(fir_box_right_edge))
 					{
 						Edge sec_box_right_edge = fir_box_right_edge + 5;
 						Edge sec_box_upper_edge = GetUpperRightHorEdge(fir_box_right_edge);
 						Edge sec_box_lower_edge = GetUpperRightHorEdge(fir_box_right_edge) + 5;
-						return (BOARD::EdgeExist(board, sec_box_lower_edge) + BOARD::EdgeExist(board, sec_box_upper_edge) + BOARD::EdgeExist(board, sec_box_right_edge) == 2);
+						return (boardEdgeExist(board, sec_box_lower_edge) + boardEdgeExist(board, sec_box_upper_edge) + boardEdgeExist(board, sec_box_right_edge) == 2);
 					}
 					return false;
 				}
@@ -1292,7 +1293,7 @@ namespace DAB
 
 	}
 
-	namespace GAME
+	namespace game
 	{
 		GameState::GameState() :
 			State(),

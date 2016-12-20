@@ -12,10 +12,10 @@
 * email: Junkai-Lu@outlook.com
 */
 
-namespace general_game_shell
+namespace console
 {
 	//colorful print
-	void console::Cprintf(std::string tex, console::color::Color color)
+	void Cprintf(std::string tex, console::color::Color color)
 	{
 		WORD colorOld;
 		HANDLE handle = ::GetStdHandle(STD_OUTPUT_HANDLE);
@@ -26,7 +26,9 @@ namespace general_game_shell
 		std::cout << tex;
 		SetConsoleTextAttribute(handle, colorOld);
 	}
-
+}
+namespace general_game_shell
+{
 	//ShellPageBase
 	ShellPageBase::ShellPageBase(GameShell* belonging_shell, std::string name) :
 		_belonging_shell(belonging_shell),
@@ -69,7 +71,7 @@ namespace general_game_shell
 
 	//GameShell
 	GameShell* GameShell::_g_focus_game = nullptr;
-	GameShell::GameShell(std::string name):
+	GameShell::GameShell(std::string name) :
 		_name(name)
 	{
 		BeFocus();
