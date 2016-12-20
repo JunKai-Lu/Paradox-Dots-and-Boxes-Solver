@@ -3,7 +3,6 @@
 #include <string>
 #include <stdlib.h>
 #include <sstream>
-#include <Windows.h>
 #include <vector>
 
 #include "PersonalDef.h"
@@ -22,7 +21,7 @@
 #define BLUE_BOX -1
 #define EMPTY_BOX 0
 
-namespace DAB
+namespace dots_and_boxes
 {
 	//type define.
 	typedef unsigned char Edge;
@@ -81,7 +80,7 @@ namespace DAB
 		static State RandomState(size_t edge_num);
 	};
 
-	namespace BOARD
+	namespace board
 	{
 		//get whether a edge exist in this bit board.
 		inline bool EdgeExist(const BitBoard& board, Edge index)
@@ -103,7 +102,7 @@ namespace DAB
 		inline void EdgeRemove(BitBoard& board, Edge index)
 		{
 			WARNING_CHECK(index >= MAX_EDGE || index < 0,"Wrong index");
-			WARNING_CHECK(!BOARD::EdgeExist(board, index),"edge not exist");
+			WARNING_CHECK(!board::EdgeExist(board, index),"edge not exist");
 			BitBoard temp = 1;
 			temp = ~(temp << index);
 			board = board & temp;
@@ -148,7 +147,7 @@ namespace DAB
 		}
 	}
 
-	namespace ACTIONVEC
+	namespace action_vector
 	{
 		//create a action vector.
 		inline ActionVec Create(bool edge[MAX_EDGE])
@@ -192,7 +191,7 @@ namespace DAB
 		}
 	}
 
-	namespace STATE
+	namespace state
 	{
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge GetLowerLeftVecEdge(Edge hor_edge)
@@ -249,7 +248,7 @@ namespace DAB
 		{
 			WARNING_CHECK(hor_edge > 24, "Wrong index");
 			Edge lower_left_edge = GetLowerLeftVecEdge(hor_edge);
-			return BOARD::EdgeExist(board, hor_edge) + BOARD::EdgeExist(board, lower_left_edge) + BOARD::EdgeExist(board, lower_left_edge + 5) + BOARD::EdgeExist(board, hor_edge + 5);
+			return board::EdgeExist(board, hor_edge) + board::EdgeExist(board, lower_left_edge) + board::EdgeExist(board, lower_left_edge + 5) + board::EdgeExist(board, hor_edge + 5);
 		}
 
 		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE.
@@ -265,7 +264,7 @@ namespace DAB
 		inline Margin TheNumOfFullBoxWithTheEdge(const BitBoard& board, Edge index)
 		{
 			
-			if (!BOARD::EdgeExist(board, index))
+			if (!board::EdgeExist(board, index))
 			{
 				return 0;
 			}
@@ -283,7 +282,7 @@ namespace DAB
 						Edge lower_hor_edge = index + 5;
 						Edge lower_left_vec_edge = GetLowerLeftVecEdge(index);
 						Edge lower_right_vec_edge = lower_left_vec_edge + 5;
-						if (BOARD::EdgeExist(board, lower_hor_edge) && BOARD::EdgeExist(board, lower_left_vec_edge) && BOARD::EdgeExist(board, lower_right_vec_edge))
+						if (board::EdgeExist(board, lower_hor_edge) && board::EdgeExist(board, lower_left_vec_edge) && board::EdgeExist(board, lower_right_vec_edge))
 						{
 							num++;
 						}
@@ -292,7 +291,7 @@ namespace DAB
 						Edge upper_hor_edge = index - 5;
 						Edge upper_left_vec_edge = GetLowerLeftVecEdge(upper_hor_edge);
 						Edge upper_right_vec_edge = upper_left_vec_edge + 5;
-						if (BOARD::EdgeExist(board, upper_hor_edge) && BOARD::EdgeExist(board, upper_left_vec_edge) && BOARD::EdgeExist(board, upper_right_vec_edge))
+						if (board::EdgeExist(board, upper_hor_edge) && board::EdgeExist(board, upper_left_vec_edge) && board::EdgeExist(board, upper_right_vec_edge))
 						{
 							num++;
 						}
@@ -306,7 +305,7 @@ namespace DAB
 						Edge upper_hor_edge = index - 5;
 						Edge upper_left_vec_edge = GetLowerLeftVecEdge(upper_hor_edge);
 						Edge upper_right_vec_edge = upper_left_vec_edge + 5;
-						if (BOARD::EdgeExist(board, upper_hor_edge) && BOARD::EdgeExist(board, upper_left_vec_edge) && BOARD::EdgeExist(board, upper_right_vec_edge))
+						if (board::EdgeExist(board, upper_hor_edge) && board::EdgeExist(board, upper_left_vec_edge) && board::EdgeExist(board, upper_right_vec_edge))
 						{
 							num++;
 						}
@@ -320,7 +319,7 @@ namespace DAB
 					Edge lower_hor_edge = index + 5;
 					Edge lower_left_vec_edge = GetLowerLeftVecEdge(index);
 					Edge lower_right_vec_edge = lower_left_vec_edge + 5;
-					if (BOARD::EdgeExist(board, lower_hor_edge) && BOARD::EdgeExist(board, lower_left_vec_edge) && BOARD::EdgeExist(board, lower_right_vec_edge))
+					if (board::EdgeExist(board, lower_hor_edge) && board::EdgeExist(board, lower_left_vec_edge) && board::EdgeExist(board, lower_right_vec_edge))
 					{
 						num++;
 					}
@@ -340,7 +339,7 @@ namespace DAB
 						Edge right_vec_edge = index + 5;
 						Edge upper_right_hor_edge = GetUpperRightHorEdge(index);
 						Edge lower_right_hor_edge = upper_right_hor_edge + 5;
-						if (BOARD::EdgeExist(board, right_vec_edge) && BOARD::EdgeExist(board, upper_right_hor_edge) && BOARD::EdgeExist(board, lower_right_hor_edge))
+						if (board::EdgeExist(board, right_vec_edge) && board::EdgeExist(board, upper_right_hor_edge) && board::EdgeExist(board, lower_right_hor_edge))
 						{
 							num++;
 						}
@@ -349,7 +348,7 @@ namespace DAB
 						Edge left_vec_edge = index - 5;
 						Edge upper_left_hor_edge = GetUpperRightHorEdge(left_vec_edge);
 						Edge lower_left_hor_edge = upper_left_hor_edge + 5;
-						if (BOARD::EdgeExist(board, left_vec_edge) && BOARD::EdgeExist(board, upper_left_hor_edge) && BOARD::EdgeExist(board, lower_left_hor_edge))
+						if (board::EdgeExist(board, left_vec_edge) && board::EdgeExist(board, upper_left_hor_edge) && board::EdgeExist(board, lower_left_hor_edge))
 						{
 							num++;
 						}
@@ -362,7 +361,7 @@ namespace DAB
 						Edge left_vec_edge = index - 5;
 						Edge upper_left_hor_edge = GetUpperRightHorEdge(left_vec_edge);
 						Edge lower_left_hor_edge = upper_left_hor_edge + 5;
-						if (BOARD::EdgeExist(board, left_vec_edge) && BOARD::EdgeExist(board, upper_left_hor_edge) && BOARD::EdgeExist(board, lower_left_hor_edge))
+						if (board::EdgeExist(board, left_vec_edge) && board::EdgeExist(board, upper_left_hor_edge) && board::EdgeExist(board, lower_left_hor_edge))
 						{
 							num++;
 						}
@@ -376,7 +375,7 @@ namespace DAB
 					Edge right_vec_edge = index + 5;
 					Edge upper_right_hor_edge = GetUpperRightHorEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
-					if (BOARD::EdgeExist(board, right_vec_edge) && BOARD::EdgeExist(board, upper_right_hor_edge) && BOARD::EdgeExist(board, lower_right_hor_edge))
+					if (board::EdgeExist(board, right_vec_edge) && board::EdgeExist(board, upper_right_hor_edge) && board::EdgeExist(board, lower_right_hor_edge))
 					{
 						num++;
 					}
@@ -391,26 +390,26 @@ namespace DAB
 		{
 			if ((board & 0x400000001) == 0x400000000)
 			{
-				BOARD::EdgeRemove(board, 34);
-				BOARD::EdgeSet(board, 0);
+				board::EdgeRemove(board, 34);
+				board::EdgeSet(board, 0);
 			}
 
 			if ((board & 0x800000000000010) == 0x800000000000000)
 			{
-				BOARD::EdgeRemove(board, 59);
-				BOARD::EdgeSet(board, 4);
+				board::EdgeRemove(board, 59);
+				board::EdgeSet(board, 4);
 			}
 
 			if ((board & 0x42000000) == 0x40000000)
 			{
-				BOARD::EdgeRemove(board, 30);
-				BOARD::EdgeSet(board, 25);
+				board::EdgeRemove(board, 30);
+				board::EdgeSet(board, 25);
 			}
 
 			if ((board & 0x80000020000000) == 0x80000000000000)
 			{
-				BOARD::EdgeRemove(board, 55);
-				BOARD::EdgeSet(board, 29);
+				board::EdgeRemove(board, 55);
+				board::EdgeSet(board, 29);
 			}
 		}
 
@@ -421,7 +420,7 @@ namespace DAB
 			for (Edge i = 30; i < 60; i++)
 			{
 				temp = temp << 1;
-				if (BOARD::EdgeExist(board, i))
+				if (board::EdgeExist(board, i))
 				{
 					temp = temp | 1;
 				}
@@ -439,7 +438,7 @@ namespace DAB
 				for (Edge n = 0; n < 5; n++)
 				{
 					temp = temp << 1;
-					if (BOARD::EdgeExist(board, begin + n))
+					if (board::EdgeExist(board, begin + n))
 					{
 						temp = temp | 1;
 					}
@@ -476,7 +475,7 @@ namespace DAB
 		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b);
 	}
 
-	namespace GAME
+	namespace game
 	{
 		typedef std::vector<Edge> ActionDes;
 
@@ -550,11 +549,11 @@ namespace DAB
 			{
 				if (is_sec_player)
 				{
-					_sec_player._score -= STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
+					_sec_player._score -= state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
 				}
 				else
 				{
-					_fir_player._score -= STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
+					_fir_player._score -= state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
 				}
 				EdgeRemove(edge);
 			}
@@ -565,11 +564,11 @@ namespace DAB
 				_last_player = is_sec_player;
 				if (is_sec_player)
 				{
-					_sec_player._score += STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
+					_sec_player._score += state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
 				}
 				else
 				{
-					_fir_player._score += STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
+					_fir_player._score += state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
 				}
 			}
 			void DoActions(bool is_sec_player, ActionDes actions)
@@ -577,7 +576,7 @@ namespace DAB
 				for (auto edge : actions)
 				{
 					GameEdgeSet(is_sec_player, edge);
-					Message("Edge " + I2S(edge), false);
+					console::Message("Edge " + console::I2S(edge), false);
 				}
 			}
 		};

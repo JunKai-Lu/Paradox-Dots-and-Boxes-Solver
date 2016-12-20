@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace DAB
+namespace dots_and_boxes
 {
 	
 	//Default construct function would use memory as cache.

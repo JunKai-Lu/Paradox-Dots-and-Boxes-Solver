@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace DAB
+namespace dots_and_boxes
 {
 	/*
 								free-edge	dead-box		dead-chain
@@ -183,7 +183,7 @@ namespace DAB
 					return i;
 				}
 			}
-			Error("chain list is full!");
+			console::Error("chain list is full!");
 			return 0;
 		}
 

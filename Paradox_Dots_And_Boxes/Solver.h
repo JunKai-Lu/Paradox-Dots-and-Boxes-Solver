@@ -21,7 +21,7 @@
 #define MAX_ALLOW_THREAD 8
 
 
-namespace DAB
+namespace dots_and_boxes
 {
 	
 
@@ -39,7 +39,7 @@ namespace DAB
 	//define STL.
 	typedef std::unordered_map<BitBoard, Margin> SolverHash;
 
-	namespace SOLVER
+	namespace solver
 	{
 		extern std::timed_mutex cout_mtx;
 
@@ -114,11 +114,108 @@ namespace DAB
 		*/
 		inline bool ReasonableStateFilter(BitBoard board)
 		{
-			return STATE::IsReasonable(board);
+			return state::IsReasonable(board);
 		}
+
+
+		class Solver
+		{
+		private:
+			size_t _aim_layer;
+			bool _file_cache;
+			size_t _thread_num;
+			bool _use_filter;
+			std::ofstream _log;
+
+		public:
+
+			/*
+			* Constructor Function
+			* parameters:
+			* [aim_layer] is aim of this function, program would finish after we reach the aim.
+			* [file_cache] means this solver would use files as cache to decrease memory requirement.
+			* [thread_num] is the theard number that solver is able to use
+			* [auto_execute] can control whether this solver would start automaticlly after it finish load datas.
+			*/
+			Solver();
+			Solver(const Solver& solver);
+			Solver(size_t aim_layer, bool file_cache, bool use_filter, size_t thread_num);
+
+			/*
+			* Start solver until reach the aim
+			*/
+			void Run();
+
+			inline size_t thread_num()
+			{
+				return _thread_num;
+			}
+			inline size_t aim_layer()
+			{
+				return _aim_layer;
+			}
+			inline size_t current_layer()
+			{
+				return solver::GetCurrentLayer();
+			}
+			inline bool use_filter()
+			{
+				return _use_filter;
+			}
+			inline bool file_cache()
+			{
+				return _file_cache;
+			}
+
+
+			inline void set_thread_num(size_t num)
+			{
+				_thread_num = num;
+			}
+			inline void set_aim_layer(size_t num)
+			{
+				_aim_layer = num;
+			}
+			inline void set_use_filter(bool b)
+			{
+				_use_filter = b;
+			}
+			inline void set_use_file_cache(bool b)
+			{
+				_file_cache = b;
+			}
+
+		private:
+
+			/*
+			* Load data of last solved layer and return them as n parts in a vector;
+			* return value: whether this function load target layer data successfully.
+			* parameter:
+			* [lists] is the vetor contains multiple list,this function would fill in those lists with data of target layer
+			* [target_layer] is the layer that this function would load from.
+			* [list_num] is the number of list in the vector.
+			*/
+			bool LoadStorages(std::vector< Storage >& storages, size_t target_layer);
+
+			/*
+			* Output the result of appointed layer
+			* return value: the size of solver state after filter.
+			* parameters:
+			* [ss_map] the solver state map that contain all solver state of this layer.
+			* [layer] the layer index
+			* [filter] whether filter would be execute during output.
+			*/
+			size_t OutputResult(SolverStateMap& ss_map, size_t layer);
+
+			/*
+			* try to compute next layer to close solver aim.
+			*/
+			void ComputeNextLayer();
+
+		};
 	}
 
-	namespace MINIMAX
+	namespace minimax
 	{
 		extern Edge edge_queue[MAX_EDGE];
 		inline Edge EdgeQueue(size_t index)
@@ -130,99 +227,5 @@ namespace DAB
 		Margin Minimax(BitBoard board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash);
 	}
 
-	class Solver
-	{
-	private:
-		size_t _aim_layer;
-		bool _file_cache;
-		size_t _thread_num;
-		bool _use_filter;
-		std::ofstream _log;
-
-	public:
-
-		/*
-		* Constructor Function
-		* parameters:
-		* [aim_layer] is aim of this function, program would finish after we reach the aim.
-		* [file_cache] means this solver would use files as cache to decrease memory requirement.
-		* [thread_num] is the theard number that solver is able to use
-		* [auto_execute] can control whether this solver would start automaticlly after it finish load datas.
-		*/
-		Solver();
-		Solver(const Solver& solver);
-		Solver(size_t aim_layer, bool file_cache, bool use_filter, size_t thread_num);
-
-		/*
-		* Start solver until reach the aim
-		*/
-		void Run();
-
-		inline size_t thread_num()
-		{
-			return _thread_num;
-		}
-		inline size_t aim_layer()
-		{
-			return _aim_layer;
-		}
-		inline size_t current_layer()
-		{
-			return SOLVER::GetCurrentLayer();
-		}
-		inline bool use_filter()
-		{
-			return _use_filter;
-		}
-		inline bool file_cache()
-		{
-			return _file_cache;
-		}
-
-
-		inline void set_thread_num(size_t num)
-		{
-			_thread_num = num;
-		}
-		inline void set_aim_layer(size_t num)
-		{
-			_aim_layer = num;
-		}
-		inline void set_use_filter(bool b)
-		{
-			_use_filter = b;
-		}
-		inline void set_use_file_cache(bool b)
-		{
-			_file_cache = b;
-		}
-
-	private:
-
-		/*
-		* Load data of last solved layer and return them as n parts in a vector;
-		* return value: whether this function load target layer data successfully.
-		* parameter:
-		* [lists] is the vetor contains multiple list,this function would fill in those lists with data of target layer
-		* [target_layer] is the layer that this function would load from.
-		* [list_num] is the number of list in the vector.
-		*/
-		bool LoadStorages(std::vector< Storage >& storages, size_t target_layer);
-
-		/*
-		* Output the result of appointed layer
-		* return value: the size of solver state after filter.
-		* parameters:
-		* [ss_map] the solver state map that contain all solver state of this layer.
-		* [layer] the layer index
-		* [filter] whether filter would be execute during output.
-		*/
-		size_t OutputResult(SolverStateMap& ss_map, size_t layer);
-
-		/*
-		* try to compute next layer to close solver aim.
-		*/
-		void ComputeNextLayer();
-
-	};
+	
 }

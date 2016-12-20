@@ -4,21 +4,21 @@
 
 #pragma  once
 
-namespace DAB
+namespace dots_and_boxes
 {
-	namespace GAME
+	namespace game
 	{
-		namespace MCTS
+		namespace mcts
 		{
 			ActionDes MctsRespond(State& state);
 		}
 
-		namespace HUMAN
+		namespace human
 		{
 			ActionDes HumanRespond(State& state);
 		}
 
-		namespace RANDOM
+		namespace random
 		{
 			ActionDes RandomRespond(State& state);
 		}

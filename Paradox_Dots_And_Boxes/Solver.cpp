@@ -17,237 +17,9 @@
 
 using namespace std;
 
-namespace DAB
+namespace dots_and_boxes
 {
-	//Constructor Function.
-
-	Solver::Solver() :
-		_aim_layer(60),
-		_file_cache(false),
-		_thread_num(1),
-		_use_filter(false),
-		_log("SolverLog.log", std::ios::app)
-	{
-	}
-	Solver::Solver(const Solver& solver) :
-		_aim_layer(solver._aim_layer),
-		_file_cache(solver._file_cache),
-		_thread_num(solver._thread_num),
-		_use_filter(solver._use_filter),
-		_log("SolverLog.log", std::ios::app)
-	{
-	}
-	Solver::Solver(size_t aim_layer, bool file_cache, bool use_filter, size_t thread_num) :
-		_aim_layer(aim_layer),
-		_file_cache(file_cache),
-		_thread_num(thread_num),
-		_use_filter(use_filter),
-		_log("SolverLog.log",std::ios::app)
-	{
-	}
-
-	//Load data of last solved layer and return them as n parts;
-	bool Solver::LoadStorages(std::vector< Storage >& storage_vec, size_t target_layer)
-	{
-		std::ios_base::sync_with_stdio(false);
-		clock_t start = clock();
-		cout << endl << "========== Load Storage ========== " << endl;
-		cout << "target = " << target_layer << endl;
-		cout << "thread_num = " << thread_num() << endl;
-		
-		_log << endl << "========== Load Storage ========== " << endl;
-		_log << "target = " << target_layer << endl;
-		_log << "thread_num = " << thread_num() << endl;
-
-		//push new lists
-		stringstream path;
-		path << "./data/layer_" << target_layer << "/layer_" << target_layer << "_final.dat";
-		if (_access(path.str().c_str(), 0) != -1)
-		{
-			ifstream target_file(path.str());
-			//turn to load record
-			size_t current_storage_index = 0;
-			size_t count = 0;
-			for (;;)
-			{	
-				BitBoard bit;
-				Margin mar;
-				target_file >> bit >> mar;
-				if (target_file.eof())
-				{
-					break;
-				}
-				count++;
-				storage_vec[current_storage_index].push_back(SolverState(bit, mar));
-				current_storage_index++;
-				if (current_storage_index >= thread_num())
-				{
-					current_storage_index = 0;
-				}
-				if (count % DISPLAYED_TIME_INTERVAL == 0)
-				{
-					cout << ">> loading state = " << count << endl;
-				}
-			}
-			double time_consuming = SOLVER::GetTimeConsuming(start);
-			cout << "state num = " << count << endl;
-			cout << "time cost = " << time_consuming << endl;
-			cout << "================================== " << endl << endl;
-
-			_log << "state num = " << thread_num() << endl;
-			_log << "time cost = " << time_consuming << endl;
-			_log << "================================== " << endl << endl;
-			return true;
-		}
-		Error("can not find file " + path.str());
-		return false;
-	}
-	
-	//Output the result of appointed layer
-	size_t Solver::OutputResult(SolverStateMap& ss_map, size_t layer)
-	{
-		std::ios_base::sync_with_stdio(false);
-		clock_t start = clock();
-		stringstream path;
-		path << "./data/layer_" <<layer;
-		if (_access(path.str().c_str(), 0) == -1)
-		{
-			_mkdir(path.str().c_str());
-		}
-		path << "/layer_" << layer;// <<;
-
-		ofstream os((path.str() + "_final.dat").c_str());
-		Message(("Output target = " + path.str() + "_final.dat"),false);
-		size_t count = 0;
-
-		for (auto ss : ss_map)
-		{
-			count++;
-			os << ss.first << " " << ss.second << std::endl;
-		}
-
-		double time_consuming = SOLVER::GetTimeConsuming(start);
-
-		_log << endl << "========== OUTPUT INFO ===========" << endl;
-		_log << "time-consuming = " << time_consuming << endl;
-		_log << "final size = " << count << endl;
-		_log << "original size = " << ss_map.size() << endl;
-		_log << "layer = " << layer << endl;
-		_log << "==================================" << endl;
-
-		cout << endl << "========== OUTPUT INFO ===========" << endl;
-		cout << "time-consuming = " << time_consuming << endl;
-		cout << "final size = " << count << endl;
-		cout << "original size = " << ss_map.size() << endl;
-		cout << "layer = " << layer << endl;
-		cout << "==================================" << endl;
-		return count;
-	}
-
-	//try to compute next layer to close solver aim.
-	void Solver::ComputeNextLayer()
-	{
-		size_t current_layer = SOLVER::GetCurrentLayer();
-		cout << ">> Solver [" << current_layer << " -> " << current_layer - 1 << "] start!" << endl << endl;
-		_log << ">> Solver [" << current_layer << " -> " << current_layer - 1 << "] start!" << endl << endl;
-
-		vector < Storage > storage_vec(thread_num());
-		if (!LoadStorages(storage_vec, current_layer))
-		{
-			system("pause");
-			return;
-		}
-
-		vector<StorageCache> cache_vec;
-		if (! ( thread_num() == 1 && !_file_cache ))
-		{
-			if (_file_cache)//using file cache.
-			{
-				for (size_t i = 0; i < thread_num(); i++)
-				{
-					//create cache folder if it do not exist.
-					if (_access("./cache", 0) == -1)
-					{
-						_mkdir("./cache");
-					}
-
-					stringstream ss;
-					ss << "./cache/cache_" << i << ".dat";
-					cache_vec.push_back(StorageCache(ss.str()));
-				}
-
-				cout << ">> Create file cache success!" << endl;
-				_log << ">> Create file cache success!" << endl;
-			}
-			else//using memory cache.
-			{
-				for (size_t i = 0; i < thread_num(); i++)
-				{
-					cache_vec.push_back(StorageCache());
-				}
-				cout << ">> Create memory cache success!" << endl;
-				_log << ">> Create memory cache success!" << endl;
-			}
-		}
-		
-		SolverStateMap ss_map;
-		if (thread_num() == 1 && !_file_cache)
-		{
-			cout << ">> Compute storage start[ToMap]..." << endl;
-			SOLVER::ComputeStorageToMap(storage_vec[0], ss_map, use_filter(), true);
-			cout << ">> Compute storage, method = [ToMap], size = " << storage_vec[0].size() << endl;
-			_log << ">> Compute storage, method = [ToMap], size = " << storage_vec[0].size() << endl;
-		}
-		else
-		{
-			vector<thread> threads(thread_num());
-			std::timed_mutex cout_mutex;
-
-			for (size_t i = 0; i < thread_num(); i++)
-			{
-				threads[i] = thread(SOLVER::ThreadComputeStorageToCache, storage_vec[i], cache_vec[i], use_filter(), i);
-			}
-
-			for (auto& thd : threads)
-			{
-				thd.join();
-			}
-			cout << ">> all threads finish." << endl;
-
-			//execute ToMap.
-			for (size_t i = 0; i < cache_vec.size(); i++)
-			{
-				cout << ">> ToMap [ " << i + 1 << "/" << thread_num() << " ] executing..." << endl;
-				_log << ">> ToMap [ " << i + 1 << "/" << thread_num() << " ] executing..." << endl;
-				cache_vec[i].ToMap(ss_map);
-			}
-		}
-
-		cout << endl << ">> Start outputing... " << endl;
-		_log << endl << ">> Start outputing... " << endl;
-		
-		current_layer--;
-		size_t output_size = OutputResult(ss_map, current_layer);
-		
-		SOLVER::WriteSolverData(current_layer);
-		cout << endl << ">> Solver ["<< current_layer + 1 << " -> " << current_layer <<"] finish!"<< endl << endl;
-		_log << endl << ">> Solver [" << current_layer + 1 << " -> " << current_layer << "] finish!" << endl << endl;
-	}
-
-	//start solver
-	void Solver::Run()
-	{	
-		for (;;)
-		{
-			if (SOLVER::GetCurrentLayer() <= _aim_layer)
-			{
-				break;
-			}
-			ComputeNextLayer();
-		}
-	}
-
-	namespace SOLVER
+	namespace solver
 	{
 		std::timed_mutex cout_mtx;
 
@@ -325,13 +97,13 @@ namespace DAB
 				for (Edge i = 0; i <MAX_EDGE; i++)
 				{
 					//if edge 'i' exist
-					if (BOARD::EdgeExist(current_board, i))
+					if (board::EdgeExist(current_board, i))
 					{
 						BitBoard new_board = current_board;
-						BOARD::EdgeRemove(new_board, i);	//get a new board without edge i
-						new_board = STATE::MinimalForm(new_board);
+						board::EdgeRemove(new_board, i);	//get a new board without edge i
+						new_board = state::MinimalForm(new_board);
 						Margin new_margin;
-						Margin num = STATE::TheNumOfFullBoxWithTheEdge(current_board, i);
+						Margin num = state::TheNumOfFullBoxWithTheEdge(current_board, i);
 						if (num != 0)
 						{
 							new_margin = current_margin + num;	//break one or more box, the margin increase.
@@ -385,11 +157,11 @@ namespace DAB
 				for (Edge i = 0; i <MAX_EDGE; i++)
 				{
 					//if edge 'i' exist
-					if (BOARD::EdgeExist(current_board, i))
+					if (board::EdgeExist(current_board, i))
 					{
 						BitBoard new_board = current_board;
-						BOARD::EdgeRemove(new_board, i);	//get a new board without edge i
-						new_board = STATE::MinimalForm(new_board);
+						board::EdgeRemove(new_board, i);	//get a new board without edge i
+						new_board = state::MinimalForm(new_board);
 
 						if (use_filter)
 						{
@@ -402,7 +174,7 @@ namespace DAB
 						//if (!use_filter || ReasonableStateFilter(new_board))
 						//{
 						Margin new_margin;
-						size_t num = STATE::TheNumOfFullBoxWithTheEdge(current_board, i);
+						size_t num = state::TheNumOfFullBoxWithTheEdge(current_board, i);
 						if (num != 0)
 						{
 							new_margin = current_margin + (Margin)num;	//break a box, the margin increase 1.
@@ -432,9 +204,237 @@ namespace DAB
 				cout_mtx.unlock();
 			}
 		}
+
+		//Constructor Function.
+
+		Solver::Solver() :
+			_aim_layer(60),
+			_file_cache(false),
+			_thread_num(1),
+			_use_filter(false),
+			_log("SolverLog.log", std::ios::app)
+		{
+		}
+		Solver::Solver(const Solver& solver) :
+			_aim_layer(solver._aim_layer),
+			_file_cache(solver._file_cache),
+			_thread_num(solver._thread_num),
+			_use_filter(solver._use_filter),
+			_log("SolverLog.log", std::ios::app)
+		{
+		}
+		Solver::Solver(size_t aim_layer, bool file_cache, bool use_filter, size_t thread_num) :
+			_aim_layer(aim_layer),
+			_file_cache(file_cache),
+			_thread_num(thread_num),
+			_use_filter(use_filter),
+			_log("SolverLog.log", std::ios::app)
+		{
+		}
+
+		//Load data of last solved layer and return them as n parts;
+		bool Solver::LoadStorages(std::vector< Storage >& storage_vec, size_t target_layer)
+		{
+			std::ios_base::sync_with_stdio(false);
+			clock_t start = clock();
+			cout << endl << "========== Load Storage ========== " << endl;
+			cout << "target = " << target_layer << endl;
+			cout << "thread_num = " << thread_num() << endl;
+
+			_log << endl << "========== Load Storage ========== " << endl;
+			_log << "target = " << target_layer << endl;
+			_log << "thread_num = " << thread_num() << endl;
+
+			//push new lists
+			stringstream path;
+			path << "./data/layer_" << target_layer << "/layer_" << target_layer << "_final.dat";
+			if (_access(path.str().c_str(), 0) != -1)
+			{
+				ifstream target_file(path.str());
+				//turn to load record
+				size_t current_storage_index = 0;
+				size_t count = 0;
+				for (;;)
+				{
+					BitBoard bit;
+					Margin mar;
+					target_file >> bit >> mar;
+					if (target_file.eof())
+					{
+						break;
+					}
+					count++;
+					storage_vec[current_storage_index].push_back(SolverState(bit, mar));
+					current_storage_index++;
+					if (current_storage_index >= thread_num())
+					{
+						current_storage_index = 0;
+					}
+					if (count % DISPLAYED_TIME_INTERVAL == 0)
+					{
+						cout << ">> loading state = " << count << endl;
+					}
+				}
+				double time_consuming = solver::GetTimeConsuming(start);
+				cout << "state num = " << count << endl;
+				cout << "time cost = " << time_consuming << endl;
+				cout << "================================== " << endl << endl;
+
+				_log << "state num = " << thread_num() << endl;
+				_log << "time cost = " << time_consuming << endl;
+				_log << "================================== " << endl << endl;
+				return true;
+			}
+			console::Error("can not find file " + path.str());
+			return false;
+		}
+
+		//Output the result of appointed layer
+		size_t Solver::OutputResult(SolverStateMap& ss_map, size_t layer)
+		{
+			std::ios_base::sync_with_stdio(false);
+			clock_t start = clock();
+			stringstream path;
+			path << "./data/layer_" << layer;
+			if (_access(path.str().c_str(), 0) == -1)
+			{
+				_mkdir(path.str().c_str());
+			}
+			path << "/layer_" << layer;// <<;
+
+			ofstream os((path.str() + "_final.dat").c_str());
+			console::Message(("Output target = " + path.str() + "_final.dat"), false);
+			size_t count = 0;
+
+			for (auto ss : ss_map)
+			{
+				count++;
+				os << ss.first << " " << ss.second << std::endl;
+			}
+
+			double time_consuming = solver::GetTimeConsuming(start);
+
+			_log << endl << "========== OUTPUT INFO ===========" << endl;
+			_log << "time-consuming = " << time_consuming << endl;
+			_log << "final size = " << count << endl;
+			_log << "original size = " << ss_map.size() << endl;
+			_log << "layer = " << layer << endl;
+			_log << "==================================" << endl;
+
+			cout << endl << "========== OUTPUT INFO ===========" << endl;
+			cout << "time-consuming = " << time_consuming << endl;
+			cout << "final size = " << count << endl;
+			cout << "original size = " << ss_map.size() << endl;
+			cout << "layer = " << layer << endl;
+			cout << "==================================" << endl;
+			return count;
+		}
+
+		//try to compute next layer to close solver aim.
+		void Solver::ComputeNextLayer()
+		{
+			size_t current_layer = solver::GetCurrentLayer();
+			cout << ">> Solver [" << current_layer << " -> " << current_layer - 1 << "] start!" << endl << endl;
+			_log << ">> Solver [" << current_layer << " -> " << current_layer - 1 << "] start!" << endl << endl;
+
+			vector < Storage > storage_vec(thread_num());
+			if (!LoadStorages(storage_vec, current_layer))
+			{
+				system("pause");
+				return;
+			}
+
+			vector<StorageCache> cache_vec;
+			if (!(thread_num() == 1 && !_file_cache))
+			{
+				if (_file_cache)//using file cache.
+				{
+					for (size_t i = 0; i < thread_num(); i++)
+					{
+						//create cache folder if it do not exist.
+						if (_access("./cache", 0) == -1)
+						{
+							_mkdir("./cache");
+						}
+
+						stringstream ss;
+						ss << "./cache/cache_" << i << ".dat";
+						cache_vec.push_back(StorageCache(ss.str()));
+					}
+
+					cout << ">> Create file cache success!" << endl;
+					_log << ">> Create file cache success!" << endl;
+				}
+				else//using memory cache.
+				{
+					for (size_t i = 0; i < thread_num(); i++)
+					{
+						cache_vec.push_back(StorageCache());
+					}
+					cout << ">> Create memory cache success!" << endl;
+					_log << ">> Create memory cache success!" << endl;
+				}
+			}
+
+			SolverStateMap ss_map;
+			if (thread_num() == 1 && !_file_cache)
+			{
+				cout << ">> Compute storage start[ToMap]..." << endl;
+				solver::ComputeStorageToMap(storage_vec[0], ss_map, use_filter(), true);
+				cout << ">> Compute storage, method = [ToMap], size = " << storage_vec[0].size() << endl;
+				_log << ">> Compute storage, method = [ToMap], size = " << storage_vec[0].size() << endl;
+			}
+			else
+			{
+				vector<thread> threads(thread_num());
+				std::timed_mutex cout_mutex;
+
+				for (size_t i = 0; i < thread_num(); i++)
+				{
+					threads[i] = thread(solver::ThreadComputeStorageToCache, storage_vec[i], cache_vec[i], use_filter(), i);
+				}
+
+				for (auto& thd : threads)
+				{
+					thd.join();
+				}
+				cout << ">> all threads finish." << endl;
+
+				//execute ToMap.
+				for (size_t i = 0; i < cache_vec.size(); i++)
+				{
+					cout << ">> ToMap [ " << i + 1 << "/" << thread_num() << " ] executing..." << endl;
+					_log << ">> ToMap [ " << i + 1 << "/" << thread_num() << " ] executing..." << endl;
+					cache_vec[i].ToMap(ss_map);
+				}
+			}
+
+			cout << endl << ">> Start outputing... " << endl;
+			_log << endl << ">> Start outputing... " << endl;
+
+			current_layer--;
+			size_t output_size = OutputResult(ss_map, current_layer);
+
+			solver::WriteSolverData(current_layer);
+			cout << endl << ">> Solver [" << current_layer + 1 << " -> " << current_layer << "] finish!" << endl << endl;
+			_log << endl << ">> Solver [" << current_layer + 1 << " -> " << current_layer << "] finish!" << endl << endl;
+		}
+
+		//start solver
+		void Solver::Run()
+		{
+			for (;;)
+			{
+				if (solver::GetCurrentLayer() <= _aim_layer)
+				{
+					break;
+				}
+				ComputeNextLayer();
+			}
+		}
 	}
 
-	namespace MINIMAX
+	namespace minimax
 	{
 		Edge edge_queue[MAX_EDGE] = {
 			12,47,17,42,
@@ -448,11 +448,11 @@ namespace DAB
 		{
 			/*for (;;)
 			{
-				Edge edge = STATE::GetDeadBoxRemainEdgeIndex(board);
+				Edge edge = state::GetDeadBoxRemainEdgeIndex(board);
 				if (edge != MAX_EDGE)
 				{
-					BOARD::EdgeSet(board, edge);
-					margin += STATE::TheNumOfFullBoxWithTheEdge(board, edge);
+					board::EdgeSet(board, edge);
+					margin += state::TheNumOfFullBoxWithTheEdge(board, edge);
 					edge_num++;
 					if (edge_num == aim_edge_num)
 					{
@@ -477,10 +477,10 @@ namespace DAB
 				Margin best_margin = -MAX_EDGE;
 				for (size_t i = 0; i < MAX_EDGE; i++)
 				{
-					if (STATE::IsFreeEdge(board, EdgeQueue(i)))
+					if (state::IsFreeEdge(board, EdgeQueue(i)))
 					{
 						BitBoard new_board = board;
-						BOARD::EdgeSet(new_board, EdgeQueue(i));
+						board::EdgeSet(new_board, EdgeQueue(i));
 						Margin child_margin = Minimax(new_board, -margin, edge_num, aim_edge_num, solver_hash);
 						if (child_margin > best_margin)
 						{

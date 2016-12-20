@@ -2,11 +2,11 @@
 #include "MCTS.h"
 #include "GameDefine.h"
 
-namespace DAB
+namespace dots_and_boxes
 {
-	namespace GAME
+	namespace game
 	{
-		namespace MCTS
+		namespace mcts
 		{
 			ActionDes MctsRespond(State& state)
 			{
@@ -15,7 +15,7 @@ namespace DAB
 			}
 		}
 
-		namespace HUMAN
+		namespace human
 		{
 			ActionDes HumanRespond(State& state)
 			{
@@ -24,7 +24,7 @@ namespace DAB
 			}
 		}
 
-		namespace RANDOM
+		namespace random
 		{
 			ActionDes RandomRespond(State& state)
 			{

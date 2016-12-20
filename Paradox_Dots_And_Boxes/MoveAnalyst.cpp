@@ -3,7 +3,7 @@
 #include "GameDefine.h"
 #include "MoveAnalyst.h"
 
-namespace DAB
+namespace dots_and_boxes
 {
 	MoveAnalyst::MoveAnalyst(State& state, bool filter)
 	{
@@ -18,12 +18,12 @@ namespace DAB
 				_edge[i] = false;
 			}
 		}
-		BitBoard board = BOARD::Create(state);
+		BitBoard board = board::Create(state);
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
 			if (filter)
 			{
-				_action[i] = STATE::IsFreeEdge(board, i);
+				_action[i] = state::IsFreeEdge(board, i);
 			}
 			else
 			{
@@ -35,7 +35,7 @@ namespace DAB
 	{
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
-			if (BOARD::EdgeExist(bit_group, i))
+			if (board::EdgeExist(bit_group, i))
 			{
 				_edge[i] = true;
 			}
@@ -48,7 +48,7 @@ namespace DAB
 		{
 			if (filter)
 			{
-				_action[i] = STATE::IsFreeEdge(bit_group,i);
+				_action[i] = state::IsFreeEdge(bit_group,i);
 			}
 			else
 			{
