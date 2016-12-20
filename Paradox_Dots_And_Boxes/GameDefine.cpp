@@ -49,7 +49,7 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					if (ACTIONVEC::ActionExist(action_vec,index))
+					if (action_vector::ActionExist(action_vec,index))
 					{
 						console::Cprintf("©¬", action_color);
 						//cout << "©¬";
@@ -86,7 +86,7 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					if (ACTIONVEC::ActionExist(action_vec, index))
+					if (action_vector::ActionExist(action_vec, index))
 					{
 						//cout << "©®";
 						console::Cprintf("©®", action_color);
@@ -106,7 +106,7 @@ namespace dots_and_boxes
 			}
 			else
 			{
-				if (ACTIONVEC::ActionExist(action_vec, 59-y))
+				if (action_vector::ActionExist(action_vec, 59-y))
 				{
 					//cout << "©®" << endl;
 					console::Cprintf("©®\n", action_color);
@@ -131,7 +131,7 @@ namespace dots_and_boxes
 			}
 			else
 			{
-				if (ACTIONVEC::ActionExist(action_vec, index))
+				if (action_vector::ActionExist(action_vec, index))
 				{
 					//cout << "©¬";
 					console::Cprintf("©¬", action_color);
@@ -187,7 +187,7 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					if (ACTIONVEC::ActionExist(action_vec, index))
+					if (action_vector::ActionExist(action_vec, index))
 					{
 						console::Cprintf("©¬", action_color);
 						//cout << "©¬";
@@ -257,7 +257,7 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					if (ACTIONVEC::ActionExist(action_vec, index))
+					if (action_vector::ActionExist(action_vec, index))
 					{
 						//cout << "©®";
 						console::Cprintf("©®", action_color);
@@ -279,7 +279,7 @@ namespace dots_and_boxes
 			}
 			else
 			{
-				if (ACTIONVEC::ActionExist(action_vec, 59 - y))
+				if (action_vector::ActionExist(action_vec, 59 - y))
 				{
 					//cout << "©®" << endl;
 					console::Cprintf("©®\n", action_color);
@@ -322,7 +322,7 @@ namespace dots_and_boxes
 			}
 			else
 			{
-				if (ACTIONVEC::ActionExist(action_vec, index))
+				if (action_vector::ActionExist(action_vec, index))
 				{
 					//cout << "©¬";
 					console::Cprintf("©¬", action_color);

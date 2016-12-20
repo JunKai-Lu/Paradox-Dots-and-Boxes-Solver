@@ -18,7 +18,7 @@ namespace dots_and_boxes
 		MoveAnalyst(BitBoard bit_group, bool filter = false);
 		inline ActionVec ActionVec()
 		{
-			return ACTIONVEC::Create(_action);
+			return action_vector::Create(_action);
 		}
 		inline bool* Actions()
 		{

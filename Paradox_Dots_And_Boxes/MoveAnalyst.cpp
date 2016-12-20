@@ -18,7 +18,7 @@ namespace dots_and_boxes
 				_edge[i] = false;
 			}
 		}
-		BitBoard board = boardCreate(state);
+		BitBoard board = board::Create(state);
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
 			if (filter)
@@ -35,7 +35,7 @@ namespace dots_and_boxes
 	{
 		for (Edge i = 0; i < MAX_EDGE; i++)
 		{
-			if (boardEdgeExist(bit_group, i))
+			if (board::EdgeExist(bit_group, i))
 			{
 				_edge[i] = true;
 			}
