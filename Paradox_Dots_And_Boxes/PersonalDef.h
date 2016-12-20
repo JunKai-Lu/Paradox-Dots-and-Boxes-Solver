@@ -3,19 +3,34 @@
 #include <iostream>
 #include <Windows.h>
 #include <sstream>
-#include "GeneralGameShell.h"
 
 #pragma once
 
 //MACROS
 #define WINDOWS
 #define WARNING
-#define WARNING_CHECK(condition,reason) console::WarningCheck(condition,reason,__FILE__,__LINE__,__FUNCTION__);
+#define WARNING_CHECK(condition,reason) WarningCheck(condition,reason,__FILE__,__LINE__,__FUNCTION__);
+
+//ABBREVIATION
+#define REP(n) for(size_t rep_i = 0; rep_i < n;rep_i++)
+#define LOOP(i,n) for(size_t i = 0; i < n;i++)
 
 namespace console
 {
+	typedef std::string str;
+
+	//colorful print.
+	void Cprintf(str tex, WORD color);
+	void CprintNum(int num, WORD color);
+
 	//output msg.
-	inline std::string B2S(bool b)
+	inline str GetInput()
+	{
+		char buffer[50];
+		std::cin.getline(buffer, 50);
+		return std::string(buffer);
+	}
+	inline str B2S(bool b)
 	{
 		if (b)
 		{
@@ -23,7 +38,7 @@ namespace console
 		}
 		return "false";
 	}
-	inline std::string I2S(size_t i)
+	inline str I2S(size_t i)
 	{
 		std::stringstream ss;
 		ss << i;
@@ -33,8 +48,8 @@ namespace console
 	inline void Error(std::string reason)
 	{
 		std::cout << std::endl;
-		Cprintf(">> ERROR: ", color::red);
-		Cprintf(reason, color::white);
+		Cprintf(">> ERROR: ", 12);
+		Cprintf(reason, 15);
 		std::cout << std::endl << std::endl;
 	}
 	inline void Message(std::string message, bool show_MSG = true)
@@ -42,9 +57,9 @@ namespace console
 		std::cout << ">> ";
 		if (show_MSG)
 		{
-			Cprintf("MSG: ", color::deep_green);
+			Cprintf("MSG: ", 2);
 		}
-		Cprintf(message, color::green);
+		Cprintf(message, 10);
 		std::cout << std::endl << std::endl;
 	}
 	inline void WarningCheck(bool condition, std::string reason, std::string file, int line, std::string function)
@@ -52,14 +67,14 @@ namespace console
 #ifdef WARNING
 		if (condition)
 		{
-			Cprintf(">> WARNING: ", color::purple);
-			Cprintf(reason, color::red);
+			Cprintf(">> WARNING: ", 5);
+			Cprintf(reason, 12);
 			std::cout << std::endl;
-			Cprintf("[File]: " + file, color::gray);
+			Cprintf("[File]: " + file, 8);
 			std::cout << std::endl;
-			Cprintf("[Line]: " + I2S(line), color::gray);
+			Cprintf("[Line]: " + I2S(line), 8);
 			std::cout << std::endl;
-			Cprintf("[Func]: " + function, color::gray);
+			Cprintf("[Func]: " + function, 8);
 			std::cout << std::endl;
 			system("pause");
 		}
@@ -83,6 +98,3 @@ namespace console
 		}
 	};
 }
-
-
-	

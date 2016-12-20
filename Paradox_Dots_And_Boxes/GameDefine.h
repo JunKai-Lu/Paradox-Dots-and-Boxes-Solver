@@ -22,7 +22,7 @@
 #define BLUE_BOX -1
 #define EMPTY_BOX 0
 
-namespace dots_and_boxes
+namespace DAB
 {
 	//type define.
 	typedef unsigned char Edge;
@@ -81,7 +81,7 @@ namespace dots_and_boxes
 		static State RandomState(size_t edge_num);
 	};
 
-	namespace board
+	namespace BOARD
 	{
 		//get whether a edge exist in this bit board.
 		inline bool EdgeExist(const BitBoard& board, Edge index)
@@ -103,7 +103,7 @@ namespace dots_and_boxes
 		inline void EdgeRemove(BitBoard& board, Edge index)
 		{
 			WARNING_CHECK(index >= MAX_EDGE || index < 0,"Wrong index");
-			WARNING_CHECK(!boardEdgeExist(board, index),"edge not exist");
+			WARNING_CHECK(!BOARD::EdgeExist(board, index),"edge not exist");
 			BitBoard temp = 1;
 			temp = ~(temp << index);
 			board = board & temp;
@@ -148,7 +148,7 @@ namespace dots_and_boxes
 		}
 	}
 
-	namespace action_vector
+	namespace ACTIONVEC
 	{
 		//create a action vector.
 		inline ActionVec Create(bool edge[MAX_EDGE])
@@ -192,7 +192,7 @@ namespace dots_and_boxes
 		}
 	}
 
-	namespace state
+	namespace STATE
 	{
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge GetLowerLeftVecEdge(Edge hor_edge)
@@ -249,7 +249,7 @@ namespace dots_and_boxes
 		{
 			WARNING_CHECK(hor_edge > 24, "Wrong index");
 			Edge lower_left_edge = GetLowerLeftVecEdge(hor_edge);
-			return boardEdgeExist(board, hor_edge) + boardEdgeExist(board, lower_left_edge) + boardEdgeExist(board, lower_left_edge + 5) + boardEdgeExist(board, hor_edge + 5);
+			return BOARD::EdgeExist(board, hor_edge) + BOARD::EdgeExist(board, lower_left_edge) + BOARD::EdgeExist(board, lower_left_edge + 5) + BOARD::EdgeExist(board, hor_edge + 5);
 		}
 
 		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE.
@@ -265,7 +265,7 @@ namespace dots_and_boxes
 		inline Margin TheNumOfFullBoxWithTheEdge(const BitBoard& board, Edge index)
 		{
 			
-			if (!boardEdgeExist(board, index))
+			if (!BOARD::EdgeExist(board, index))
 			{
 				return 0;
 			}
@@ -283,7 +283,7 @@ namespace dots_and_boxes
 						Edge lower_hor_edge = index + 5;
 						Edge lower_left_vec_edge = GetLowerLeftVecEdge(index);
 						Edge lower_right_vec_edge = lower_left_vec_edge + 5;
-						if (boardEdgeExist(board, lower_hor_edge) && boardEdgeExist(board, lower_left_vec_edge) && boardEdgeExist(board, lower_right_vec_edge))
+						if (BOARD::EdgeExist(board, lower_hor_edge) && BOARD::EdgeExist(board, lower_left_vec_edge) && BOARD::EdgeExist(board, lower_right_vec_edge))
 						{
 							num++;
 						}
@@ -292,7 +292,7 @@ namespace dots_and_boxes
 						Edge upper_hor_edge = index - 5;
 						Edge upper_left_vec_edge = GetLowerLeftVecEdge(upper_hor_edge);
 						Edge upper_right_vec_edge = upper_left_vec_edge + 5;
-						if (boardEdgeExist(board, upper_hor_edge) && boardEdgeExist(board, upper_left_vec_edge) && boardEdgeExist(board, upper_right_vec_edge))
+						if (BOARD::EdgeExist(board, upper_hor_edge) && BOARD::EdgeExist(board, upper_left_vec_edge) && BOARD::EdgeExist(board, upper_right_vec_edge))
 						{
 							num++;
 						}
@@ -306,7 +306,7 @@ namespace dots_and_boxes
 						Edge upper_hor_edge = index - 5;
 						Edge upper_left_vec_edge = GetLowerLeftVecEdge(upper_hor_edge);
 						Edge upper_right_vec_edge = upper_left_vec_edge + 5;
-						if (boardEdgeExist(board, upper_hor_edge) && boardEdgeExist(board, upper_left_vec_edge) && boardEdgeExist(board, upper_right_vec_edge))
+						if (BOARD::EdgeExist(board, upper_hor_edge) && BOARD::EdgeExist(board, upper_left_vec_edge) && BOARD::EdgeExist(board, upper_right_vec_edge))
 						{
 							num++;
 						}
@@ -320,7 +320,7 @@ namespace dots_and_boxes
 					Edge lower_hor_edge = index + 5;
 					Edge lower_left_vec_edge = GetLowerLeftVecEdge(index);
 					Edge lower_right_vec_edge = lower_left_vec_edge + 5;
-					if (boardEdgeExist(board, lower_hor_edge) && boardEdgeExist(board, lower_left_vec_edge) && boardEdgeExist(board, lower_right_vec_edge))
+					if (BOARD::EdgeExist(board, lower_hor_edge) && BOARD::EdgeExist(board, lower_left_vec_edge) && BOARD::EdgeExist(board, lower_right_vec_edge))
 					{
 						num++;
 					}
@@ -340,7 +340,7 @@ namespace dots_and_boxes
 						Edge right_vec_edge = index + 5;
 						Edge upper_right_hor_edge = GetUpperRightHorEdge(index);
 						Edge lower_right_hor_edge = upper_right_hor_edge + 5;
-						if (boardEdgeExist(board, right_vec_edge) && boardEdgeExist(board, upper_right_hor_edge) && boardEdgeExist(board, lower_right_hor_edge))
+						if (BOARD::EdgeExist(board, right_vec_edge) && BOARD::EdgeExist(board, upper_right_hor_edge) && BOARD::EdgeExist(board, lower_right_hor_edge))
 						{
 							num++;
 						}
@@ -349,7 +349,7 @@ namespace dots_and_boxes
 						Edge left_vec_edge = index - 5;
 						Edge upper_left_hor_edge = GetUpperRightHorEdge(left_vec_edge);
 						Edge lower_left_hor_edge = upper_left_hor_edge + 5;
-						if (boardEdgeExist(board, left_vec_edge) && boardEdgeExist(board, upper_left_hor_edge) && boardEdgeExist(board, lower_left_hor_edge))
+						if (BOARD::EdgeExist(board, left_vec_edge) && BOARD::EdgeExist(board, upper_left_hor_edge) && BOARD::EdgeExist(board, lower_left_hor_edge))
 						{
 							num++;
 						}
@@ -362,7 +362,7 @@ namespace dots_and_boxes
 						Edge left_vec_edge = index - 5;
 						Edge upper_left_hor_edge = GetUpperRightHorEdge(left_vec_edge);
 						Edge lower_left_hor_edge = upper_left_hor_edge + 5;
-						if (boardEdgeExist(board, left_vec_edge) && boardEdgeExist(board, upper_left_hor_edge) && boardEdgeExist(board, lower_left_hor_edge))
+						if (BOARD::EdgeExist(board, left_vec_edge) && BOARD::EdgeExist(board, upper_left_hor_edge) && BOARD::EdgeExist(board, lower_left_hor_edge))
 						{
 							num++;
 						}
@@ -376,7 +376,7 @@ namespace dots_and_boxes
 					Edge right_vec_edge = index + 5;
 					Edge upper_right_hor_edge = GetUpperRightHorEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
-					if (boardEdgeExist(board, right_vec_edge) && boardEdgeExist(board, upper_right_hor_edge) && boardEdgeExist(board, lower_right_hor_edge))
+					if (BOARD::EdgeExist(board, right_vec_edge) && BOARD::EdgeExist(board, upper_right_hor_edge) && BOARD::EdgeExist(board, lower_right_hor_edge))
 					{
 						num++;
 					}
@@ -391,26 +391,26 @@ namespace dots_and_boxes
 		{
 			if ((board & 0x400000001) == 0x400000000)
 			{
-				boardEdgeRemove(board, 34);
-				boardEdgeSet(board, 0);
+				BOARD::EdgeRemove(board, 34);
+				BOARD::EdgeSet(board, 0);
 			}
 
 			if ((board & 0x800000000000010) == 0x800000000000000)
 			{
-				boardEdgeRemove(board, 59);
-				boardEdgeSet(board, 4);
+				BOARD::EdgeRemove(board, 59);
+				BOARD::EdgeSet(board, 4);
 			}
 
 			if ((board & 0x42000000) == 0x40000000)
 			{
-				boardEdgeRemove(board, 30);
-				boardEdgeSet(board, 25);
+				BOARD::EdgeRemove(board, 30);
+				BOARD::EdgeSet(board, 25);
 			}
 
 			if ((board & 0x80000020000000) == 0x80000000000000)
 			{
-				boardEdgeRemove(board, 55);
-				boardEdgeSet(board, 29);
+				BOARD::EdgeRemove(board, 55);
+				BOARD::EdgeSet(board, 29);
 			}
 		}
 
@@ -421,7 +421,7 @@ namespace dots_and_boxes
 			for (Edge i = 30; i < 60; i++)
 			{
 				temp = temp << 1;
-				if (boardEdgeExist(board, i))
+				if (BOARD::EdgeExist(board, i))
 				{
 					temp = temp | 1;
 				}
@@ -439,7 +439,7 @@ namespace dots_and_boxes
 				for (Edge n = 0; n < 5; n++)
 				{
 					temp = temp << 1;
-					if (boardEdgeExist(board, begin + n))
+					if (BOARD::EdgeExist(board, begin + n))
 					{
 						temp = temp | 1;
 					}
@@ -550,11 +550,11 @@ namespace dots_and_boxes
 			{
 				if (is_sec_player)
 				{
-					_sec_player._score -= state::TheNumOfFullBoxWithTheEdge(boardCreate(*this), edge);
+					_sec_player._score -= STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
 				}
 				else
 				{
-					_fir_player._score -= state::TheNumOfFullBoxWithTheEdge(boardCreate(*this), edge);
+					_fir_player._score -= STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
 				}
 				EdgeRemove(edge);
 			}
@@ -565,11 +565,11 @@ namespace dots_and_boxes
 				_last_player = is_sec_player;
 				if (is_sec_player)
 				{
-					_sec_player._score += state::TheNumOfFullBoxWithTheEdge(boardCreate(*this), edge);
+					_sec_player._score += STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
 				}
 				else
 				{
-					_fir_player._score += state::TheNumOfFullBoxWithTheEdge(boardCreate(*this), edge);
+					_fir_player._score += STATE::TheNumOfFullBoxWithTheEdge(BOARD::Create(*this), edge);
 				}
 			}
 			void DoActions(bool is_sec_player, ActionDes actions)

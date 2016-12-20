@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace dots_and_boxes
+namespace DAB
 {
 	/*
 								free-edge	dead-box		dead-chain

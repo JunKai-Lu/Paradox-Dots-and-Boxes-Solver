@@ -4,7 +4,7 @@
 
 #pragma  once
 
-namespace dots_and_boxes
+namespace DAB
 {
 	namespace GAME
 	{

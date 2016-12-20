@@ -71,7 +71,7 @@ namespace general_game_shell
 
 	//GameShell
 	GameShell* GameShell::_g_focus_game = nullptr;
-	GameShell::GameShell(std::string name) :
+	GameShell::GameShell(std::string name):
 		_name(name)
 	{
 		BeFocus();

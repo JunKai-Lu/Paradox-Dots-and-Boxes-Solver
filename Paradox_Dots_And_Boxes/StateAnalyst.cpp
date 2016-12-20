@@ -4,25 +4,25 @@
 
 using namespace std;
 
-namespace dots_and_boxes
+namespace DAB
 {
 	//determind state type.
 	StateType DetermindStateType(BitBoard board)
 	{
-		if (state::ExistFreeEdge(board))//front state.
+		if (STATE::ExistFreeEdge(board))//front state.
 		{
-			if (state::ExistDeadBox(board))
+			if (STATE::ExistDeadBox(board))
 			{
 				return ST_FrontStateWithDeadBox;
 			}
 			return ST_FrontState;
 		}
 		//rear state
-		if (state::ExistDeadChain(board))
+		if (STATE::ExistDeadChain(board))
 		{
 			return ST_RearStateWithDeadChain;
 		}
-		if (state::ExistDeadBox(board))
+		if (STATE::ExistDeadBox(board))
 		{
 			return ST_RearStateWithDeadBox;
 		}
@@ -37,12 +37,12 @@ namespace dots_and_boxes
 	{
 		//set own edges.
 		_own_edge[0] = index;
-		_own_edge[1] = state::GetUpperRightHorEdge(index);
+		_own_edge[1] = STATE::GetUpperRightHorEdge(index);
 		_own_edge[2] = index + 5;
-		_own_edge[3] = state::GetUpperRightHorEdge(index) + 5;
+		_own_edge[3] = STATE::GetUpperRightHorEdge(index) + 5;
 
 		//set box type
-		size_t edge_num = state::GetLowerBoxEdgeNum(board, index);
+		size_t edge_num = STATE::GetLowerBoxEdgeNum(board, index);
 		if (edge_num == 4)
 		{
 			_type = BT_FULL_BOX;
@@ -61,19 +61,19 @@ namespace dots_and_boxes
 		}
 
 		//set neighbour boxes.
-		if (state::IsNotUpperSideHorEdge(_own_edge[0]))
+		if (STATE::IsNotUpperSideHorEdge(_own_edge[0]))
 		{
 			_neighbour_box[0] = index - 5;
 		}
-		if (state::IsNotLeftSideVecEdge(_own_edge[1]))
+		if (STATE::IsNotLeftSideVecEdge(_own_edge[1]))
 		{
 			_neighbour_box[1] = index - 1;
 		}
-		if (state::IsNotLowerSideHorEdge(_own_edge[2]))
+		if (STATE::IsNotLowerSideHorEdge(_own_edge[2]))
 		{
 			_neighbour_box[2] = index + 5;
 		}
-		if (state::IsNotRightSideVecEdge(_own_edge[3]))
+		if (STATE::IsNotRightSideVecEdge(_own_edge[3]))
 		{
 			_neighbour_box[3] = index + 1;
 		}
@@ -82,8 +82,7 @@ namespace dots_and_boxes
 	//constructor function
 	ChainAnalyst::ChainAnalyst(BitBoard board) :
 		_board(board),
-		_boxes
-	{
+		_boxes{
 		BoxInfo(board,0),BoxInfo(board,1),BoxInfo(board,2),BoxInfo(board,3),BoxInfo(board,4),
 		BoxInfo(board,5),BoxInfo(board,6),BoxInfo(board,7),BoxInfo(board,8),BoxInfo(board,9),
 		BoxInfo(board,10),BoxInfo(board,11),BoxInfo(board,12),BoxInfo(board,13),BoxInfo(board,14),
@@ -104,7 +103,7 @@ namespace dots_and_boxes
 			{
 				for (Edge edge_i = 0; edge_i < 4; edge_i++)
 				{
-					if (!boardEdgeExist(_board, _boxes[i].own_edge(edge_i)))
+					if (!BOARD::EdgeExist(_board, _boxes[i].own_edge(edge_i)))
 					{
 						RegisterChainFromBox(i, _boxes[i].neighbour_box(edge_i), _boxes[i].own_edge(edge_i));
 					}
@@ -115,7 +114,7 @@ namespace dots_and_boxes
 		//register chain from chain box in the brim of grid.
 		for (size_t i = 0; i < 5; i++)//upper boxes.
 		{
-			if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !boardEdgeExist(_board, _boxes[i].UpperEdge()))
+			if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !BOARD::EdgeExist(_board, _boxes[i].UpperEdge()))
 			{
 				RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].UpperEdge());
 			}
@@ -123,7 +122,7 @@ namespace dots_and_boxes
 
 		for (size_t i = 0; i < 25; i += 5)//left boxes.
 		{
-			if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !boardEdgeExist(_board, _boxes[i].LeftEdge()))
+			if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !BOARD::EdgeExist(_board, _boxes[i].LeftEdge()))
 			{
 				RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].LeftEdge());
 			}
@@ -131,7 +130,7 @@ namespace dots_and_boxes
 
 		for (size_t i = 20; i < 25; i++)//lower boxes.
 		{
-			if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !boardEdgeExist(_board, _boxes[i].LowerEdge()))
+			if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !BOARD::EdgeExist(_board, _boxes[i].LowerEdge()))
 			{
 				RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].LowerEdge());
 			}
@@ -139,7 +138,7 @@ namespace dots_and_boxes
 
 		for (size_t i = 4; i < 25; i += 5)//right boxes.
 		{
-			if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !boardEdgeExist(_board, _boxes[i].RightEdge()))
+			if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !BOARD::EdgeExist(_board, _boxes[i].RightEdge()))
 			{
 				RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].RightEdge());
 			}
@@ -152,7 +151,7 @@ namespace dots_and_boxes
 			{
 				for (Edge edge_i = 0; edge_i < 4; edge_i++)
 				{
-					if (!boardEdgeExist(_board, _boxes[i].own_edge(edge_i)))
+					if (!BOARD::EdgeExist(_board, _boxes[i].own_edge(edge_i)))
 					{
 						RegisterCircleFromBox(i, _boxes[i].neighbour_box(edge_i), _boxes[i].own_edge(edge_i));
 						break;
@@ -201,7 +200,7 @@ namespace dots_and_boxes
 				//find next box.
 				for (size_t i = 0; i < 4; i++)
 				{
-					if (_boxes[checking_box_index].own_edge(i) != ignore_edge && !boardEdgeExist(_board, _boxes[checking_box_index].own_edge(i)))
+					if (_boxes[checking_box_index].own_edge(i) != ignore_edge && !BOARD::EdgeExist(_board, _boxes[checking_box_index].own_edge(i)))
 					{
 						if (_boxes[checking_box_index].IsNotEmptyNeighbour(i))//next_box
 						{
@@ -254,7 +253,7 @@ namespace dots_and_boxes
 			}
 			else
 			{
-				WARNING_CHECK(true, "wrong state in box " + console::I2S(checking_box_index));
+				WARNING_CHECK(true, "wrong state in box " + I2S(checking_box_index));
 			}
 			WARNING_CHECK(count >= MAX_BOX, "infinite loop");
 		}
@@ -286,7 +285,7 @@ namespace dots_and_boxes
 				{
 					for (size_t i = 0; i < 4; i++)
 					{
-						if (_boxes[checking_box_index].own_edge(i) != ignore_edge && !boardEdgeExist(_board, _boxes[checking_box_index].own_edge(i)))
+						if (_boxes[checking_box_index].own_edge(i) != ignore_edge && !BOARD::EdgeExist(_board, _boxes[checking_box_index].own_edge(i)))
 						{
 							WARNING_CHECK(_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
 							ignoring_edge_index = _boxes[checking_box_index].own_edge(i);

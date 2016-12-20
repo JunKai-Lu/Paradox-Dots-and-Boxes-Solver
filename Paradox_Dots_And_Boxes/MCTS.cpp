@@ -2,7 +2,7 @@
 #include "MCTS.h"
 #include "GameDefine.h"
 
-namespace dots_and_boxes
+namespace DAB
 {
 	namespace GAME
 	{

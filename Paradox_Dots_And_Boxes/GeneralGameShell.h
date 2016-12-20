@@ -12,13 +12,13 @@
 #pragma once
 
 /*
-* General game shell is used for game AI developing and this shell is consist of the concept i called 'page',
-* each page is an single set of command and different type of data can be binded to each page by use template.
-* An easy example have been showed in the ShellExample.cpp.
-*
-* version: 2016/12/20
-* copyright: Junkai Lu
-* email: Junkai-Lu@outlook.com
+ * General game shell is used for game AI developing and this shell is consist of the concept i called 'page',  
+ * each page is an single set of command and different type of data can be binded to each page by use template.
+ * An easy example have been showed in the ShellExample.cpp.
+ *
+ * version: 2016/12/20
+ * copyright: Junkai Lu
+ * email: Junkai-Lu@outlook.com
 */
 
 namespace console
@@ -60,10 +60,10 @@ namespace general_game_shell
 		size_t _index;					//page index, each page have a unique index.
 		ShellPageBase* _call_source;	//call source point to the page that call this page.
 		GameShell* _belonging_shell;	//the game shell this page belong to.
-	protected:std::function<void()> _info;	//point to a function that shows infos about page. default is empty. 
+		protected:std::function<void()> _info;	//point to a function that shows infos about page. default is empty. 
 
 	protected:
-
+		
 		inline void set_call_source(ShellPageBase* call_source)
 		{
 			_call_source = call_source;
@@ -103,7 +103,7 @@ namespace general_game_shell
 	public:
 		void CleanScreen() const;
 		virtual ~ShellPageBase() = default;
-
+		
 	};
 
 	//Shell Page
@@ -135,7 +135,7 @@ namespace general_game_shell
 			ShellInit();
 		}
 		ShellPage(ShellPage&) = delete;
-
+		
 		inline void ShellInit()
 		{
 			AddDescript("return", "return to previous menu.");
@@ -157,7 +157,7 @@ namespace general_game_shell
 				this->CleanScreen();
 			}, "clean screen.");
 		}
-
+		
 		//data operator
 		inline datatype& data()
 		{
@@ -300,7 +300,7 @@ namespace general_game_shell
 			set_info_func(info);
 		}
 
-
+		
 	};
 
 	//Shell
@@ -312,7 +312,7 @@ namespace general_game_shell
 		//global variable
 		static GameShell* _g_focus_game;	//focus page, that is used for show path.
 
-											//page table
+		//page table
 		std::map<std::string, std::shared_ptr<ShellPageBase>> _page_table;
 		std::string _name;
 		ShellPageBase* _focus_page;

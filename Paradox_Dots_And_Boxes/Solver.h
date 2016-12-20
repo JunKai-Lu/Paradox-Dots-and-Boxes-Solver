@@ -21,7 +21,7 @@
 #define MAX_ALLOW_THREAD 8
 
 
-namespace dots_and_boxes
+namespace DAB
 {
 	
 
@@ -114,7 +114,7 @@ namespace dots_and_boxes
 		*/
 		inline bool ReasonableStateFilter(BitBoard board)
 		{
-			return state::IsReasonable(board);
+			return STATE::IsReasonable(board);
 		}
 	}
 

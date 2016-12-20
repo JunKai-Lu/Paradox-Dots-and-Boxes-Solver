@@ -17,7 +17,7 @@
 
 using namespace std;
 
-namespace dots_and_boxes
+namespace DAB
 {
 	//Constructor Function.
 
@@ -325,13 +325,13 @@ namespace dots_and_boxes
 				for (Edge i = 0; i <MAX_EDGE; i++)
 				{
 					//if edge 'i' exist
-					if (boardEdgeExist(current_board, i))
+					if (BOARD::EdgeExist(current_board, i))
 					{
 						BitBoard new_board = current_board;
-						boardEdgeRemove(new_board, i);	//get a new board without edge i
-						new_board = state::MinimalForm(new_board);
+						BOARD::EdgeRemove(new_board, i);	//get a new board without edge i
+						new_board = STATE::MinimalForm(new_board);
 						Margin new_margin;
-						Margin num = state::TheNumOfFullBoxWithTheEdge(current_board, i);
+						Margin num = STATE::TheNumOfFullBoxWithTheEdge(current_board, i);
 						if (num != 0)
 						{
 							new_margin = current_margin + num;	//break one or more box, the margin increase.
@@ -385,11 +385,11 @@ namespace dots_and_boxes
 				for (Edge i = 0; i <MAX_EDGE; i++)
 				{
 					//if edge 'i' exist
-					if (boardEdgeExist(current_board, i))
+					if (BOARD::EdgeExist(current_board, i))
 					{
 						BitBoard new_board = current_board;
-						boardEdgeRemove(new_board, i);	//get a new board without edge i
-						new_board = state::MinimalForm(new_board);
+						BOARD::EdgeRemove(new_board, i);	//get a new board without edge i
+						new_board = STATE::MinimalForm(new_board);
 
 						if (use_filter)
 						{
@@ -402,7 +402,7 @@ namespace dots_and_boxes
 						//if (!use_filter || ReasonableStateFilter(new_board))
 						//{
 						Margin new_margin;
-						size_t num = state::TheNumOfFullBoxWithTheEdge(current_board, i);
+						size_t num = STATE::TheNumOfFullBoxWithTheEdge(current_board, i);
 						if (num != 0)
 						{
 							new_margin = current_margin + (Margin)num;	//break a box, the margin increase 1.
@@ -448,11 +448,11 @@ namespace dots_and_boxes
 		{
 			/*for (;;)
 			{
-				Edge edge = state::GetDeadBoxRemainEdgeIndex(board);
+				Edge edge = STATE::GetDeadBoxRemainEdgeIndex(board);
 				if (edge != MAX_EDGE)
 				{
-					boardEdgeSet(board, edge);
-					margin += state::TheNumOfFullBoxWithTheEdge(board, edge);
+					BOARD::EdgeSet(board, edge);
+					margin += STATE::TheNumOfFullBoxWithTheEdge(board, edge);
 					edge_num++;
 					if (edge_num == aim_edge_num)
 					{
@@ -477,10 +477,10 @@ namespace dots_and_boxes
 				Margin best_margin = -MAX_EDGE;
 				for (size_t i = 0; i < MAX_EDGE; i++)
 				{
-					if (state::IsFreeEdge(board, EdgeQueue(i)))
+					if (STATE::IsFreeEdge(board, EdgeQueue(i)))
 					{
 						BitBoard new_board = board;
-						boardEdgeSet(new_board, EdgeQueue(i));
+						BOARD::EdgeSet(new_board, EdgeQueue(i));
 						Margin child_margin = Minimax(new_board, -margin, edge_num, aim_edge_num, solver_hash);
 						if (child_margin > best_margin)
 						{
