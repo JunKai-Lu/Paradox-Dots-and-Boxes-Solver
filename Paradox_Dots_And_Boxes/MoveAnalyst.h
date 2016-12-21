@@ -39,15 +39,15 @@ namespace dots_and_boxes
 		}
 
 		//得到某个横边左下的竖边的编号（限制为0~24）
-		inline Edge GetLowerLeftVecEdge(Edge hor_edge)
+		inline Edge UpperToLeftEdge(Edge hor_edge)
 		{
-			return state::GetLowerLeftVecEdge(hor_edge);
+			return state::UpperToLeftEdge(hor_edge);
 		}
 
 		//得到某个竖边右上的横边的编号（限制为30~54）
-		inline Edge GetUpperRightHorEdge(Edge vec_edge)
+		inline Edge LeftEdgeToUpperEdge(Edge vec_edge)
 		{
-			return state::GetUpperRightHorEdge(vec_edge);
+			return state::LeftEdgeToUpperEdge(vec_edge);
 		}
 
 		//得到某个横边下方的格子已经被占领的边的数目（限制为0~24）
@@ -65,7 +65,7 @@ namespace dots_and_boxes
 #endif
 
 			Edge lower_hor_edge = hor_edge + 5;
-			Edge lower_left_vec_edge = state::GetLowerLeftVecEdge(hor_edge);
+			Edge lower_left_vec_edge = state::UpperToLeftEdge(hor_edge);
 			Edge lower_right_vec_edge = lower_left_vec_edge + 5;
 			return EdgeExist(lower_hor_edge) + EdgeExist(lower_left_vec_edge) + EdgeExist(lower_right_vec_edge);
 
@@ -85,7 +85,7 @@ namespace dots_and_boxes
 			}
 #endif
 			Edge upper_hor_edge = hor_edge - 5;
-			Edge upper_left_vec_edge = state::GetLowerLeftVecEdge(hor_edge - 5);
+			Edge upper_left_vec_edge = state::UpperToLeftEdge(hor_edge - 5);
 			Edge upper_right_vec_edge = upper_left_vec_edge + 5;
 			return EdgeExist(upper_hor_edge) + EdgeExist(upper_left_vec_edge) + EdgeExist(upper_right_vec_edge);
 		}
@@ -105,7 +105,7 @@ namespace dots_and_boxes
 #endif
 
 			Edge right_vec_edge = vec_edge + 5;
-			Edge upper_right_hor_edge = state::GetUpperRightHorEdge(vec_edge);
+			Edge upper_right_hor_edge = state::LeftEdgeToUpperEdge(vec_edge);
 			Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 			return EdgeExist(right_vec_edge) + EdgeExist(upper_right_hor_edge) + EdgeExist(lower_right_hor_edge);
 
@@ -126,7 +126,7 @@ namespace dots_and_boxes
 #endif
 
 			Edge left_vec_edge = vec_edge - 5;
-			Edge upper_left_hor_edge = state::GetUpperRightHorEdge(vec_edge - 5);
+			Edge upper_left_hor_edge = state::LeftEdgeToUpperEdge(vec_edge - 5);
 			Edge lower_left_hor_edge = upper_left_hor_edge + 5;
 			return EdgeExist(left_vec_edge) + EdgeExist(upper_left_hor_edge) + EdgeExist(lower_left_hor_edge);
 

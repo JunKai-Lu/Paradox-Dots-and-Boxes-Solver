@@ -4,7 +4,7 @@
 
 namespace dots_and_boxes
 {
-	namespace game
+	/*namespace game
 	{
 		namespace mcts
 		{
@@ -32,5 +32,5 @@ namespace dots_and_boxes
 				return actions;
 			}
 		}
-	}
+	}*/
 }

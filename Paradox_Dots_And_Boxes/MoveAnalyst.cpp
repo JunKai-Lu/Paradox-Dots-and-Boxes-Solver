@@ -69,7 +69,7 @@ namespace dots_and_boxes
 			if (IsNotUpperSideHorEdge(index))//不是最上面的横边，则需要检查上方的格子
 			{
 				Edge upper_hor_edge = index - 5;								//上方格子的顶边
-				Edge upper_left_vec_edge = GetLowerLeftVecEdge(index - 5);	//上方格子的左边
+				Edge upper_left_vec_edge = UpperToLeftEdge(index - 5);	//上方格子的左边
 				Edge upper_right_vec_edge = upper_left_vec_edge + 5;			//上方格子的右边
 
 				//如果已经存在了两条边
@@ -110,7 +110,7 @@ namespace dots_and_boxes
 			if (IsNotLowerSideHorEdge(index))//不是最下面的横边，则需要检查下方的格子
 			{
 				Edge lower_hor_edge = index + 5;
-				Edge lower_left_vec_edge = GetLowerLeftVecEdge(index);
+				Edge lower_left_vec_edge = UpperToLeftEdge(index);
 				Edge lower_right_vec_edge = lower_left_vec_edge + 5;
 
 				if ((EdgeExist(lower_hor_edge) + EdgeExist(lower_left_vec_edge) + EdgeExist(lower_right_vec_edge)) >= 2)
@@ -153,7 +153,7 @@ namespace dots_and_boxes
 			if (IsNotLeftSideVecEdge(index))//不是最左边的边，则需要检查左方的格子
 			{
 				Edge left_vec_edge = index - 5;
-				Edge upper_left_hor_edge = GetUpperRightHorEdge(index - 5);
+				Edge upper_left_hor_edge = LeftEdgeToUpperEdge(index - 5);
 				Edge lower_left_hor_edge = upper_left_hor_edge + 5;
 
 				if ((EdgeExist(left_vec_edge) + EdgeExist(upper_left_hor_edge) + EdgeExist(lower_left_hor_edge)) >= 2)
@@ -194,7 +194,7 @@ namespace dots_and_boxes
 			if (IsNotRightSideVecEdge(index))//不是最右边的边，需要检查右方的格子
 			{
 				Edge right_vec_edge = index + 5;
-				Edge upper_right_hor_edge = GetUpperRightHorEdge(index);
+				Edge upper_right_hor_edge = LeftEdgeToUpperEdge(index);
 				Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 				if ((EdgeExist(right_vec_edge) + EdgeExist(upper_right_hor_edge) + EdgeExist(lower_right_hor_edge)) >= 2)
 				{
