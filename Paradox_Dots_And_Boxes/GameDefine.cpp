@@ -60,7 +60,7 @@ namespace dots_and_boxes
 				{
 					//cout << "┃";
 					console::Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = state::LeftEdgeToUpperEdge(index);
+					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
@@ -108,196 +108,6 @@ namespace dots_and_boxes
 
 		//打印最下面的一个边
 		cout << interval;
-		for (Edge index = 25; index < 30; index++)
-		{
-			//cout << "○";
-			console::Cprintf("○", dot_color);
-			if (_board.get(index))
-			{
-				//cout << "━";
-				console::Cprintf("━", edge_color);
-			}
-			else
-			{
-				if (action_vec.get(index))
-				{
-					//cout << "┈";
-					console::Cprintf("┈", action_color);
-				}
-				else
-				{
-					cout << "  ";
-				}
-			}
-		}
-		//cout << "○" << endl;
-		console::Cprintf("○\n\n", dot_color);
-	}
-
-	void State::ActionVisualization(ActionVec action_vec) const
-	{
-		const console::color::Color edge_color = console::color::yellow;
-		const console::color::Color action_color = console::color::white;
-		const console::color::Color dot_color = console::color::gray;
-		cout << endl;
-		string interval = "     ";
-		for (Edge y = 0; y < GAME_SIZE; y++)
-		{
-			//horizon edges, first grid.
-			cout << interval;
-			for (Edge index = y * 5; index < (y * 5) + 5; index++)
-			{
-				//cout << "○";
-				console::Cprintf("○", dot_color);
-				if (_board.get(index))
-				{
-					console::Cprintf("━", edge_color);
-					//cout << "━";
-				}
-				else
-				{
-					cout << "  ";
-				}
-			}
-			console::Cprintf("○" + interval, dot_color);
-			//cout << "○" << endl;
-
-			//horizon edges, second grid.
-			for (Edge index = y * 5; index < (y * 5) + 5; index++)
-			{
-				//cout << "○";
-				console::Cprintf("○", dot_color);
-				if (_board.get(index))
-				{
-					console::Cprintf("━", edge_color);
-					//cout << "━";
-				}
-				else
-				{
-					if (action_vec.get(index))
-					{
-						console::Cprintf("┈", action_color);
-						//cout << "┈";
-					}
-					else
-					{
-						cout << "  ";
-					}
-
-				}
-			}
-			console::Cprintf("○\n", dot_color);
-
-			//vertical edges, first grid.
-			cout << interval;
-			for (Edge index = 34 - y; index < 59 - y; index += 5)
-			{
-				if (_board.get(index))
-				{
-					//cout << "┃";
-					console::Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = state::LeftEdgeToUpperEdge(index);
-					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
-					Edge right_vec_edge = index + 5;
-					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
-					{
-						cout << "■";
-					}
-					else
-					{
-						cout << "  ";
-					}
-				}
-				else
-				{
-					cout << "    ";
-				}
-			}
-			if (_board.get(59 - y))
-			{
-				//cout << "┃" << endl;
-				console::Cprintf("┃" + interval, edge_color);
-			}
-			else
-			{
-				cout << "  " + interval;
-			}
-
-			//vertical edges, second grid.
-			for (Edge index = 34 - y; index < 59 - y; index += 5)
-			{
-				if (_board.get(index))
-				{
-					//cout << "┃";
-					console::Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = state::LeftEdgeToUpperEdge(index);
-					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
-					Edge right_vec_edge = index + 5;
-					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
-					{
-						cout << "■";
-					}
-					else
-					{
-						cout << "  ";
-					}
-				}
-				else
-				{
-					if (action_vec.get(index))
-					{
-						//cout << "┊";
-						console::Cprintf("┊", action_color);
-					}
-					else
-					{
-						cout << "  ";
-					}
-					cout << "  ";
-				}
-			}
-
-
-
-			if (_board.get(59 - y))
-			{
-				//cout << "┃" << endl;
-				console::Cprintf("┃\n", edge_color);
-			}
-			else
-			{
-				if (action_vec.get(59 - y))
-				{
-					//cout << "┊" << endl;
-					console::Cprintf("┊\n", action_color);
-				}
-				else
-				{
-					cout << "  " << endl;
-				}
-			}
-		}
-
-		//print lower horizon edges, first grid.
-		cout << interval;
-		for (Edge index = 25; index < 30; index++)
-		{
-			//cout << "○";
-			console::Cprintf("○", dot_color);
-			if (_board.get(index))
-			{
-				//cout << "━";
-				console::Cprintf("━", edge_color);
-			}
-			else
-			{
-				cout << "  ";
-			}
-		}
-		//cout << "○" << endl;
-		console::Cprintf("○" + interval, dot_color);
-
-		//print lower horizon edges, second grid.
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
@@ -384,7 +194,7 @@ namespace dots_and_boxes
 				{
 					//cout << "┃";
 					console::Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = state::LeftEdgeToUpperEdge(index);
+					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
@@ -418,7 +228,7 @@ namespace dots_and_boxes
 				{
 					//cout << "┃";
 					console::Cprintf("┃", edge_color);
-					Edge upper_right_hor_edge = state::LeftEdgeToUpperEdge(index);
+					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
@@ -650,7 +460,7 @@ namespace dots_and_boxes
 						//check left box
 						if (IsNotLeftSideVecEdge(fir_box_left_edge))
 						{
-							Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_left_edge - 5);
+							Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_left_edge - 5);
 							if (board.get(sec_box_upper_edge) + board.get(sec_box_upper_edge + 5) + board.get(fir_box_left_edge - 5) == 2)
 							{
 								return true;
@@ -662,7 +472,7 @@ namespace dots_and_boxes
 						//check right box
 						if (IsNotRightSideVecEdge(fir_box_right_edge))
 						{
-							Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_right_edge);
+							Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_right_edge);
 							if (board.get(sec_box_upper_edge) + board.get(sec_box_upper_edge + 5) + board.get(fir_box_right_edge + 5) == 2)
 							{
 								return true;
@@ -815,8 +625,8 @@ namespace dots_and_boxes
 						if (IsNotLeftSideVecEdge(fir_box_left_edge))
 						{
 							Edge sec_box_left_edge = fir_box_left_edge - 5;
-							Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_left_edge - 5);
-							Edge sec_box_lower_edge = LeftEdgeToUpperEdge(fir_box_left_edge - 5) + 5;
+							Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_left_edge - 5);
+							Edge sec_box_lower_edge = LeftToUpperEdge(fir_box_left_edge - 5) + 5;
 							if (board.get(sec_box_lower_edge) + board.get(sec_box_upper_edge) + board.get(sec_box_left_edge) == 2)
 							{
 								dead_chain++;
@@ -870,8 +680,8 @@ namespace dots_and_boxes
 						if (IsNotRightSideVecEdge(fir_box_right_edge))
 						{
 							Edge sec_box_right_edge = fir_box_right_edge + 5;
-							Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_right_edge);
-							Edge sec_box_lower_edge = LeftEdgeToUpperEdge(fir_box_right_edge) + 5;
+							Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_right_edge);
+							Edge sec_box_lower_edge = LeftToUpperEdge(fir_box_right_edge) + 5;
 							if (board.get(sec_box_lower_edge) + board.get(sec_box_upper_edge) + board.get(sec_box_right_edge) == 2)
 							{
 								dead_chain++;
@@ -971,7 +781,7 @@ namespace dots_and_boxes
 							{
 								if (IsNotLeftSideVecEdge(fir_box_left_edge))
 								{
-									Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_left_edge - 5);
+									Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_left_edge - 5);
 									if (board.get(sec_box_upper_edge) + board.get(sec_box_upper_edge + 5) + board.get(fir_box_left_edge - 5) == 2)
 									{
 										affect_lower_box = true;
@@ -982,7 +792,7 @@ namespace dots_and_boxes
 							{
 								if (IsNotRightSideVecEdge(fir_box_right_edge))
 								{
-									Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_right_edge);
+									Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_right_edge);
 									if (board.get(sec_box_upper_edge) + board.get(sec_box_upper_edge + 5) + board.get(fir_box_right_edge + 5) == 2)
 									{
 										affect_lower_box = true;
@@ -1022,7 +832,7 @@ namespace dots_and_boxes
 							{
 								if (IsNotLeftSideVecEdge(fir_box_left_edge))
 								{
-									Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_left_edge - 5);
+									Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_left_edge - 5);
 									if (board.get(sec_box_upper_edge) + board.get(sec_box_upper_edge + 5) + board.get(fir_box_left_edge - 5) == 2)
 									{
 										affect_upper_box = true;
@@ -1033,7 +843,7 @@ namespace dots_and_boxes
 							{
 								if (IsNotRightSideVecEdge(fir_box_right_edge))
 								{
-									Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_right_edge);
+									Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_right_edge);
 									if (board.get(sec_box_upper_edge) + board.get(sec_box_upper_edge + 5) + board.get(fir_box_right_edge + 5) == 2)
 									{
 										affect_upper_box = true;
@@ -1067,7 +877,7 @@ namespace dots_and_boxes
 					if (IsNotLeftSideVecEdge(edge))
 					{
 						Edge fir_box_left_edge = edge - 5;
-						Edge fir_box_upper_edge = LeftEdgeToUpperEdge(fir_box_left_edge);
+						Edge fir_box_upper_edge = LeftToUpperEdge(fir_box_left_edge);
 						Edge fir_box_lower_edge = fir_box_upper_edge + 5;
 
 						int fir_box_edge_num = board.get(fir_box_lower_edge) + board.get(fir_box_upper_edge) + board.get(fir_box_left_edge);
@@ -1077,7 +887,7 @@ namespace dots_and_boxes
 							{
 								if (IsNotLeftSideVecEdge(fir_box_left_edge))
 								{
-									Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_left_edge - 5);
+									Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_left_edge - 5);
 									if (board.get(sec_box_upper_edge) + board.get(sec_box_upper_edge + 5) + board.get(fir_box_left_edge - 5) == 2)
 									{
 										affect_left_box = true;
@@ -1118,7 +928,7 @@ namespace dots_and_boxes
 					if (IsNotRightSideVecEdge(edge))
 					{
 						Edge fir_box_right_edge = edge + 5;
-						Edge fir_box_upper_edge = LeftEdgeToUpperEdge(edge);
+						Edge fir_box_upper_edge = LeftToUpperEdge(edge);
 						Edge fir_box_lower_edge = fir_box_upper_edge + 5;
 
 						int fir_box_edge_num = board.get(fir_box_lower_edge) + board.get(fir_box_upper_edge) + board.get(fir_box_right_edge);
@@ -1128,7 +938,7 @@ namespace dots_and_boxes
 							{
 								if (IsNotRightSideVecEdge(fir_box_right_edge))
 								{
-									Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_right_edge);
+									Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_right_edge);
 									if (board.get(sec_box_upper_edge) + board.get(sec_box_upper_edge + 5) + board.get(fir_box_right_edge + 5) == 2)
 									{
 										affect_right_box = true;
@@ -1216,8 +1026,8 @@ namespace dots_and_boxes
 					if (IsNotLeftSideVecEdge(fir_box_left_edge))
 					{
 						Edge sec_box_left_edge = fir_box_left_edge - 5;
-						Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_left_edge - 5);
-						Edge sec_box_lower_edge = LeftEdgeToUpperEdge(fir_box_left_edge - 5) + 5;
+						Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_left_edge - 5);
+						Edge sec_box_lower_edge = LeftToUpperEdge(fir_box_left_edge - 5) + 5;
 						return (board.get(sec_box_lower_edge) + board.get(sec_box_upper_edge) + board.get(sec_box_left_edge) == 2);
 					}
 					return false;
@@ -1227,8 +1037,8 @@ namespace dots_and_boxes
 					if (IsNotRightSideVecEdge(fir_box_right_edge))
 					{
 						Edge sec_box_right_edge = fir_box_right_edge + 5;
-						Edge sec_box_upper_edge = LeftEdgeToUpperEdge(fir_box_right_edge);
-						Edge sec_box_lower_edge = LeftEdgeToUpperEdge(fir_box_right_edge) + 5;
+						Edge sec_box_upper_edge = LeftToUpperEdge(fir_box_right_edge);
+						Edge sec_box_lower_edge = LeftToUpperEdge(fir_box_right_edge) + 5;
 						return (board.get(sec_box_lower_edge) + board.get(sec_box_upper_edge) + board.get(sec_box_right_edge) == 2);
 					}
 					return false;

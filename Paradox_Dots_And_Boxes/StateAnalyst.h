@@ -23,14 +23,19 @@ namespace dots_and_boxes
 	{
 		FRONT_STATE = 0,
 		FRONT_STATE_WITH_DEAD_BOX = 1,
-		REAR_STATE = 2,
-		REAR_STATE_WITH_DEAD_BOX = 3,
-		REAR_STATE_WITH_DEAD_CHAIN = 4
+		FRONT_STATE_WITH_DEAD_CHAIN = 2,
+		REAR_STATE = 3,
+		REAR_STATE_WITH_DEAD_BOX = 4,
+		REAR_STATE_WITH_DEAD_CHAIN = 5
 	};
 
 	namespace front_state
 	{
+		//Get free actions.
 		ActionVec GetFreeActions(const Board& board);
+
+		//get the actions that appointed the edge can take the fir dead box.
+		ActionVec GetFirDeadBoxAction(const Board& board);
 	}
 
 	namespace rear_state
@@ -199,21 +204,7 @@ namespace dots_and_boxes
 				_chains[chain].add_box_num();
 			}
 
-			//show boxes info.
-			inline void ShowBoxInfo()
-			{
-				for (auto& box : _boxes)
-				{
-					if (box.index() % 5 == 0)
-					{
-						cout << endl;
-					}
-					cout << box.type() << " ";
-				}
-			}
-
-			//show chains info.
-			void ShowChainInfo();
+			
 
 			//register a chain from a box.
 			void RegisterChainFromBox(Edge start_box, Edge fir_box, Edge ignore_edge);
@@ -234,32 +225,45 @@ namespace dots_and_boxes
 				return _reasonable_edge[edge];
 			}
 
-			//show info
-			void ShowInfo();
+			//show boxes info.
+			inline void ShowBoxInfo()
+			{
+				for (auto& box : _boxes)
+				{
+					if (box.index() % 5 == 0)
+					{
+						cout << endl;
+					}
+					cout << box.type() << " ";
+				}
+			}
+
+			//show chains info.
+			void ShowChainInfo();
 		};
 	}
 
-	//a action analyst is used for generate reasonable actions with filter.
-	class ActionAnalyst
+	//class Analyst is basic class of Action Analyst and Retro Analyst.
+	class Analyst
 	{
-	private:
-		const Board _board;	//the board of this analyst.
+	protected:
+		const Board _board;		//the board of this analyst.
 		ActionVec _result;		//the result of analyst.
 		StateType _state_type;	//state type of the board.
+
+		Analyst(Board board);
 
 	private:
 		//determind the type of this state.
 		static StateType DetermindStateType(Board board);
-		
-	public:
-		ActionAnalyst(Board board);
 
+	public:
 		//get the result of analyst.
 		inline ActionVec result() const
 		{
 			return _result;
 		}
-		
+
 		//get the board of this analyst.
 		inline Board board() const
 		{
@@ -272,9 +276,32 @@ namespace dots_and_boxes
 			return _state_type;
 		}
 
+		//get whether appointed edge is legal move.
 		inline bool operator[](Edge edge) const
 		{
 			return _result[edge];
 		}
 	};
+
+	//a action analyst is used for generate reasonable actions with filter.
+	class ActionAnalyst :public Analyst
+	{
+	public:
+		ActionAnalyst(Board board);
+
+		//return random legal action.
+		Edge RandomAction();
+
+		//visualization
+		void Visualization(Edge tag_edge = MAX_EDGE) const;
+	};
+
+	//class retro analyst offers possible actions of retro analysis.
+	class RetroAnalyst :public Analyst
+	{
+	public:
+		RetroAnalyst(Board board);
+	};
+
+
 }

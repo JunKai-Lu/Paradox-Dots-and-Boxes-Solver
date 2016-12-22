@@ -272,9 +272,6 @@ namespace dots_and_boxes
 		void Visualization(ActionVec action_vec = ActionVec(0)) const;
 
 		//TODO
-		void ActionVisualization(ActionVec action_vec = ActionVec(0)) const;
-
-		//TODO
 		void EdgeVisualization() const;
 
 		//create a random state with appointed edge number.
@@ -292,7 +289,7 @@ namespace dots_and_boxes
 		}
 
 		//得到某个竖边右上的横边的编号（限制为30~54）
-		inline Edge LeftEdgeToUpperEdge(Edge vec_edge)
+		inline Edge LeftToUpperEdge(Edge vec_edge)
 		{
 			WARNING_CHECK(vec_edge > 54 || vec_edge < 30, "Wrong index");
 			return (14 - 5 * (vec_edge % 5)) + (vec_edge / 5);
@@ -428,7 +425,7 @@ namespace dots_and_boxes
 
 						//check right box.
 						Edge right_vec_edge = index + 5;
-						Edge upper_right_hor_edge = LeftEdgeToUpperEdge(index);
+						Edge upper_right_hor_edge = LeftToUpperEdge(index);
 						Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 						if (board.get(right_vec_edge) && board.get(upper_right_hor_edge) && board.get(lower_right_hor_edge))
 						{
@@ -437,7 +434,7 @@ namespace dots_and_boxes
 
 						//check left box.
 						Edge left_vec_edge = index - 5;
-						Edge upper_left_hor_edge = LeftEdgeToUpperEdge(left_vec_edge);
+						Edge upper_left_hor_edge = LeftToUpperEdge(left_vec_edge);
 						Edge lower_left_hor_edge = upper_left_hor_edge + 5;
 						if (board.get(left_vec_edge) && board.get(upper_left_hor_edge) && board.get(lower_left_hor_edge))
 						{
@@ -450,7 +447,7 @@ namespace dots_and_boxes
 
 						//check left box.
 						Edge left_vec_edge = index - 5;
-						Edge upper_left_hor_edge = LeftEdgeToUpperEdge(left_vec_edge);
+						Edge upper_left_hor_edge = LeftToUpperEdge(left_vec_edge);
 						Edge lower_left_hor_edge = upper_left_hor_edge + 5;
 						if (board.get(left_vec_edge) && board.get(upper_left_hor_edge) && board.get(lower_left_hor_edge))
 						{
@@ -464,7 +461,7 @@ namespace dots_and_boxes
 
 					//check right box.
 					Edge right_vec_edge = index + 5;
-					Edge upper_right_hor_edge = LeftEdgeToUpperEdge(index);
+					Edge upper_right_hor_edge = LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					if (board.get(right_vec_edge) && board.get(upper_right_hor_edge) && board.get(lower_right_hor_edge))
 					{

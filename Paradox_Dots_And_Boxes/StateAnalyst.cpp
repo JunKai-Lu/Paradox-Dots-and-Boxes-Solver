@@ -21,6 +21,15 @@ namespace dots_and_boxes
 			return temp;
 
 		}
+
+		ActionVec GetFirDeadBoxAction(const Board& board)
+		{
+			ActionVec temp;
+			Edge fir = state::GetDeadBoxRemainEdgeIndex(board);
+			WARNING_CHECK(fir == MAX_EDGE, "no dead box exist");
+			temp.set(fir);
+			return temp;
+		}
 	}
 
 	namespace rear_state
@@ -33,9 +42,9 @@ namespace dots_and_boxes
 		{
 			//set own edges.
 			_own_edge[0] = index;
-			_own_edge[1] = state::LeftEdgeToUpperEdge(index);
+			_own_edge[1] = state::UpperToLeftEdge(index);
 			_own_edge[2] = index + 5;
-			_own_edge[3] = state::LeftEdgeToUpperEdge(index) + 5;
+			_own_edge[3] = state::UpperToLeftEdge(index) + 5;
 
 			//set box type
 			size_t edge_num = state::GetLowerBoxEdgeNum(board, index);
@@ -302,27 +311,14 @@ namespace dots_and_boxes
 	}
 
 	//constructor function
-	ActionAnalyst::ActionAnalyst(Board board):
+	Analyst::Analyst(Board board):
 		_board(board),
 		_state_type(DetermindStateType(board))
 	{
-		if (_state_type == FRONT_STATE_WITH_DEAD_BOX || _state_type == REAR_STATE_WITH_DEAD_BOX)
-		{
-		}
-		else if (_state_type == FRONT_STATE)
-		{
-			_result = front_state::GetFreeActions(_board);
-		}
-		else if (_state_type == REAR_STATE)
-		{
-		}
-		else if (_state_type == REAR_STATE_WITH_DEAD_CHAIN)
-		{
-		}
 	}
 
 	//determind state type.
-	StateType ActionAnalyst::DetermindStateType(Board board)
+	StateType Analyst::DetermindStateType(Board board)
 	{
 		if (state::ExistFreeEdge(board))//front state.
 		{
@@ -342,5 +338,303 @@ namespace dots_and_boxes
 			return REAR_STATE_WITH_DEAD_BOX;
 		}
 		return REAR_STATE;
+	}
+
+	//TODO Action Analyst
+	ActionAnalyst::ActionAnalyst(Board board) :
+		Analyst(board)
+	{
+		if (_state_type == FRONT_STATE_WITH_DEAD_BOX || _state_type == REAR_STATE_WITH_DEAD_BOX)
+		{
+			_result = front_state::GetFirDeadBoxAction(_board);
+		}
+		else if (_state_type == FRONT_STATE)
+		{
+			_result = front_state::GetFreeActions(_board);
+		}
+		else if (_state_type == REAR_STATE)
+		{
+
+		}
+		else if (_state_type == REAR_STATE_WITH_DEAD_CHAIN)
+		{
+
+		}
+	}
+
+	Edge ActionAnalyst::RandomAction()
+	{
+		WARNING_CHECK(_result.none(), "no any action is legal.");
+		Edge actions[MAX_EDGE];
+		size_t c_index = 0;
+		for (Edge edge = 0; edge < MAX_EDGE; edge++)
+		{
+			if (_result.get(edge))
+			{
+				actions[c_index] = edge;
+				c_index++;
+			}
+		}
+		size_t rnd = rand() % c_index;
+		return actions[rnd];
+	}
+
+	void ActionAnalyst::Visualization(Edge tag_edge) const
+	{
+		const console::color::Color edge_color = console::color::yellow;
+		const console::color::Color action_color = console::color::white;
+		const console::color::Color dot_color = console::color::gray;
+		const console::color::Color tag_color = console::color::green;
+		cout << endl;
+		string interval = "     ";
+		for (Edge y = 0; y < GAME_SIZE; y++)
+		{
+			//horizon edges, first grid.
+			cout << interval;
+			for (Edge index = y * 5; index < (y * 5) + 5; index++)
+			{
+				//cout << "¡ð";
+				console::Cprintf("¡ð", dot_color);
+				if (_board.get(index))
+				{
+					if(index == tag_edge)
+					{
+						console::Cprintf("©¥", tag_color);
+					}
+					else
+					{
+						console::Cprintf("©¥", edge_color);
+					}
+				}
+				else
+				{
+					cout << "  ";
+				}
+			}
+			console::Cprintf("¡ð" + interval, dot_color);
+			//cout << "¡ð" << endl;
+
+			//horizon edges, second grid.
+			for (Edge index = y * 5; index < (y * 5) + 5; index++)
+			{
+				//cout << "¡ð";
+				console::Cprintf("¡ð", dot_color);
+				if (_board.get(index))
+				{
+					if (index == tag_edge)
+					{
+						console::Cprintf("©¥", tag_color);
+					}
+					else
+					{
+						console::Cprintf("©¥", edge_color);
+					}
+				}
+				else
+				{
+					if (_result.get(index))
+					{
+						console::Cprintf("©¬", action_color);
+						//cout << "©¬";
+					}
+					else
+					{
+						cout << "  ";
+					}
+
+				}
+			}
+			console::Cprintf("¡ð\n", dot_color);
+
+			//vertical edges, first grid.
+			cout << interval;
+			for (Edge index = 34 - y; index < 59 - y; index += 5)
+			{
+				if (_board.get(index))
+				{
+					if(index == tag_edge)
+					{ 
+						console::Cprintf("©§", tag_color);
+					}
+					else
+					{
+						console::Cprintf("©§", edge_color);
+					}
+					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
+					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
+					Edge right_vec_edge = index + 5;
+					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
+					{
+						cout << "¡ö";
+					}
+					else
+					{
+						cout << "  ";
+					}
+				}
+				else
+				{
+					cout << "    ";
+				}
+			}
+			if (_board.get(59 - y))
+			{
+				if ((59 - y) == tag_edge)
+				{
+					console::Cprintf("©§" + interval, tag_color);
+				}
+				else
+				{
+					console::Cprintf("©§" + interval, edge_color);
+				}
+			}
+			else
+			{
+				cout << "  " + interval;
+			}
+
+			//vertical edges, second grid.
+			for (Edge index = 34 - y; index < 59 - y; index += 5)
+			{
+				if (_board.get(index))
+				{
+					if (index == tag_edge)
+					{
+						console::Cprintf("©§", tag_color);
+					}
+					else
+					{
+						console::Cprintf("©§", edge_color);
+					}
+					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
+					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
+					Edge right_vec_edge = index + 5;
+					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
+					{
+						cout << "¡ö";
+					}
+					else
+					{
+						cout << "  ";
+					}
+				}
+				else
+				{
+					if (_result.get(index))
+					{
+						//cout << "©®";
+						console::Cprintf("©®", action_color);
+					}
+					else
+					{
+						cout << "  ";
+					}
+					cout << "  ";
+				}
+			}
+
+
+
+			if (_board.get(59 - y))
+			{
+				if ((59-y) == tag_edge)
+				{
+					console::Cprintf("©§\n", tag_color);
+				}
+				else
+				{
+					console::Cprintf("©§\n", edge_color);
+				}
+			}
+			else
+			{
+				if (_result.get(59 - y))
+				{
+					//cout << "©®" << endl;
+					console::Cprintf("©®\n", action_color);
+				}
+				else
+				{
+					cout << "  " << endl;
+				}
+			}
+		}
+
+		//print lower horizon edges, first grid.
+		cout << interval;
+		for (Edge index = 25; index < 30; index++)
+		{
+			//cout << "¡ð";
+			console::Cprintf("¡ð", dot_color);
+			if (_board.get(index))
+			{
+				if (index == tag_edge)
+				{
+					console::Cprintf("©¥", tag_color);
+				}
+				else
+				{
+					console::Cprintf("©¥", edge_color);
+				}
+			}
+			else
+			{
+				cout << "  ";
+			}
+		}
+		//cout << "¡ð" << endl;
+		console::Cprintf("¡ð" + interval, dot_color);
+
+		//print lower horizon edges, second grid.
+		for (Edge index = 25; index < 30; index++)
+		{
+			//cout << "¡ð";
+			console::Cprintf("¡ð", dot_color);
+			if (_board.get(index))
+			{
+				if (index == tag_edge)
+				{
+					console::Cprintf("©¥", tag_color);
+				}
+				else
+				{
+					console::Cprintf("©¥", edge_color);
+				}
+			}
+			else
+			{
+				if (_result.get(index))
+				{
+					//cout << "©¬";
+					console::Cprintf("©¬", action_color);
+				}
+				else
+				{
+					cout << "  ";
+				}
+			}
+		}
+		//cout << "¡ð" << endl;
+		console::Cprintf("¡ð\n\n", dot_color);
+	}
+
+	//TODO Retro Analyst
+	RetroAnalyst::RetroAnalyst(Board board) :
+		Analyst(board)
+	{
+		//TODO
+		if (_state_type == FRONT_STATE_WITH_DEAD_BOX || _state_type == REAR_STATE_WITH_DEAD_BOX)
+		{
+		}
+		else if (_state_type == FRONT_STATE)
+		{
+
+		}
+		else if (_state_type == REAR_STATE)
+		{
+		}
+		else if (_state_type == REAR_STATE_WITH_DEAD_CHAIN)
+		{
+		}
 	}
 }
