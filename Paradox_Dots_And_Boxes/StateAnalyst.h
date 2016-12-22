@@ -19,7 +19,6 @@ namespace dots_and_boxes
 	*/
 
 	//state type means different period of state.
-	
 	enum StateType
 	{
 		FRONT_STATE = 0,
