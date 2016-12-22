@@ -92,15 +92,15 @@ namespace dots_and_boxes
 			//for all solver state in original storage.
 			for (SolverState& ss : original_storage)
 			{
-				BitBoard current_board = ss.first;
+				Board current_board = ss.first;
 				Margin current_margin = ss.second;
 				for (Edge i = 0; i <MAX_EDGE; i++)
 				{
 					//if edge 'i' exist
-					if (board::EdgeExist(current_board, i))
+					if (current_board.get(i))
 					{
-						BitBoard new_board = current_board;
-						board::EdgeRemove(new_board, i);	//get a new board without edge i
+						Board new_board = current_board;
+						new_board.reset(i);	//get a new board without edge i
 						new_board = state::MinimalForm(new_board);
 						Margin new_margin;
 						Margin num = state::TheNumOfFullBoxWithTheEdge(current_board, i);
@@ -119,18 +119,18 @@ namespace dots_and_boxes
 							cout << ">> Computing storage[ToMap], state num = " << count << endl;
 						}
 
-						if (ss_map.count(new_board))
+						if (ss_map.count(new_board.to_ullong()))
 						{
 							//exist 
-							if (new_margin > ss_map[new_board])
+							if (new_margin > ss_map[new_board.to_ullong()])
 							{
-								ss_map[new_board] = new_margin;	//refresh value if the margin is better.
+								ss_map[new_board.to_ullong()] = new_margin;	//refresh value if the margin is better.
 							}
 						}
 						else
 						{
 							//no exist
-							ss_map[new_board] = new_margin;
+							ss_map[new_board.to_ullong()] = new_margin;
 						}
 					}
 				}
@@ -152,15 +152,15 @@ namespace dots_and_boxes
 
 			for (SolverState& ss : original_storage)
 			{
-				BitBoard current_board = ss.first;
+				Board current_board = ss.first;
 				Margin current_margin = ss.second;
 				for (Edge i = 0; i <MAX_EDGE; i++)
 				{
 					//if edge 'i' exist
-					if (board::EdgeExist(current_board, i))
+					if (current_board.get(i))
 					{
-						BitBoard new_board = current_board;
-						board::EdgeRemove(new_board, i);	//get a new board without edge i
+						Board new_board = current_board;
+						new_board.reset(i);	//get a new board without edge i
 						new_board = state::MinimalForm(new_board);
 
 						if (use_filter)
@@ -183,7 +183,7 @@ namespace dots_and_boxes
 						{
 							new_margin = -current_margin;	//do not break the box, change player and reverse margin.
 						}
-						storage_cache.Push(new_board, new_margin);
+						storage_cache.Push(new_board.to_ullong(), new_margin);
 
 						if (storage_cache.count() % DISPLAYED_TIME_INTERVAL == 0)
 						{
@@ -444,7 +444,7 @@ namespace dots_and_boxes
 			0,1,2,3,4,59,58,57,56,55,29,28,27,26,25,30,31,32,33,34
 		};
 
-		Margin Minimax(BitBoard board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash)
+		Margin Minimax(Board board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash)
 		{
 			/*for (;;)
 			{
@@ -479,7 +479,7 @@ namespace dots_and_boxes
 				{
 					if (state::IsFreeEdge(board, EdgeQueue(i)))
 					{
-						BitBoard new_board = board;
+						Board new_board = board;
 						board::EdgeSet(new_board, EdgeQueue(i));
 						Margin child_margin = Minimax(new_board, -margin, edge_num, aim_edge_num, solver_hash);
 						if (child_margin > best_margin)

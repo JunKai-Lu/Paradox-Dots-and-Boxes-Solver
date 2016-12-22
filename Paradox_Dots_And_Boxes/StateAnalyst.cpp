@@ -8,13 +8,25 @@ namespace dots_and_boxes
 {
 	namespace front_state
 	{
+		ActionVec GetFreeActions(const Board& board) 
+		{
+			ActionVec temp;
+			for (Edge i = 0; i < MAX_EDGE; i++)
+			{
+				if (state::IsFreeEdge(board, i))
+				{
+					temp.set(i);
+				}
+			}
+			return temp;
 
+		}
 	}
 
 	namespace rear_state
 	{
 		//constructor function.
-		BoxInfo::BoxInfo(BitBoard board, Edge index) :
+		BoxInfo::BoxInfo(Board board, Edge index) :
 			_index(index),
 			_belonging_chain(MAX_CHAIN),
 			_neighbour_box{ MAX_BOX,MAX_BOX,MAX_BOX,MAX_BOX }
@@ -64,7 +76,7 @@ namespace dots_and_boxes
 		}
 
 		//constructor function
-		ChainAnalyst::ChainAnalyst(BitBoard board) :
+		ChainAnalyst::ChainAnalyst(Board board) :
 			_board(board),
 			_boxes{
 			BoxInfo(board,0),BoxInfo(board,1),BoxInfo(board,2),BoxInfo(board,3),BoxInfo(board,4),
@@ -290,9 +302,8 @@ namespace dots_and_boxes
 	}
 
 	//constructor function
-	ActionAnalyst::ActionAnalyst(BitBoard board):
+	ActionAnalyst::ActionAnalyst(Board board):
 		_board(board),
-		_result(),
 		_state_type(DetermindStateType(board))
 	{
 		if (_state_type == FRONT_STATE_WITH_DEAD_BOX || _state_type == REAR_STATE_WITH_DEAD_BOX)
@@ -300,6 +311,7 @@ namespace dots_and_boxes
 		}
 		else if (_state_type == FRONT_STATE)
 		{
+			_result = front_state::GetFreeActions(_board);
 		}
 		else if (_state_type == REAR_STATE)
 		{
@@ -310,25 +322,25 @@ namespace dots_and_boxes
 	}
 
 	//determind state type.
-	StateType ActionAnalyst::DetermindStateType(BitBoard board)
+	StateType ActionAnalyst::DetermindStateType(Board board)
 	{
 		if (state::ExistFreeEdge(board))//front state.
 		{
 			if (state::ExistDeadBox(board))
 			{
-				return ST_FrontStateWithDeadBox;
+				return FRONT_STATE_WITH_DEAD_BOX;
 			}
-			return ST_FrontState;
+			return FRONT_STATE;
 		}
 		//rear state
 		if (state::ExistDeadChain(board))
 		{
-			return ST_RearStateWithDeadChain;
+			return REAR_STATE_WITH_DEAD_CHAIN;
 		}
 		if (state::ExistDeadBox(board))
 		{
-			return ST_RearStateWithDeadBox;
+			return REAR_STATE_WITH_DEAD_BOX;
 		}
-		return ST_RearState;
+		return REAR_STATE;
 	}
 }

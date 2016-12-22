@@ -67,7 +67,7 @@ namespace dots_and_boxes
 			ifstream ifs(_cache_file_path);
 			for (;;)
 			{
-				BitBoard board;
+				long long board;
 				Margin margin;
 				ifs >> board >> margin;
 				if (!ifs.eof())

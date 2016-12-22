@@ -109,26 +109,27 @@ namespace dots_and_boxes
 	//type define.
 	typedef unsigned char Edge;
 	typedef short Margin;
+	typedef long long BitBoard;
 
-	//define BitBoard and ActionVector.
-	class BitBoard
+	//define Board and ActionVector.
+	class Board
 	{
 	private:
-		long long _board;
+		BitBoard _board;
 
 	public:
-		inline BitBoard() :
+		inline Board() :
 			_board(0)
 		{
 
 		}
-		inline BitBoard(long long board) :
+		inline Board(BitBoard board) :
 			_board(board)
 		{
 		}
 
 		//equal to the appointed value.
-		inline void operator=(long long board)
+		inline void operator=(BitBoard board)
 		{
 			_board = board;
 		}
@@ -198,7 +199,7 @@ namespace dots_and_boxes
 		}
 
 		//get value
-		inline long long to_ullong() const
+		inline BitBoard to_ullong() const
 		{
 			return _board;
 		}
@@ -221,41 +222,51 @@ namespace dots_and_boxes
 			return std::string(c);
 		}
 
-		inline bool operator<(const BitBoard& target)
+		inline bool operator<(const Board& target)
 		{
 			return _board < target._board;
 		}
-		inline bool operator>(const BitBoard& target)
+		inline bool operator>(const Board& target)
 		{
 			return _board > target._board;
 		}
-		inline bool operator<=(const BitBoard& target)
+		inline bool operator<=(const Board& target)
 		{
 			return _board <= target._board;
 		}
-		inline bool operator>=(const BitBoard& target)
+		inline bool operator>=(const Board& target)
 		{
 			return _board >= target._board;
 		}
-		inline bool operator==(const BitBoard& target)
+		inline bool operator==(const Board& target)
 		{
 			return _board == target._board;
 		}
 	};
-	typedef BitBoard ActionVec;
+	typedef Board ActionVec;
 
 	//state is used for show board mainly.
 	class State
 	{
 	protected:
-		BitBoard _board;
+		Board _board;
 
 	public:
 		//create a empty state.
 		State() = default;
 
 		//create a state by bit board.
-		State(BitBoard board);
+		State(Board board);
+
+		inline Board board() 
+		{
+			return _board;
+		}
+
+		inline Board& board_ref()
+		{
+			return _board;
+		}
 
 		//show state.
 		void Visualization(ActionVec action_vec = ActionVec(0)) const;
@@ -324,7 +335,7 @@ namespace dots_and_boxes
 		}
 
 		//Get the edge num of the box below a horizon edge.
-		inline size_t GetLowerBoxEdgeNum(const BitBoard board, Edge hor_edge)
+		inline size_t GetLowerBoxEdgeNum(const Board& board, Edge hor_edge)
 		{
 			WARNING_CHECK(hor_edge > 24, "Wrong index");
 			Edge lower_left_edge = UpperToLeftEdge(hor_edge);
@@ -332,16 +343,16 @@ namespace dots_and_boxes
 		}
 
 		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE.
-		Edge GetDeadBoxRemainEdgeIndex(const BitBoard board);
+		Edge GetDeadBoxRemainEdgeIndex(const Board& board);
 
 		//judge whether any dead box exists in a board.
-		bool ExistDeadBox(const BitBoard board);
+		bool ExistDeadBox(const Board& board);
 
 		//capture all possible box in this action.
-		BitBoard CaptureAllBoxes(const BitBoard board);
+		Board CaptureAllBoxes(Board& board);
 
 		//return whether how many full-box as the edge as their part.
-		inline Margin TheNumOfFullBoxWithTheEdge(const BitBoard& board, Edge index)
+		inline Margin TheNumOfFullBoxWithTheEdge(const Board& board, Edge index)
 		{
 
 			if (!board.get(index))
@@ -466,7 +477,7 @@ namespace dots_and_boxes
 		}
 
 		//minimize state by change corner
-		inline void ChangeBoxCorner(BitBoard& board)
+		inline void ChangeBoxCorner(Board& board)
 		{
 			if ((board.to_ullong() & 0x400000001) == 0x400000000)
 			{
@@ -494,7 +505,7 @@ namespace dots_and_boxes
 		}
 
 		//get the box that have been rotate for 90'.
-		inline BitBoard RotateBox(const BitBoard board)
+		inline Board RotateBox(const Board& board)
 		{
 			long long temp = board.to_ullong() & 0x3FFFFFFF;
 			for (Edge i = 30; i < 60; i++)
@@ -505,11 +516,11 @@ namespace dots_and_boxes
 					temp = temp | 1;
 				}
 			}
-			return BitBoard(temp);
+			return Board(temp);
 		}
 
 		//get the box that have been reversald.
-		inline BitBoard ReverseBox(const BitBoard board)
+		inline Board ReverseBox(const Board& board)
 		{
 			long long temp = 0;
 			long long source = board.to_ullong();
@@ -531,26 +542,26 @@ namespace dots_and_boxes
 				long long part = (source >> (i * 5)) & 0x1F;
 				temp = (temp << 5) | part;
 			}
-			return BitBoard(temp);
+			return Board(temp);
 		}
 
 		//get the minimal state of the box.
-		BitBoard MinimalForm(const BitBoard board);
+		Board MinimalForm(const Board& board);
 
 		//check whether exist dead chain in a board.
-		bool ExistDeadChain(const BitBoard board);
+		bool ExistDeadChain(const Board& board);
 
 		//check whether exist free edge in a board.
-		bool ExistFreeEdge(const BitBoard board);
+		bool ExistFreeEdge(const Board& board);
 
 		//get not reasonable state.
-		bool IsReasonable(const BitBoard board);
+		bool IsReasonable(const Board& board);
 
 		//judge whether a edge in a board is a free-edge.
-		bool IsFreeEdge(const BitBoard board, Edge edge);
+		bool IsFreeEdge(const Board& board, Edge edge);
 
 		//judge whether a edge is the upper edge of a box that is first box of a dead chain.
-		bool IsUpperEdgeOfFirstBoxOfDeadChain(const BitBoard board, Edge edge);
+		bool IsUpperEdgeOfFirstBoxOfDeadChain(const Board& board, Edge edge);
 
 		//judge whether two edge is upper edge of two neighbour box.
 		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b);
@@ -580,7 +591,7 @@ namespace dots_and_boxes
 
 	//	public:
 	//		GameState();
-	//		GameState(BitBoard board, Player fir_player, Player sec_player);
+	//		GameState(Board board, Player fir_player, Player sec_player);
 
 	//		//variable
 	//		inline Margin get_margin()

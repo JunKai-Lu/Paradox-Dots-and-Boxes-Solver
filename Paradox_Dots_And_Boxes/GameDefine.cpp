@@ -9,7 +9,7 @@ using namespace std;
 
 namespace dots_and_boxes
 {
-	State::State(BitBoard board) :
+	State::State(Board board) :
 		_board(board)
 	{
 	}
@@ -498,7 +498,7 @@ namespace dots_and_boxes
 	State State::RandomState(size_t edge_num)
 	{
 		WARNING_CHECK(edge_num >= MAX_EDGE, "out of range");
-		BitBoard board;
+		Board board;
 		vector<Edge> moves(60);
 		for (Edge i = 0; i < edge_num; i++)
 		{
@@ -512,7 +512,7 @@ namespace dots_and_boxes
 			if (moves.size() != 0)
 			{
 				size_t rnd = rand() % moves.size();
-				board.get(moves[rnd]);
+				board.set(moves[rnd]);
 				moves.clear();
 			}
 			else
@@ -526,7 +526,7 @@ namespace dots_and_boxes
 	namespace state
 	{
 		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE。
-		Edge GetDeadBoxRemainEdgeIndex(const BitBoard board)
+		Edge GetDeadBoxRemainEdgeIndex(const Board& board)
 		{
 			for (Edge hor_edge = 0; hor_edge < 25; hor_edge++)
 			{
@@ -557,15 +557,15 @@ namespace dots_and_boxes
 		}
 
 		//return true if any dead box exist in this state.
-		bool ExistDeadBox(BitBoard board)
+		bool ExistDeadBox(const Board& board)
 		{
 			return GetDeadBoxRemainEdgeIndex(board) != MAX_EDGE;
 		}
 
 		//capture all possible box in this action.
-		BitBoard CaptureAllBoxes(BitBoard board)
+		Board CaptureAllBoxes(Board& board)
 		{
-			BitBoard temp = board;
+			Board temp = board;
 			for (;;)
 			{
 				Edge edge = GetDeadBoxRemainEdgeIndex(temp);
@@ -582,12 +582,12 @@ namespace dots_and_boxes
 		}
 
 		//get the minimal state of the box.
-		BitBoard MinimalForm(BitBoard target)
+		Board MinimalForm(const Board& target)
 		{
 
-			BitBoard min = target;
-			BitBoard prototype = target;
-			BitBoard reversed = ReverseBox(min);
+			Board min = target;
+			Board prototype = target;
+			Board reversed = ReverseBox(min);
 			if (reversed < min)
 			{
 				min = reversed;
@@ -612,7 +612,7 @@ namespace dots_and_boxes
 		}
 
 		//check whether exist dead chain in a board.
-		bool ExistDeadChain(BitBoard board)
+		bool ExistDeadChain(const Board& board)
 		{
 			for (Edge fir_box_upper_edge = 0; fir_box_upper_edge < 25; fir_box_upper_edge++)
 			{
@@ -675,7 +675,7 @@ namespace dots_and_boxes
 		}
 
 		//check whether exist free edge in a board.
-		bool ExistFreeEdge(BitBoard board)
+		bool ExistFreeEdge(const Board& board)
 		{
 			for (Edge edge = 0; edge < MAX_EDGE; edge++)
 			{
@@ -688,7 +688,7 @@ namespace dots_and_boxes
 		}
 
 		//get not reasonable state
-		bool IsReasonable(BitBoard board)
+		bool IsReasonable(const Board& board)
 		{
 			size_t dead_box = 0;
 			size_t dead_chain = 0;
@@ -937,7 +937,7 @@ namespace dots_and_boxes
 		}
 
 		//judge whether a edge in a board is a free-edge.
-		bool IsFreeEdge(BitBoard board, Edge edge)
+		bool IsFreeEdge(const Board& board, Edge edge)
 		{
 			//Check horizon edges.
 			if (IsHorEdge(edge))
@@ -1180,7 +1180,7 @@ namespace dots_and_boxes
 		}
 
 		//judge whether a edge is the upper edge of a box that is first box of a dead chain.
-		bool IsUpperEdgeOfFirstBoxOfDeadChain(BitBoard board, Edge edge)
+		bool IsUpperEdgeOfFirstBoxOfDeadChain(const Board& board, Edge edge)
 		{
 			WARNING_CHECK(edge > 25, "wrong edge");
 
@@ -1292,7 +1292,7 @@ namespace dots_and_boxes
 
 		}
 
-		GameState::GameState(BitBoard board, Player fir_player, Player sec_player) :
+		GameState::GameState(Board board, Player fir_player, Player sec_player) :
 			State(board),
 			_fir_player(fir_player),
 			_sec_player(sec_player),

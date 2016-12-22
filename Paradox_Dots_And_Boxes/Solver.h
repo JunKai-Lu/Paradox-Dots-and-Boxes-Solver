@@ -109,7 +109,7 @@ namespace dots_and_boxes
 		* parameters:
 		* [board] is the state that need be judge.
 		*/
-		inline bool ReasonableStateFilter(BitBoard board)
+		inline bool ReasonableStateFilter(Board board)
 		{
 			return state::IsReasonable(board);
 		}
@@ -220,8 +220,8 @@ namespace dots_and_boxes
 			return edge_queue[index];
 		}
 
-		Margin AlphaBeta(BitBoard board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash, Margin alpha, Margin beta);
-		Margin Minimax(BitBoard board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash);
+		Margin AlphaBeta(Board board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash, Margin alpha, Margin beta);
+		Margin Minimax(Board board, Margin margin, size_t edge_num, size_t aim_edge_num, SolverHash& solver_hash);
 	}
 
 	

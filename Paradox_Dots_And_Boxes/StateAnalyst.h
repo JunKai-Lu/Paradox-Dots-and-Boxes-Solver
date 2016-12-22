@@ -30,7 +30,7 @@ namespace dots_and_boxes
 
 	namespace front_state
 	{
-
+		ActionVec GetFreeActions(const Board& board);
 	}
 
 	namespace rear_state
@@ -68,7 +68,7 @@ namespace dots_and_boxes
 			Edge _neighbour_box[4];
 
 		public:
-			BoxInfo(BitBoard board, Edge index);
+			BoxInfo(Board board, Edge index);
 
 
 			inline Edge index()
@@ -165,11 +165,10 @@ namespace dots_and_boxes
 		class ChainAnalyst
 		{
 		public:
-			ChainAnalyst(BitBoard board);
+			ChainAnalyst(Board board);
 
 		private:
-			BitBoard _board;
-
+			Board _board;
 			BoxInfo _boxes[MAX_BOX];
 			ChainInfo _chains[MAX_CHAIN];
 
@@ -239,29 +238,30 @@ namespace dots_and_boxes
 			void ShowInfo();
 		};
 	}
+
 	//a action analyst is used for generate reasonable actions with filter.
 	class ActionAnalyst
 	{
 	private:
-		const BitBoard _board;	//the board of this analyst.
+		const Board _board;	//the board of this analyst.
 		ActionVec _result;		//the result of analyst.
 		StateType _state_type;	//state type of the board.
 
 	private:
 		//determind the type of this state.
-		static StateType DetermindStateType(BitBoard board);
+		static StateType DetermindStateType(Board board);
 		
 	public:
-		ActionAnalyst(BitBoard board);
+		ActionAnalyst(Board board);
 
 		//get the result of analyst.
-		inline ActionVec result(size_t index) const
+		inline ActionVec result() const
 		{
 			return _result;
 		}
 		
 		//get the board of this analyst.
-		inline BitBoard board() const
+		inline Board board() const
 		{
 			return _board;
 		}
@@ -270,6 +270,11 @@ namespace dots_and_boxes
 		inline StateType state_type() const
 		{
 			return _state_type;
+		}
+
+		inline bool operator[](Edge edge) const
+		{
+			return _result[edge];
 		}
 	};
 }
