@@ -13,6 +13,7 @@
 #define WINDOWS
 #define WARNING
 #define WARNING_CHECK(warning_condition,reason) console::WarningCheck(warning_condition,reason,__FILE__,__LINE__,__FUNCTION__)
+#define RETURN_STRINGFY(parameter,str) if(parameter == str){return #str;}
 
 //CONSTANTS
 #define GAME_SIZE 5
@@ -115,35 +116,35 @@ namespace dots_and_boxes
 	class Board
 	{
 	private:
-		BitBoard _board;
+		BitBoard _data;
 
 	public:
 		inline Board() :
-			_board(0)
+			_data(0)
 		{
 
 		}
 		inline Board(BitBoard board) :
-			_board(board)
+			_data(board)
 		{
 		}
 
 		//equal to the appointed value.
 		inline void operator=(BitBoard board)
 		{
-			_board = board;
+			_data = board;
 		}
 
 		//return whether any bit is true.
 		inline bool any() const
 		{
-			return _board != 0;
+			return _data != 0;
 		}
 
 		//return whether no any bit is true.
 		inline bool none() const
 		{
-			return _board == 0;
+			return _data == 0;
 		}
 
 		//set appointed bit to true.
@@ -152,7 +153,7 @@ namespace dots_and_boxes
 			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
 			long long temp = 1;
 			temp = temp << index;
-			_board = _board | temp;
+			_data = _data | temp;
 		}
 
 		//reset appointed bit.
@@ -161,13 +162,13 @@ namespace dots_and_boxes
 			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
 			long long temp = 1;
 			temp = ~(temp << index);
-			_board = _board & temp;
+			_data = _data & temp;
 		}
 
 		//reset all bits.
 		inline void reset()
 		{
-			_board = 0;
+			_data = 0;
 		}
 
 		//write value to appointed bit.
@@ -188,20 +189,20 @@ namespace dots_and_boxes
 		inline bool operator[](Edge index) const
 		{
 			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
-			return ((_board >> index) & 0x1) == 1;
+			return ((_data >> index) & 0x1) == 1;
 		}
 
 		//get bit.
 		inline bool get(Edge index) const
 		{
 			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
-			return ((_board >> index) & 0x1) == 1;
+			return ((_data >> index) & 0x1) == 1;
 		}
 
 		//get value
 		inline BitBoard to_ullong() const
 		{
-			return _board;
+			return _data;
 		}
 
 		//get string
@@ -224,23 +225,23 @@ namespace dots_and_boxes
 
 		inline bool operator<(const Board& target)
 		{
-			return _board < target._board;
+			return _data < target._data;
 		}
 		inline bool operator>(const Board& target)
 		{
-			return _board > target._board;
+			return _data > target._data;
 		}
 		inline bool operator<=(const Board& target)
 		{
-			return _board <= target._board;
+			return _data <= target._data;
 		}
 		inline bool operator>=(const Board& target)
 		{
-			return _board >= target._board;
+			return _data >= target._data;
 		}
 		inline bool operator==(const Board& target)
 		{
-			return _board == target._board;
+			return _data == target._data;
 		}
 	};
 	typedef Board ActionVec;

@@ -19,16 +19,79 @@ namespace dots_and_boxes
 	*/
 
 	//state type means different period of state.
-	enum StateType
+	namespace state_type
 	{
-		FRONT_STATE = 0,
-		FRONT_STATE_WITH_DEAD_BOX = 1,
-		FRONT_STATE_WITH_DEAD_CHAIN = 2,
-		REAR_STATE = 3,
-		REAR_STATE_WITH_DEAD_BOX = 4,
-		REAR_STATE_WITH_DEAD_CHAIN = 5
-	};
+		enum StateType
+		{
+			FRONT = 0,
+			FRONT_WITH_DEAD_BOX = 1,
+			FRONT_WITH_DEAD_CHAIN = 2,
+			REAR = 3,
+			REAR_WITH_DEAD_BOX = 4,
+			REAR_WITH_DEAD_CHAIN = 5
+		};
 
+		inline std::string ToString(StateType st)
+		{
+			RETURN_STRINGFY(st, FRONT)
+				RETURN_STRINGFY(st, FRONT_WITH_DEAD_BOX)
+				RETURN_STRINGFY(st, FRONT_WITH_DEAD_CHAIN)
+				RETURN_STRINGFY(st, REAR)
+				RETURN_STRINGFY(st, REAR_WITH_DEAD_BOX)
+				RETURN_STRINGFY(st, REAR_WITH_DEAD_CHAIN)
+				return "";
+		}
+	}
+
+	//box type means boxes with different number of edges.
+	namespace box_type
+	{
+		enum BoxType
+		{
+			FULL_BOX = 4,
+			DEAD_BOX = 3,
+			CHAIN_BOX = 2,
+			FREE_BOX = 1
+		};
+
+		inline std::string ToString(BoxType bt)
+		{
+			RETURN_STRINGFY(bt, FULL_BOX)
+				RETURN_STRINGFY(bt, DEAD_BOX)
+				RETURN_STRINGFY(bt, CHAIN_BOX)
+				RETURN_STRINGFY(bt, FREE_BOX)
+				return "";
+		}
+	}
+
+	//chain type is used to difine the prop of chain.
+	namespace chain_type
+	{
+		enum ChainType
+		{
+			UNDEFINED = 0,
+			CHAIN = 1,
+			CIRCLE = 2,
+			OPEN_CHAIN = 3,
+			OPEN_CIRCLE = 4,
+			DEAD_CHAIN = 5,
+			DEAD_CIRCLE = 6
+		};
+
+		inline std::string ToString(ChainType ct)
+		{
+			RETURN_STRINGFY(ct, UNDEFINED)
+				RETURN_STRINGFY(ct, CHAIN)
+				RETURN_STRINGFY(ct, CIRCLE)
+				RETURN_STRINGFY(ct, OPEN_CHAIN)
+				RETURN_STRINGFY(ct, OPEN_CIRCLE)
+				RETURN_STRINGFY(ct, DEAD_CHAIN)
+				RETURN_STRINGFY(ct, DEAD_CIRCLE)
+				return "";
+		}
+	}
+
+	//front state include some functin that is used for front state.
 	namespace front_state
 	{
 		//Get free actions.
@@ -38,35 +101,15 @@ namespace dots_and_boxes
 		ActionVec GetFirDeadBoxAction(const Board& board);
 	}
 
+	//rear state include some functin that is used for rear state.
 	namespace rear_state
 	{
-		//box type means boxes with different number of edges.
-		enum BoxType
-		{
-			BT_FULL_BOX = 4,
-			BT_DEAD_BOX = 3,
-			BT_CHAIN_BOX = 2,
-			BT_FREE_BOX = 1
-		};
-
-		//chain type is used to difine the prop of chain.
-		enum ChainType
-		{
-			CT_UNDEFINED = 0,
-			CT_CHAIN = 1,
-			CT_CIRCLE = 2,
-			CT_OPEN_CHAIN = 3,
-			CT_OPEN_CIRCLE = 4,
-			CT_DEAD_CHAIN = 5,
-			CT_DEAD_CIRCLE = 6
-		};
-
 		//box info that are included in chain analyst.
 		class BoxInfo
 		{
 		private:
 			Edge _index;
-			BoxType _type;
+			box_type::BoxType _type;
 			size_t _belonging_chain;
 
 			Edge _own_edge[4];
@@ -80,7 +123,7 @@ namespace dots_and_boxes
 			{
 				return _index;
 			}
-			inline BoxType type()
+			inline box_type::BoxType type()
 			{
 				return _type;
 			}
@@ -133,17 +176,17 @@ namespace dots_and_boxes
 		class ChainInfo
 		{
 		private:
-			ChainType _type;
+			chain_type::ChainType _type;
 			size_t _boxes_num;
 
 		public:
 			inline ChainInfo() :
-				_type(CT_UNDEFINED),
+				_type(chain_type::UNDEFINED),
 				_boxes_num(0)
 			{
 
 			}
-			inline ChainType type()
+			inline chain_type::ChainType type()
 			{
 				return _type;
 			}
@@ -151,7 +194,7 @@ namespace dots_and_boxes
 			{
 				return _boxes_num;
 			}
-			inline void set_type(ChainType type)
+			inline void set_type(chain_type::ChainType type)
 			{
 				_type = type;
 			}
@@ -161,7 +204,7 @@ namespace dots_and_boxes
 			}
 			inline void Clear()
 			{
-				_type = CT_UNDEFINED;
+				_type = chain_type::UNDEFINED;
 				_boxes_num = 0;
 			}
 		};
@@ -188,7 +231,7 @@ namespace dots_and_boxes
 			{
 				for (Edge i = 0; i < MAX_CHAIN; i++)
 				{
-					if (_chains[i].type() == CT_UNDEFINED)
+					if (_chains[i].type() == chain_type::UNDEFINED)
 					{
 						return i;
 					}
@@ -204,8 +247,6 @@ namespace dots_and_boxes
 				_chains[chain].add_box_num();
 			}
 
-			
-
 			//register a chain from a box.
 			void RegisterChainFromBox(Edge start_box, Edge fir_box, Edge ignore_edge);
 
@@ -213,9 +254,7 @@ namespace dots_and_boxes
 			void RegisterCircleFromBox(Edge start_box, Edge fir_box, Edge ignore_edge);
 
 			//merge two chains into a single chain.
-			void MergeChain(Edge fir_chain, Edge sec_chain, ChainType new_chain_type);
-
-
+			void MergeChain(Edge fir_chain, Edge sec_chain, chain_type::ChainType new_chain_type);
 
 		public:
 
@@ -249,13 +288,13 @@ namespace dots_and_boxes
 	protected:
 		const Board _board;		//the board of this analyst.
 		ActionVec _result;		//the result of analyst.
-		StateType _state_type;	//state type of the board.
+		state_type::StateType _state_type;	//state type of the board.
 
 		Analyst(Board board);
 
 	private:
 		//determind the type of this state.
-		static StateType DetermindStateType(Board board);
+		static state_type::StateType DetermindStateType(Board board);
 
 	public:
 		//get the result of analyst.
@@ -271,7 +310,7 @@ namespace dots_and_boxes
 		}
 
 		//get the state type of the board in this analyst.
-		inline StateType state_type() const
+		inline state_type::StateType state_type() const
 		{
 			return _state_type;
 		}

@@ -50,19 +50,19 @@ namespace dots_and_boxes
 			size_t edge_num = state::GetLowerBoxEdgeNum(board, index);
 			if (edge_num == 4)
 			{
-				_type = BT_FULL_BOX;
+				_type = box_type::FULL_BOX;
 			}
 			else if (edge_num == 3)
 			{
-				_type = BT_DEAD_BOX;
+				_type = box_type::DEAD_BOX;
 			}
 			else if (edge_num == 2)
 			{
-				_type = BT_CHAIN_BOX;
+				_type = box_type::CHAIN_BOX;
 			}
 			else
 			{
-				_type = BT_FREE_BOX;
+				_type = box_type::FREE_BOX;
 			}
 
 			//set neighbour boxes.
@@ -104,13 +104,16 @@ namespace dots_and_boxes
 			//register chain start from free box inside the grid.
 			for (Edge i = 0; i < MAX_BOX; i++)
 			{
-				if (_boxes[i].type() == BT_FREE_BOX && _boxes[i].NoBelongingChain())
+				if (_boxes[i].type() == box_type::FREE_BOX && _boxes[i].NoBelongingChain())
 				{
 					for (Edge edge_i = 0; edge_i < 4; edge_i++)
 					{
-						if (!_board.get(_boxes[i].own_edge(edge_i)))
+						if (!_board.get(_boxes[i].own_edge(edge_i)) && _boxes[i].IsNotEmptyNeighbour(edge_i))//exist empty edge and neighbour.
 						{
-							RegisterChainFromBox(i, _boxes[i].neighbour_box(edge_i), _boxes[i].own_edge(edge_i));
+							if (_boxes[_boxes[i].neighbour_box(edge_i)].NoBelongingChain())//neighbour still not difine belonging chain.
+							{
+								RegisterChainFromBox(i, _boxes[i].neighbour_box(edge_i), _boxes[i].own_edge(edge_i));
+							}
 						}
 					}
 				}
@@ -119,7 +122,7 @@ namespace dots_and_boxes
 			//register chain from chain box in the brim of grid.
 			for (size_t i = 0; i < 5; i++)//upper boxes.
 			{
-				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].UpperEdge()))
+				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].UpperEdge()))
 				{
 					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].UpperEdge());
 				}
@@ -127,7 +130,7 @@ namespace dots_and_boxes
 
 			for (size_t i = 0; i < 25; i += 5)//left boxes.
 			{
-				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].LeftEdge()))
+				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].LeftEdge()))
 				{
 					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].LeftEdge());
 				}
@@ -135,7 +138,7 @@ namespace dots_and_boxes
 
 			for (size_t i = 20; i < 25; i++)//lower boxes.
 			{
-				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].LowerEdge()))
+				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].LowerEdge()))
 				{
 					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].LowerEdge());
 				}
@@ -143,7 +146,7 @@ namespace dots_and_boxes
 
 			for (size_t i = 4; i < 25; i += 5)//right boxes.
 			{
-				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].RightEdge()))
+				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].RightEdge()))
 				{
 					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].RightEdge());
 				}
@@ -152,7 +155,7 @@ namespace dots_and_boxes
 			//register circle from chain box inside the grid.
 			for (Edge i = 0; i < MAX_BOX; i++)
 			{
-				if (_boxes[i].type() == BT_CHAIN_BOX && _boxes[i].NoBelongingChain())
+				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain())
 				{
 					for (Edge edge_i = 0; edge_i < 4; edge_i++)
 					{
@@ -168,7 +171,7 @@ namespace dots_and_boxes
 		}
 
 		//merge two chains into a single chain.
-		void ChainAnalyst::MergeChain(Edge fir_chain, Edge sec_chain, ChainType new_chain_type)
+		void ChainAnalyst::MergeChain(Edge fir_chain, Edge sec_chain, chain_type::ChainType new_chain_type)
 		{
 			for (size_t i = 0; i < MAX_BOX; i++)
 			{
@@ -187,7 +190,7 @@ namespace dots_and_boxes
 		//register a chain from a box.
 		void ChainAnalyst::RegisterChainFromBox(Edge start_box, Edge fir_box, Edge ignore_edge)
 		{
-			if (!(_boxes[fir_box].type() == BT_CHAIN_BOX))
+			if (!(_boxes[fir_box].type() == box_type::CHAIN_BOX))
 			{
 				return;
 			}
@@ -199,13 +202,13 @@ namespace dots_and_boxes
 
 			for (size_t count = 0;; count++)
 			{
-				if (_boxes[checking_box_index].type() == BT_CHAIN_BOX)//this box is part of chain.
+				if (_boxes[checking_box_index].type() == box_type::CHAIN_BOX)//this box is part of chain.
 				{
 					AddBoxToChain(checking_box_index, new_chain);
 					//find next box.
 					for (size_t i = 0; i < 4; i++)
 					{
-						if (_boxes[checking_box_index].own_edge(i) != ignore_edge && !_board.get(_boxes[checking_box_index].own_edge(i)))
+						if (_boxes[checking_box_index].own_edge(i) != ignoring_edge_index && !_board.get(_boxes[checking_box_index].own_edge(i)))
 						{
 							if (_boxes[checking_box_index].IsNotEmptyNeighbour(i))//next_box
 							{
@@ -216,13 +219,13 @@ namespace dots_and_boxes
 							else//next box is out of grid. so current box is the end of this chain.
 							{
 								//register chain type.
-								if (_chains[_boxes[start_box].belonging_chain()].type() == CT_OPEN_CIRCLE)
+								if (_chains[_boxes[start_box].belonging_chain()].type() == chain_type::OPEN_CIRCLE)
 								{
-									_chains[new_chain].set_type(CT_OPEN_CHAIN);
+									_chains[new_chain].set_type(chain_type::OPEN_CHAIN);
 								}
 								else
 								{
-									_chains[new_chain].set_type(CT_CHAIN);
+									_chains[new_chain].set_type(chain_type::CHAIN);
 								}
 								return;
 							}
@@ -230,21 +233,24 @@ namespace dots_and_boxes
 						}
 					}
 				}
-				else if (_boxes[checking_box_index].type() == BT_FREE_BOX)//to the end of chain.
+				else if (_boxes[checking_box_index].type() == box_type::FREE_BOX)//to the end of chain.
 				{
 					if (checking_box_index == start_box)//an open circle.
 					{
 						AddBoxToChain(checking_box_index, new_chain);
-						_chains[new_chain].set_type(CT_OPEN_CIRCLE);
+						_chains[new_chain].set_type(chain_type::OPEN_CIRCLE);
 						for (size_t i = 0; i < 4; i++)
 						{
-							size_t n = _boxes[_boxes[checking_box_index].neighbour_box(i)].belonging_chain();
-							if (n != MAX_CHAIN)
+							if (_boxes[checking_box_index].IsNotEmptyNeighbour(i))
 							{
-								if (_chains[n].type() == CT_CHAIN)
+								size_t n = _boxes[_boxes[checking_box_index].neighbour_box(i)].belonging_chain();	//chain num of get neibought box 
+								if (n != MAX_CHAIN && n != new_chain)
 								{
-									_chains[n].set_type(CT_OPEN_CHAIN);
-									break;
+									if (_chains[n].type() == chain_type::CHAIN)
+									{
+										_chains[n].set_type(chain_type::OPEN_CHAIN);
+										break;
+									}
 								}
 							}
 						}
@@ -252,7 +258,7 @@ namespace dots_and_boxes
 					}
 					else//normal chain
 					{
-						_chains[new_chain].set_type(CT_CHAIN);
+						_chains[new_chain].set_type(chain_type::CHAIN);
 						return;
 					}
 				}
@@ -267,7 +273,7 @@ namespace dots_and_boxes
 		//register a circle from a box.
 		void ChainAnalyst::RegisterCircleFromBox(Edge start_box, Edge fir_box, Edge ignore_edge)
 		{
-			if (!(_boxes[fir_box].type() == BT_CHAIN_BOX))
+			if (!(_boxes[fir_box].type() == box_type::CHAIN_BOX))
 			{
 				return;
 			}
@@ -278,21 +284,21 @@ namespace dots_and_boxes
 			Edge new_chain = GetFirUndefinedChainIndex();
 			for (size_t count = 0;; count++)
 			{
-				if (_boxes[checking_box_index].type() == BT_CHAIN_BOX)
+				if (_boxes[checking_box_index].type() == box_type::CHAIN_BOX)
 				{
 					AddBoxToChain(checking_box_index, new_chain);
 					if (checking_box_index == start_box)//the end.
 					{
-						_chains[new_chain].set_type(CT_CIRCLE);
+						_chains[new_chain].set_type(chain_type::CIRCLE);
 						return;
 					}
 					else//find next box.
 					{
 						for (size_t i = 0; i < 4; i++)
 						{
-							if (_boxes[checking_box_index].own_edge(i) != ignore_edge && !_board.get(_boxes[checking_box_index].own_edge(i)))
+							if (_boxes[checking_box_index].own_edge(i) != ignoring_edge_index && !_board.get(_boxes[checking_box_index].own_edge(i)))
 							{
-								WARNING_CHECK(_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
+								WARNING_CHECK(!_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
 								ignoring_edge_index = _boxes[checking_box_index].own_edge(i);
 								checking_box_index = _boxes[checking_box_index].neighbour_box(i);
 								break;
@@ -308,6 +314,48 @@ namespace dots_and_boxes
 			}
 		}
 
+		//show chain info
+		void ChainAnalyst::ShowChainInfo()
+		{
+			for (size_t i = 0; i < MAX_BOX; i++)
+			{
+				if (i % 5 == 0)
+				{
+					cout << endl;
+				}
+				if (_boxes[i].NoBelongingChain())
+				{
+					cout << "   ";
+				}
+				else
+				{
+					if (_boxes[i].belonging_chain() <= 15)
+					{
+						console::Cprintf("¡ö ", console::color::Color(_boxes[i].belonging_chain() + 1));
+					}
+					else
+					{
+						cout << "¡ö ";
+					}
+				}
+
+			}
+			cout << endl;
+			cout << endl;
+			for (size_t i = 0; i < MAX_CHAIN; i++)
+			{
+				if (_chains[i].type() != chain_type::UNDEFINED)
+				{
+					stringstream ss;
+					ss << ">> chain " << i << " type = " << chain_type::ToString(_chains[i].type()) << " box_num = " << _chains[i].boxes_num() << endl;
+					console::Cprintf(ss.str(), console::color::Color(i + 1));
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
 	}
 
 	//constructor function
@@ -318,50 +366,51 @@ namespace dots_and_boxes
 	}
 
 	//determind state type.
-	StateType Analyst::DetermindStateType(Board board)
+	state_type::StateType Analyst::DetermindStateType(Board board)
 	{
 		if (state::ExistFreeEdge(board))//front state.
 		{
 			if (state::ExistDeadBox(board))
 			{
-				return FRONT_STATE_WITH_DEAD_BOX;
+				return state_type::FRONT_WITH_DEAD_BOX;
 			}
-			return FRONT_STATE;
+			return state_type::FRONT;
 		}
 		//rear state
 		if (state::ExistDeadChain(board))
 		{
-			return REAR_STATE_WITH_DEAD_CHAIN;
+			return state_type::REAR_WITH_DEAD_CHAIN;
 		}
 		if (state::ExistDeadBox(board))
 		{
-			return REAR_STATE_WITH_DEAD_BOX;
+			return state_type::REAR_WITH_DEAD_BOX;
 		}
-		return REAR_STATE;
+		return state_type::REAR;
 	}
 
 	//TODO Action Analyst
 	ActionAnalyst::ActionAnalyst(Board board) :
 		Analyst(board)
 	{
-		if (_state_type == FRONT_STATE_WITH_DEAD_BOX || _state_type == REAR_STATE_WITH_DEAD_BOX)
+		if (_state_type == state_type::FRONT_WITH_DEAD_BOX || _state_type == state_type::REAR_WITH_DEAD_BOX)
 		{
 			_result = front_state::GetFirDeadBoxAction(_board);
 		}
-		else if (_state_type == FRONT_STATE)
+		else if (_state_type == state_type::FRONT)
 		{
 			_result = front_state::GetFreeActions(_board);
 		}
-		else if (_state_type == REAR_STATE)
+		else if (_state_type == state_type::REAR)
 		{
 
 		}
-		else if (_state_type == REAR_STATE_WITH_DEAD_CHAIN)
+		else if (_state_type == state_type::REAR_WITH_DEAD_CHAIN)
 		{
 
 		}
 	}
 
+	//Get random action in action analyst.
 	Edge ActionAnalyst::RandomAction()
 	{
 		WARNING_CHECK(_result.none(), "no any action is legal.");
@@ -379,6 +428,7 @@ namespace dots_and_boxes
 		return actions[rnd];
 	}
 
+	//visualization.
 	void ActionAnalyst::Visualization(Edge tag_edge) const
 	{
 		const console::color::Color edge_color = console::color::yellow;
@@ -623,17 +673,17 @@ namespace dots_and_boxes
 		Analyst(board)
 	{
 		//TODO
-		if (_state_type == FRONT_STATE_WITH_DEAD_BOX || _state_type == REAR_STATE_WITH_DEAD_BOX)
+		if (_state_type == state_type::FRONT_WITH_DEAD_BOX || _state_type == state_type::REAR_WITH_DEAD_BOX)
 		{
 		}
-		else if (_state_type == FRONT_STATE)
+		else if (_state_type == state_type::FRONT)
 		{
 
 		}
-		else if (_state_type == REAR_STATE)
+		else if (_state_type == state_type::REAR)
 		{
 		}
-		else if (_state_type == REAR_STATE_WITH_DEAD_CHAIN)
+		else if (_state_type == state_type::REAR_WITH_DEAD_CHAIN)
 		{
 		}
 	}
