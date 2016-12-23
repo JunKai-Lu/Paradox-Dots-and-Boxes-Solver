@@ -176,11 +176,11 @@ namespace dots_and_boxes
 				{
 					if (index > 9)
 					{
-						cout << index;
+						cout << (size_t)index;
 					}
 					else
 					{
-						cout << 0 << index;
+						cout << 0 << (size_t)index;
 					}
 				}
 			}
@@ -244,11 +244,11 @@ namespace dots_and_boxes
 				{
 					if (index > 9)
 					{
-						cout << index;
+						cout << (size_t)index;
 					}
 					else
 					{
-						cout << 0 << index;
+						cout << 0 << (size_t)index;
 					}
 					cout << "  ";
 				}
@@ -298,7 +298,7 @@ namespace dots_and_boxes
 			}
 			else
 			{
-				cout << index;
+				cout << (size_t)index;
 			}
 		}
 		//cout << "¡ğ" << endl;
@@ -424,7 +424,7 @@ namespace dots_and_boxes
 		//check whether exist dead chain in a board.
 		bool ExistDeadChain(const Board& board)
 		{
-			for (Edge fir_box_upper_edge = 0; fir_box_upper_edge < 25; fir_box_upper_edge++)
+			for (Edge fir_box_upper_edge = 0; fir_box_upper_edge < MAX_BOX; fir_box_upper_edge++)
 			{
 				Edge fir_box_lower_edge = fir_box_upper_edge + 5;
 				Edge fir_box_left_edge = UpperToLeftEdge(fir_box_upper_edge);

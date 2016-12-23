@@ -168,10 +168,19 @@ namespace dots_and_boxes
 				}
 			}
 
+			//combine chains from free box.
+			for (Edge i = 0; i < MAX_BOX; i++)
+			{
+				if (_boxes[i].type() == box_type::FREE_BOX && _boxes[i].NoBelongingChain())
+				{
+					CombineChainsFromSourceBox(i);
+				}
+			}
+
 		}
 
 		//merge two chains into a single chain.
-		void ChainAnalyst::MergeChain(Edge fir_chain, Edge sec_chain, chain_type::ChainType new_chain_type)
+		void ChainAnalyst::MergeChain(size_t fir_chain, size_t sec_chain, chain_type::ChainType new_chain_type)
 		{
 			for (size_t i = 0; i < MAX_BOX; i++)
 			{
@@ -314,6 +323,63 @@ namespace dots_and_boxes
 			}
 		}
 
+		//combine two chains from a source box they shared. the box must be source of 3 or more chains.
+		void ChainAnalyst::CombineChainsFromSourceBox(Edge box_index)
+		{
+			//find two chains that is shorter than other
+			size_t fir_chain_index = 0;
+			size_t fir_chain_len = 0;
+			for (Edge i = 0; i < 4; i++)
+			{
+				if ( 
+					!_board.get(_boxes[box_index].own_edge(i)) &&
+					_boxes[box_index].IsNotEmptyNeighbour(i) 
+					)
+				{
+					Edge neighbour = _boxes[box_index].neighbour_box(i);
+					if (!_boxes[neighbour].NoBelongingChain()) 
+					{
+						if (_chains[_boxes[neighbour].belonging_chain()].boxes_num() > fir_chain_len)
+						{
+							fir_chain_len = _chains[_boxes[neighbour].belonging_chain()].boxes_num();
+							fir_chain_index = _boxes[neighbour].belonging_chain();
+						}
+					}
+				}
+			}
+
+			size_t sec_chain_index = 0;
+			size_t sec_chain_len = 0;
+			for (Edge i = 0; i < 4; i++)
+			{
+				if (
+					!_board.get(_boxes[box_index].own_edge(i)) &&
+					_boxes[box_index].IsNotEmptyNeighbour(i)
+					)
+				{
+					Edge neighbour = _boxes[box_index].neighbour_box(i);
+					if (!_boxes[neighbour].NoBelongingChain())
+					{
+						if (_chains[_boxes[neighbour].belonging_chain()].boxes_num() > sec_chain_len && _boxes[neighbour].belonging_chain() != fir_chain_index)
+						{
+							sec_chain_len = _chains[_boxes[neighbour].belonging_chain()].boxes_num();
+							sec_chain_index = _boxes[neighbour].belonging_chain();
+						}
+					}
+				}
+			}
+
+			AddBoxToChain(box_index, fir_chain_index);
+			if (_chains[fir_chain_index].type() == chain_type::OPEN_CHAIN || _chains[sec_chain_index].type() == chain_type::OPEN_CHAIN)
+			{
+				MergeChain(fir_chain_index, sec_chain_index, chain_type::OPEN_CHAIN);
+			}
+			else
+			{
+				MergeChain(fir_chain_index, sec_chain_index, chain_type::CHAIN);
+			}
+		}
+
 		//show chain info
 		void ChainAnalyst::ShowChainInfo()
 		{
@@ -350,11 +416,9 @@ namespace dots_and_boxes
 					ss << ">> chain " << i << " type = " << chain_type::ToString(_chains[i].type()) << " box_num = " << _chains[i].boxes_num() << endl;
 					console::Cprintf(ss.str(), console::color::Color(i + 1));
 				}
-				else
-				{
-					break;
-				}
 			}
+			cout << endl;
+			cout << endl;
 		}
 	}
 
@@ -368,6 +432,11 @@ namespace dots_and_boxes
 	//determind state type.
 	state_type::StateType Analyst::DetermindStateType(Board board)
 	{
+		if (state::ExistDeadChain(board))
+		{
+			return state_type::REAR_WITH_DEAD_CHAIN;
+		}
+
 		if (state::ExistFreeEdge(board))//front state.
 		{
 			if (state::ExistDeadBox(board))
@@ -377,10 +446,7 @@ namespace dots_and_boxes
 			return state_type::FRONT;
 		}
 		//rear state
-		if (state::ExistDeadChain(board))
-		{
-			return state_type::REAR_WITH_DEAD_CHAIN;
-		}
+		
 		if (state::ExistDeadBox(board))
 		{
 			return state_type::REAR_WITH_DEAD_BOX;

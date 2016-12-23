@@ -241,7 +241,7 @@ namespace dots_and_boxes
 			}
 
 			//add box to the chain.
-			inline void AddBoxToChain(Edge box, Edge chain)
+			inline void AddBoxToChain(size_t box, size_t chain)
 			{
 				_boxes[box].set_belonging_chain(chain);
 				_chains[chain].add_box_num();
@@ -254,7 +254,10 @@ namespace dots_and_boxes
 			void RegisterCircleFromBox(Edge start_box, Edge fir_box, Edge ignore_edge);
 
 			//merge two chains into a single chain.
-			void MergeChain(Edge fir_chain, Edge sec_chain, chain_type::ChainType new_chain_type);
+			void MergeChain(size_t fir_chain, size_t sec_chain, chain_type::ChainType new_chain_type);
+
+			//combine two chains from a source box they shared. the box must be source of 3 or more chains.
+			void CombineChainsFromSourceBox(Edge box_index);
 
 		public:
 
