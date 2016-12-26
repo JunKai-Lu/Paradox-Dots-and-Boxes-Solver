@@ -36,11 +36,10 @@ namespace dots_and_boxes
 				RETURN_STRINGFY(st, REAR)
 				RETURN_STRINGFY(st, DEAD_BOX)
 				RETURN_STRINGFY(st, DEAD_CHAIN)
+				RETURN_STRINGFY(st, FINISH)
 				return "";
 		}
 	}
-
-	
 
 	//chain type is used to difine the prop of chain.
 	namespace chain_type
