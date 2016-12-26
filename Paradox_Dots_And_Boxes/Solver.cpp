@@ -206,7 +206,6 @@ namespace dots_and_boxes
 		}
 
 		//Constructor Function.
-
 		Solver::Solver() :
 			_aim_layer(60),
 			_file_cache(false),
@@ -231,7 +230,7 @@ namespace dots_and_boxes
 			_log("SolverLog.log", std::ios::app)
 		{
 		}
-
+		
 		//Load data of last solved layer and return them as n parts;
 		bool Solver::LoadStorages(std::vector< Storage >& storage_vec, size_t target_layer)
 		{

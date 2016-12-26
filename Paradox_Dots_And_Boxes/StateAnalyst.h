@@ -23,46 +23,24 @@ namespace dots_and_boxes
 	{
 		enum StateType
 		{
-			FRONT = 0,
-			FRONT_WITH_DEAD_BOX = 1,
-			FRONT_WITH_DEAD_CHAIN = 2,
-			REAR = 3,
-			REAR_WITH_DEAD_BOX = 4,
-			REAR_WITH_DEAD_CHAIN = 5
+			FRONT,
+			REAR,
+			DEAD_BOX,
+			DEAD_CHAIN,
+			FINISH
 		};
 
 		inline std::string ToString(StateType st)
 		{
 			RETURN_STRINGFY(st, FRONT)
-				RETURN_STRINGFY(st, FRONT_WITH_DEAD_BOX)
-				RETURN_STRINGFY(st, FRONT_WITH_DEAD_CHAIN)
 				RETURN_STRINGFY(st, REAR)
-				RETURN_STRINGFY(st, REAR_WITH_DEAD_BOX)
-				RETURN_STRINGFY(st, REAR_WITH_DEAD_CHAIN)
+				RETURN_STRINGFY(st, DEAD_BOX)
+				RETURN_STRINGFY(st, DEAD_CHAIN)
 				return "";
 		}
 	}
 
-	//box type means boxes with different number of edges.
-	namespace box_type
-	{
-		enum BoxType
-		{
-			FULL_BOX = 4,
-			DEAD_BOX = 3,
-			CHAIN_BOX = 2,
-			FREE_BOX = 1
-		};
-
-		inline std::string ToString(BoxType bt)
-		{
-			RETURN_STRINGFY(bt, FULL_BOX)
-				RETURN_STRINGFY(bt, DEAD_BOX)
-				RETURN_STRINGFY(bt, CHAIN_BOX)
-				RETURN_STRINGFY(bt, FREE_BOX)
-				return "";
-		}
-	}
+	
 
 	//chain type is used to difine the prop of chain.
 	namespace chain_type
@@ -92,83 +70,43 @@ namespace dots_and_boxes
 	}
 
 	//front state include some functin that is used for front state.
-	namespace front_state
+	namespace action_analyst
 	{
 		//Get free actions.
 		ActionVec GetFreeActions(const Board& board);
 
 		//get the actions that appointed the edge can take the fir dead box.
 		ActionVec GetFirDeadBoxAction(const Board& board);
+
+		//get the possible actions for dead chain.
+		ActionVec GetDeadChainAction(const Board& board);
 	}
 
 	//rear state include some functin that is used for rear state.
 	namespace rear_state
 	{
 		//box info that are included in chain analyst.
-		class BoxInfo
+		class BoxInfo:public state::Box
 		{
 		private:
-			Edge _index;
-			box_type::BoxType _type;
 			size_t _belonging_chain;
 
-			Edge _own_edge[4];
-			Edge _neighbour_box[4];
-
 		public:
-			BoxInfo(Board board, Edge index);
-
-
-			inline Edge index()
-			{
-				return _index;
-			}
-			inline box_type::BoxType type()
-			{
-				return _type;
-			}
+			BoxInfo(const Board& board, Edge index);
+			
 			inline size_t belonging_chain()
 			{
 				return _belonging_chain;
 			}
-			inline Edge own_edge(size_t index)
-			{
-				return _own_edge[index];
-			}
-			inline Edge neighbour_box(size_t index)
-			{
-				return _neighbour_box[index];
-			}
-
 			inline void set_belonging_chain(size_t index)
 			{
 				_belonging_chain = index;
 			}
-
 			inline bool NoBelongingChain()
 			{
 				return _belonging_chain == MAX_CHAIN;
 			}
-			inline bool IsNotEmptyNeighbour(size_t index)
-			{
-				return _neighbour_box[index] != MAX_BOX;
-			}
-			inline Edge UpperEdge()
-			{
-				return _own_edge[0];
-			}
-			inline Edge LeftEdge()
-			{
-				return _own_edge[1];
-			}
-			inline Edge LowerEdge()
-			{
-				return _own_edge[2];
-			}
-			inline Edge RightEdge()
-			{
-				return _own_edge[3];
-			}
+			
 
 		};
 
@@ -220,9 +158,6 @@ namespace dots_and_boxes
 			BoxInfo _boxes[MAX_BOX];
 			ChainInfo _chains[MAX_CHAIN];
 
-			//edge info
-			bool _reasonable_edge[MAX_EDGE];
-
 			//analysis chains in this state.
 			void AnalysisChains();
 
@@ -259,13 +194,12 @@ namespace dots_and_boxes
 			//combine two chains from a source box they shared. the box must be source of 3 or more chains.
 			void CombineChainsFromSourceBox(Edge box_index);
 
+			//get the first edge of appointed chain.
+			Edge GetFirstEdgeOfChain(size_t chain_index);
+
 		public:
 
-			//judge whether a action is reasonable
-			inline bool IsReasonableAction(Edge edge)
-			{
-				return _reasonable_edge[edge];
-			}
+			ActionVec result();
 
 			//show boxes info.
 			inline void ShowBoxInfo()
@@ -295,11 +229,10 @@ namespace dots_and_boxes
 
 		Analyst(Board board);
 
-	private:
-		//determind the type of this state.
-		static state_type::StateType DetermindStateType(Board board);
-
 	public:
+		//determind the type of this state.
+		static state_type::StateType DetermindStateType(const Board& board);
+
 		//get the result of analyst.
 		inline ActionVec result() const
 		{
@@ -344,6 +277,4 @@ namespace dots_and_boxes
 	public:
 		RetroAnalyst(Board board);
 	};
-
-
 }

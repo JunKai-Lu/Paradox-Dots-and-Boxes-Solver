@@ -6,8 +6,9 @@ using namespace std;
 
 namespace dots_and_boxes
 {
-	namespace front_state
+	namespace action_analyst
 	{
+		//Get free actions.
 		ActionVec GetFreeActions(const Board& board) 
 		{
 			ActionVec temp;
@@ -22,66 +23,112 @@ namespace dots_and_boxes
 
 		}
 
+		//get the actions that appointed the edge can take the fir dead box.
 		ActionVec GetFirDeadBoxAction(const Board& board)
 		{
 			ActionVec temp;
-			Edge fir = state::GetDeadBoxRemainEdgeIndex(board);
+			Edge fir = state::GetFirstFreeEdgeInDeadBox(board);
 			WARNING_CHECK(fir == MAX_EDGE, "no dead box exist");
 			temp.set(fir);
 			return temp;
+		}
+
+		//get the possible actions for dead chain.
+		ActionVec GetDeadChainAction(const Board & board)
+		{
+			ActionVec temp_vec;
+			Board temp_board = board;
+			Edge fir = state::GetFirstFreeEdgeInDeadChain(board);
+			temp_vec.set(fir);
+			temp_board.set(fir);
+			if (!state::ExistDeadChain(temp_board))
+			{
+				//find next edge.
+				if (state::IsHorEdge(fir))
+				{
+					//horizon edge.
+					if (state::IsNotUpperSideHorEdge(fir))
+					{
+						//check upper box.
+						state::Box box(temp_board, fir - 5);
+						if (box.type() == state::box_type::DEAD_BOX)
+						{
+							for (size_t i = 0; i < 4; i++)
+							{
+								if (!temp_board.get(box.own_edge(i)))
+								{
+									temp_vec.set(box.own_edge(i));
+									return temp_vec;
+								}
+							}
+						}
+					}
+					if(state::IsNotLowerSideHorEdge(fir))
+					{
+						//check lower box.
+						state::Box box(temp_board, fir);
+						if (box.type() == state::box_type::DEAD_BOX)
+						{
+							for (size_t i = 0; i < 4; i++)
+							{
+								if (!temp_board.get(box.own_edge(i)))
+								{
+									temp_vec.set(box.own_edge(i));
+									return temp_vec;
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					//vecitical edge.
+					if (state::IsNotRightSideVecEdge(fir))
+					{
+						//check right box.
+						state::Box box(temp_board, state::LeftToUpperEdge(fir));
+						if (box.type() == state::box_type::DEAD_BOX)
+						{
+							for (size_t i = 0; i < 4; i++)
+							{
+								if (!temp_board.get(box.own_edge(i)))
+								{
+									temp_vec.set(box.own_edge(i));
+									return temp_vec;
+								}
+							}
+						}
+						
+					}
+					if (state::IsNotLeftSideVecEdge(fir))
+					{
+						//check left box.
+						state::Box box(temp_board, state::LeftToUpperEdge(fir - 5));
+						if (box.type() == state::box_type::DEAD_BOX)
+						{
+							for (size_t i = 0; i < 4; i++)
+							{
+								if (!temp_board.get(box.own_edge(i)))
+								{
+									temp_vec.set(box.own_edge(i));
+									return temp_vec;
+								}
+							}
+						}
+					}
+				}
+			}
+			return temp_vec;
 		}
 	}
 
 	namespace rear_state
 	{
 		//constructor function.
-		BoxInfo::BoxInfo(Board board, Edge index) :
-			_index(index),
-			_belonging_chain(MAX_CHAIN),
-			_neighbour_box{ MAX_BOX,MAX_BOX,MAX_BOX,MAX_BOX }
+		BoxInfo::BoxInfo(const Board& board, Edge index) :
+			Box(board,index),
+			_belonging_chain(MAX_CHAIN)
 		{
-			//set own edges.
-			_own_edge[0] = index;
-			_own_edge[1] = state::UpperToLeftEdge(index);
-			_own_edge[2] = index + 5;
-			_own_edge[3] = state::UpperToLeftEdge(index) + 5;
-
-			//set box type
-			size_t edge_num = state::GetLowerBoxEdgeNum(board, index);
-			if (edge_num == 4)
-			{
-				_type = box_type::FULL_BOX;
-			}
-			else if (edge_num == 3)
-			{
-				_type = box_type::DEAD_BOX;
-			}
-			else if (edge_num == 2)
-			{
-				_type = box_type::CHAIN_BOX;
-			}
-			else
-			{
-				_type = box_type::FREE_BOX;
-			}
-
-			//set neighbour boxes.
-			if (state::IsNotUpperSideHorEdge(_own_edge[0]))
-			{
-				_neighbour_box[0] = index - 5;
-			}
-			if (state::IsNotLeftSideVecEdge(_own_edge[1]))
-			{
-				_neighbour_box[1] = index - 1;
-			}
-			if (state::IsNotLowerSideHorEdge(_own_edge[2]))
-			{
-				_neighbour_box[2] = index + 5;
-			}
-			if (state::IsNotRightSideVecEdge(_own_edge[3]))
-			{
-				_neighbour_box[3] = index + 1;
-			}
 		}
 
 		//constructor function
@@ -104,7 +151,7 @@ namespace dots_and_boxes
 			//register chain start from free box inside the grid.
 			for (Edge i = 0; i < MAX_BOX; i++)
 			{
-				if (_boxes[i].type() == box_type::FREE_BOX && _boxes[i].NoBelongingChain())
+				if (_boxes[i].type() == state::box_type::FREE_BOX && _boxes[i].NoBelongingChain())
 				{
 					for (Edge edge_i = 0; edge_i < 4; edge_i++)
 					{
@@ -122,7 +169,7 @@ namespace dots_and_boxes
 			//register chain from chain box in the brim of grid.
 			for (size_t i = 0; i < 5; i++)//upper boxes.
 			{
-				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].UpperEdge()))
+				if (_boxes[i].type() == state::box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].UpperEdge()))
 				{
 					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].UpperEdge());
 				}
@@ -130,7 +177,7 @@ namespace dots_and_boxes
 
 			for (size_t i = 0; i < 25; i += 5)//left boxes.
 			{
-				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].LeftEdge()))
+				if (_boxes[i].type() == state::box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].LeftEdge()))
 				{
 					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].LeftEdge());
 				}
@@ -138,7 +185,7 @@ namespace dots_and_boxes
 
 			for (size_t i = 20; i < 25; i++)//lower boxes.
 			{
-				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].LowerEdge()))
+				if (_boxes[i].type() == state::box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].LowerEdge()))
 				{
 					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].LowerEdge());
 				}
@@ -146,7 +193,7 @@ namespace dots_and_boxes
 
 			for (size_t i = 4; i < 25; i += 5)//right boxes.
 			{
-				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].RightEdge()))
+				if (_boxes[i].type() == state::box_type::CHAIN_BOX && _boxes[i].NoBelongingChain() && !_board.get(_boxes[i].RightEdge()))
 				{
 					RegisterChainFromBox(MAX_BOX, _boxes[i].index(), _boxes[i].RightEdge());
 				}
@@ -155,7 +202,7 @@ namespace dots_and_boxes
 			//register circle from chain box inside the grid.
 			for (Edge i = 0; i < MAX_BOX; i++)
 			{
-				if (_boxes[i].type() == box_type::CHAIN_BOX && _boxes[i].NoBelongingChain())
+				if (_boxes[i].type() == state::box_type::CHAIN_BOX && _boxes[i].NoBelongingChain())
 				{
 					for (Edge edge_i = 0; edge_i < 4; edge_i++)
 					{
@@ -171,7 +218,7 @@ namespace dots_and_boxes
 			//combine chains from free box.
 			for (Edge i = 0; i < MAX_BOX; i++)
 			{
-				if (_boxes[i].type() == box_type::FREE_BOX && _boxes[i].NoBelongingChain())
+				if (_boxes[i].type() == state::box_type::FREE_BOX && _boxes[i].NoBelongingChain())
 				{
 					CombineChainsFromSourceBox(i);
 				}
@@ -199,7 +246,7 @@ namespace dots_and_boxes
 		//register a chain from a box.
 		void ChainAnalyst::RegisterChainFromBox(Edge start_box, Edge fir_box, Edge ignore_edge)
 		{
-			if (!(_boxes[fir_box].type() == box_type::CHAIN_BOX))
+			if (!(_boxes[fir_box].type() == state::box_type::CHAIN_BOX))
 			{
 				return;
 			}
@@ -211,7 +258,7 @@ namespace dots_and_boxes
 
 			for (size_t count = 0;; count++)
 			{
-				if (_boxes[checking_box_index].type() == box_type::CHAIN_BOX)//this box is part of chain.
+				if (_boxes[checking_box_index].type() == state::box_type::CHAIN_BOX)//this box is part of chain.
 				{
 					AddBoxToChain(checking_box_index, new_chain);
 					//find next box.
@@ -228,13 +275,13 @@ namespace dots_and_boxes
 							else//next box is out of grid. so current box is the end of this chain.
 							{
 								//register chain type.
-								if (_chains[_boxes[start_box].belonging_chain()].type() == chain_type::OPEN_CIRCLE)
+								_chains[new_chain].set_type(chain_type::CHAIN);
+								if (start_box != MAX_BOX)
 								{
-									_chains[new_chain].set_type(chain_type::OPEN_CHAIN);
-								}
-								else
-								{
-									_chains[new_chain].set_type(chain_type::CHAIN);
+									if (_chains[_boxes[start_box].belonging_chain()].type() == chain_type::OPEN_CIRCLE)
+									{
+										_chains[new_chain].set_type(chain_type::OPEN_CHAIN);
+									}
 								}
 								return;
 							}
@@ -242,7 +289,7 @@ namespace dots_and_boxes
 						}
 					}
 				}
-				else if (_boxes[checking_box_index].type() == box_type::FREE_BOX)//to the end of chain.
+				else if (_boxes[checking_box_index].type() == state::box_type::FREE_BOX)//to the end of chain.
 				{
 					if (checking_box_index == start_box)//an open circle.
 					{
@@ -282,7 +329,7 @@ namespace dots_and_boxes
 		//register a circle from a box.
 		void ChainAnalyst::RegisterCircleFromBox(Edge start_box, Edge fir_box, Edge ignore_edge)
 		{
-			if (!(_boxes[fir_box].type() == box_type::CHAIN_BOX))
+			if (!(_boxes[fir_box].type() == state::box_type::CHAIN_BOX))
 			{
 				return;
 			}
@@ -293,7 +340,7 @@ namespace dots_and_boxes
 			Edge new_chain = GetFirUndefinedChainIndex();
 			for (size_t count = 0;; count++)
 			{
-				if (_boxes[checking_box_index].type() == box_type::CHAIN_BOX)
+				if (_boxes[checking_box_index].type() == state::box_type::CHAIN_BOX)
 				{
 					AddBoxToChain(checking_box_index, new_chain);
 					if (checking_box_index == start_box)//the end.
@@ -380,6 +427,44 @@ namespace dots_and_boxes
 			}
 		}
 
+		//get the first edge of appointed chain.
+		Edge ChainAnalyst::GetFirstEdgeOfChain(size_t chain_index)
+		{
+			for (size_t i = 0; i < MAX_BOX; i++)
+			{
+				if (_boxes[i].belonging_chain() == chain_index)
+				{
+					for (size_t n = 0; n < 4; n++)
+					{
+						if (_boxes[i].IsNotEmptyNeighbour(n) && _boxes[_boxes[i].neighbour_box(n)].belonging_chain() == chain_index)
+						{
+							return _boxes[i].own_edge(n);
+						}
+
+					}
+
+					WARNING_CHECK(true, "no find neighbour box that belong to same chain.");
+				}
+			}
+			WARNING_CHECK(true, "no find box belong to chain " + console::I2S(chain_index));
+			return MAX_EDGE;
+		}
+
+		//get result
+		ActionVec ChainAnalyst::result()
+		{
+			ActionVec temp;
+			for (size_t i = 0; i < MAX_CHAIN; i++)
+			{
+				if (_chains[i].type() == chain_type::CIRCLE || _chains[i].type() == chain_type::CHAIN || _chains[i].type() == chain_type::OPEN_CHAIN)
+				{
+					temp.set(GetFirstEdgeOfChain(i));
+				}
+			}
+			WARNING_CHECK(temp.none(), "no any action exist in this board");
+			return temp;
+		}
+
 		//show chain info
 		void ChainAnalyst::ShowChainInfo()
 		{
@@ -430,26 +515,23 @@ namespace dots_and_boxes
 	}
 
 	//determind state type.
-	state_type::StateType Analyst::DetermindStateType(Board board)
+	state_type::StateType Analyst::DetermindStateType(const Board& board)
 	{
-		if (state::ExistDeadChain(board))
+		if (board.to_ullong() == 0xFFFFFFFFFFFFFFF)
 		{
-			return state_type::REAR_WITH_DEAD_CHAIN;
+			return state_type::FINISH;
 		}
-
-		if (state::ExistFreeEdge(board))//front state.
-		{
-			if (state::ExistDeadBox(board))
-			{
-				return state_type::FRONT_WITH_DEAD_BOX;
-			}
-			return state_type::FRONT;
-		}
-		//rear state
-		
 		if (state::ExistDeadBox(board))
 		{
-			return state_type::REAR_WITH_DEAD_BOX;
+			return state_type::DEAD_BOX;
+		}
+		if (state::ExistDeadChain(board))
+		{
+			return state_type::DEAD_CHAIN;
+		}
+		if (state::ExistFreeEdge(board))//front state.
+		{
+			return state_type::FRONT;
 		}
 		return state_type::REAR;
 	}
@@ -458,21 +540,25 @@ namespace dots_and_boxes
 	ActionAnalyst::ActionAnalyst(Board board) :
 		Analyst(board)
 	{
-		if (_state_type == state_type::FRONT_WITH_DEAD_BOX || _state_type == state_type::REAR_WITH_DEAD_BOX)
+		if (_state_type == state_type::DEAD_BOX)
 		{
-			_result = front_state::GetFirDeadBoxAction(_board);
+			_result = action_analyst::GetFirDeadBoxAction(_board);
 		}
 		else if (_state_type == state_type::FRONT)
 		{
-			_result = front_state::GetFreeActions(_board);
+			_result = action_analyst::GetFreeActions(_board);
 		}
 		else if (_state_type == state_type::REAR)
 		{
-
+			_result = rear_state::ChainAnalyst(_board).result();
 		}
-		else if (_state_type == state_type::REAR_WITH_DEAD_CHAIN)
+		else if (_state_type == state_type::DEAD_CHAIN)
 		{
-
+			_result = action_analyst::GetDeadChainAction(_board);
+		}
+		else
+		{
+			_result = ActionVec();
 		}
 	}
 
@@ -738,19 +824,19 @@ namespace dots_and_boxes
 	RetroAnalyst::RetroAnalyst(Board board) :
 		Analyst(board)
 	{
-		//TODO
-		if (_state_type == state_type::FRONT_WITH_DEAD_BOX || _state_type == state_type::REAR_WITH_DEAD_BOX)
+		if (_state_type == state_type::DEAD_BOX)
 		{
 		}
 		else if (_state_type == state_type::FRONT)
 		{
-
 		}
 		else if (_state_type == state_type::REAR)
 		{
+
 		}
-		else if (_state_type == state_type::REAR_WITH_DEAD_CHAIN)
+		else if (_state_type == state_type::DEAD_CHAIN)
 		{
+
 		}
 	}
 }

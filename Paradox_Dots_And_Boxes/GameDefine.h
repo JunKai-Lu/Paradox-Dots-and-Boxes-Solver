@@ -282,6 +282,76 @@ namespace dots_and_boxes
 	//namespace 'state' include some state function, such as index exchange of edge ,etc.
 	namespace state
 	{
+		//box type means boxes with different number of edges.
+		namespace box_type
+		{
+			enum BoxType
+			{
+				FULL_BOX = 4,
+				DEAD_BOX = 3,
+				CHAIN_BOX = 2,
+				FREE_BOX = 1
+			};
+
+			inline std::string ToString(BoxType bt)
+			{
+				RETURN_STRINGFY(bt, FULL_BOX)
+					RETURN_STRINGFY(bt, DEAD_BOX)
+					RETURN_STRINGFY(bt, CHAIN_BOX)
+					RETURN_STRINGFY(bt, FREE_BOX)
+					return "";
+			}
+		}
+
+		//'box' is a class that include info about a box in the board.
+		class Box
+		{
+		protected:
+			Edge _index;
+			box_type::BoxType _type;
+			Edge _own_edge[4];
+			Edge _neighbour_box[4];
+
+		public:
+			Box(const Board& board, Edge index);
+			inline Edge index()
+			{
+				return _index;
+			}
+			inline box_type::BoxType type()
+			{
+				return _type;
+			}
+			inline Edge own_edge(size_t index)
+			{
+				return _own_edge[index];
+			}
+			inline Edge neighbour_box(size_t index)
+			{
+				return _neighbour_box[index];
+			}
+			inline bool IsNotEmptyNeighbour(size_t index)
+			{
+				return _neighbour_box[index] != MAX_BOX;
+			}
+			inline Edge UpperEdge()
+			{
+				return _own_edge[0];
+			}
+			inline Edge LeftEdge()
+			{
+				return _own_edge[1];
+			}
+			inline Edge LowerEdge()
+			{
+				return _own_edge[2];
+			}
+			inline Edge RightEdge()
+			{
+				return _own_edge[3];
+			}
+		};
+
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge UpperToLeftEdge(Edge hor_edge)
 		{
@@ -339,15 +409,6 @@ namespace dots_and_boxes
 			Edge lower_left_edge = UpperToLeftEdge(hor_edge);
 			return board.get(hor_edge) + board.get(lower_left_edge) + board.get(lower_left_edge + 5) + board.get(hor_edge + 5);
 		}
-
-		//得到某个局面下第一个DEAD BOX(已经被占领了三条边)的空边的编号。没有的话则返回MAX_EDGE.
-		Edge GetDeadBoxRemainEdgeIndex(const Board& board);
-
-		//judge whether any dead box exists in a board.
-		bool ExistDeadBox(const Board& board);
-
-		//capture all possible box in this action.
-		Board CaptureAllBoxes(Board& board);
 
 		//return whether how many full-box as the edge as their part.
 		inline Margin TheNumOfFullBoxWithTheEdge(const Board& board, Edge index)
@@ -543,14 +604,23 @@ namespace dots_and_boxes
 			return Board(temp);
 		}
 
-		//get the minimal state of the box.
-		Board MinimalForm(const Board& board);
+		//get the free edge of first dead-box.
+		Edge GetFirstFreeEdgeInDeadBox(const Board& board);
+
+		//get the first free edge in dead-chain.
+		Edge GetFirstFreeEdgeInDeadChain(const Board& board);
+
+		//judge whether any dead box exists in a board.
+		bool ExistDeadBox(const Board& board);
 
 		//check whether exist dead chain in a board.
 		bool ExistDeadChain(const Board& board);
 
 		//check whether exist free edge in a board.
 		bool ExistFreeEdge(const Board& board);
+
+		//get the minimal state of the box.
+		Board MinimalForm(const Board& board);
 
 		//get not reasonable state.
 		bool IsReasonable(const Board& board);
@@ -563,6 +633,7 @@ namespace dots_and_boxes
 
 		//judge whether two edge is upper edge of two neighbour box.
 		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b);
+
 	}
 
 	//namespace 'game' include basic concept of game.
