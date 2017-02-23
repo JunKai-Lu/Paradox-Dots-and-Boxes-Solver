@@ -1,8 +1,8 @@
-#include "stdafx.h"
 #include "GameDefine.h"
 #include "StateAnalyst.h"
 
 using namespace std;
+using namespace gadt;
 
 namespace dots_and_boxes
 {
@@ -28,7 +28,7 @@ namespace dots_and_boxes
 		{
 			ActionVec temp;
 			Edge fir = state::GetFirstFreeEdgeInDeadBox(board);
-			WARNING_CHECK(fir == MAX_EDGE, "no dead box exist");
+			GADT_WARNING_CHECK(fir == MAX_EDGE, "no dead box exist");
 			temp.set(fir);
 			return temp;
 		}
@@ -320,9 +320,9 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					WARNING_CHECK(true, "wrong state in box " + console::I2S(checking_box_index));
+					GADT_WARNING_CHECK(true, "wrong state in box " + console::I2S(checking_box_index));
 				}
-				WARNING_CHECK(count >= MAX_BOX, "infinite loop");
+				GADT_WARNING_CHECK(count >= MAX_BOX, "infinite loop");
 			}
 		}
 
@@ -354,7 +354,7 @@ namespace dots_and_boxes
 						{
 							if (_boxes[checking_box_index].own_edge(i) != ignoring_edge_index && !_board.get(_boxes[checking_box_index].own_edge(i)))
 							{
-								WARNING_CHECK(!_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
+								GADT_WARNING_CHECK(!_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
 								ignoring_edge_index = _boxes[checking_box_index].own_edge(i);
 								checking_box_index = _boxes[checking_box_index].neighbour_box(i);
 								break;
@@ -364,9 +364,9 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					WARNING_CHECK(true, "wrong state in box " + console::I2S(checking_box_index));
+					GADT_WARNING_CHECK(true, "wrong state in box " + console::I2S(checking_box_index));
 				}
-				WARNING_CHECK(count >= MAX_BOX, "infinite loop");
+				GADT_WARNING_CHECK(count >= MAX_BOX, "infinite loop");
 			}
 		}
 
@@ -443,10 +443,10 @@ namespace dots_and_boxes
 
 					}
 
-					WARNING_CHECK(true, "no find neighbour box that belong to same chain.");
+					GADT_WARNING_CHECK(true, "no find neighbour box that belong to same chain.");
 				}
 			}
-			WARNING_CHECK(true, "no find box belong to chain " + console::I2S(chain_index));
+			GADT_WARNING_CHECK(true, "no find box belong to chain " + console::I2S(chain_index));
 			return MAX_EDGE;
 		}
 
@@ -461,7 +461,7 @@ namespace dots_and_boxes
 					temp.set(GetFirstEdgeOfChain(i));
 				}
 			}
-			WARNING_CHECK(temp.none(), "no any action exist in this board");
+			GADT_WARNING_CHECK(temp.none(), "no any action exist in this board");
 			return temp;
 		}
 
@@ -482,7 +482,7 @@ namespace dots_and_boxes
 				{
 					if (_boxes[i].belonging_chain() <= 15)
 					{
-						console::Cprintf("¡ö ", console::color::Color(_boxes[i].belonging_chain() + 1));
+						console::Cprintf("¡ö ", console::ConsoleColor(_boxes[i].belonging_chain() + 1));
 					}
 					else
 					{
@@ -499,7 +499,7 @@ namespace dots_and_boxes
 				{
 					stringstream ss;
 					ss << ">> chain " << i << " type = " << chain_type::ToString(_chains[i].type()) << " box_num = " << _chains[i].boxes_num() << endl;
-					console::Cprintf(ss.str(), console::color::Color(i + 1));
+					console::Cprintf(ss.str(), console::ConsoleColor(i + 1));
 				}
 			}
 			cout << endl;
@@ -565,7 +565,7 @@ namespace dots_and_boxes
 	//Get random action in action analyst.
 	Edge ActionAnalyst::RandomAction()
 	{
-		WARNING_CHECK(_result.none(), "no any action is legal.");
+		GADT_WARNING_CHECK(_result.none(), "no any action is legal.");
 		Edge actions[MAX_EDGE];
 		size_t c_index = 0;
 		for (Edge edge = 0; edge < MAX_EDGE; edge++)
@@ -583,10 +583,10 @@ namespace dots_and_boxes
 	//visualization.
 	void ActionAnalyst::Visualization(Edge tag_edge) const
 	{
-		const console::color::Color edge_color = console::color::yellow;
-		const console::color::Color action_color = console::color::white;
-		const console::color::Color dot_color = console::color::gray;
-		const console::color::Color tag_color = console::color::green;
+		const console::ConsoleColor edge_color = console::YELLOW;
+		const console::ConsoleColor action_color = console::WHITE;
+		const console::ConsoleColor dot_color = console::GRAY;
+		const console::ConsoleColor tag_color = console::GREEN;
 		cout << endl;
 		string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)

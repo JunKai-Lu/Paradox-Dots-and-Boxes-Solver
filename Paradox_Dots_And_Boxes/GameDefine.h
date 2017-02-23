@@ -1,18 +1,9 @@
-#include "stdafx.h"
-#include <iostream>
-#include <string>
-#include <stdlib.h>
-#include <sstream>
-#include <vector>
-
-#include "GeneralGameShell.h"
+#include "./include/gadtlib.h"
+#include "./include/bitboard.hpp"
 
 #pragma  once
 
 //MACROS
-#define WINDOWS
-#define WARNING
-#define WARNING_CHECK(warning_condition,reason) console::WarningCheck(warning_condition,reason,__FILE__,__LINE__,__FUNCTION__)
 #define RETURN_STRINGFY(parameter,str) if(parameter == str){return #str;}
 
 //CONSTANTS
@@ -27,224 +18,14 @@
 #define BLUE_BOX -1
 #define EMPTY_BOX 0
 
-namespace console
-{
-	//output msg.
-	inline std::string GetInput()
-	{
-		char buffer[50];
-		std::cin.getline(buffer, 50);
-		return std::string(buffer);
-	}
-	inline std::string B2S(bool b)
-	{
-		if (b)
-		{
-			return "true";
-		}
-		return "false";
-	}
-	inline std::string I2S(size_t i)
-	{
-		std::stringstream ss;
-		ss << i;
-		return ss.str();
-	}
-
-	inline void Error(std::string reason)
-	{
-		std::cout << std::endl;
-		Cprintf(">> ERROR: ", color::red);
-		Cprintf(reason, color::white);
-		std::cout << std::endl << std::endl;
-	}
-	inline void Message(std::string message, bool show_MSG = true)
-	{
-		std::cout << ">> ";
-		if (show_MSG)
-		{
-			Cprintf("MSG: ", color::deep_green);
-		}
-		Cprintf(message, color::green);
-		std::cout << std::endl << std::endl;
-	}
-	inline void WarningCheck(bool condition, std::string reason, std::string file, int line, std::string function)
-	{
-#ifdef WARNING
-		if (condition)
-		{
-			Cprintf(">> WARNING: ", color::purple);
-			Cprintf(reason, color::red);
-			std::cout << std::endl;
-			Cprintf("[File]: " + file, color::gray);
-			std::cout << std::endl;
-			Cprintf("[Line]: " + I2S(line), color::gray);
-			std::cout << std::endl;
-			Cprintf("[Func]: " + function, color::gray);
-			std::cout << std::endl;
-			system("pause");
-		}
-#endif
-	}
-
-	//Singleton
-	template<class value_type>
-	class Singleton final : public value_type
-	{
-	private:
-		Singleton() = default;
-		Singleton(const Singleton&) = delete;
-		~Singleton() = default;
-	public:
-
-		static Singleton* instance()
-		{
-			static Singleton only_one;
-			return &only_one;
-		}
-	};
-}
-
 namespace dots_and_boxes
 {
 	//type define.
 	typedef unsigned char Edge;
 	typedef short Margin;
-	typedef long long BitBoard;
-
-	//define Board and ActionVector.
-	class Board
-	{
-	private:
-		BitBoard _data;
-
-	public:
-		inline Board() :
-			_data(0)
-		{
-
-		}
-		inline Board(BitBoard board) :
-			_data(board)
-		{
-		}
-
-		//equal to the appointed value.
-		inline void operator=(BitBoard board)
-		{
-			_data = board;
-		}
-
-		//return whether any bit is true.
-		inline bool any() const
-		{
-			return _data != 0;
-		}
-
-		//return whether no any bit is true.
-		inline bool none() const
-		{
-			return _data == 0;
-		}
-
-		//set appointed bit to true.
-		inline void set(Edge index)
-		{
-			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
-			long long temp = 1;
-			temp = temp << index;
-			_data = _data | temp;
-		}
-
-		//reset appointed bit.
-		inline void reset(Edge index)
-		{
-			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
-			long long temp = 1;
-			temp = ~(temp << index);
-			_data = _data & temp;
-		}
-
-		//reset all bits.
-		inline void reset()
-		{
-			_data = 0;
-		}
-
-		//write value to appointed bit.
-		inline void write(Edge index, int value)
-		{
-			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
-			if (value)
-			{
-				set(index);
-			}
-			else
-			{
-				reset(index);
-			}
-		}
-
-		//get bit.
-		inline bool operator[](Edge index) const
-		{
-			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
-			return ((_data >> index) & 0x1) == 1;
-		}
-
-		//get bit.
-		inline bool get(Edge index) const
-		{
-			WARNING_CHECK(index >= MAX_EDGE, "out of range.");
-			return ((_data >> index) & 0x1) == 1;
-		}
-
-		//get value
-		inline BitBoard to_ullong() const
-		{
-			return _data;
-		}
-
-		//get string
-		inline std::string to_string() const 
-		{
-			char c[MAX_EDGE];
-			for (Edge i = MAX_EDGE - 1; i >= 0 && i <= MAX_EDGE; i--)
-			{
-				if (get(i))
-				{
-					c[MAX_EDGE - 1 - i] = '1';
-				}
-				else
-				{
-					c[MAX_EDGE - 1 - i] = '0';
-				}
-			}
-			return std::string(c);
-		}
-
-		inline bool operator<(const Board& target)
-		{
-			return _data < target._data;
-		}
-		inline bool operator>(const Board& target)
-		{
-			return _data > target._data;
-		}
-		inline bool operator<=(const Board& target)
-		{
-			return _data <= target._data;
-		}
-		inline bool operator>=(const Board& target)
-		{
-			return _data >= target._data;
-		}
-		inline bool operator==(const Board& target)
-		{
-			return _data == target._data;
-		}
-	};
-	typedef Board ActionVec;
+	typedef uint64_t BoardValue;
+	typedef gadt::BitBoard64 Board;
+	typedef gadt::BitBoard64 ActionVec;
 
 	//state is used for show board mainly.
 	class State
@@ -355,14 +136,14 @@ namespace dots_and_boxes
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge UpperToLeftEdge(Edge hor_edge)
 		{
-			WARNING_CHECK(hor_edge > 24 || hor_edge < 0, "Wrong index");
+			GADT_WARNING_CHECK(hor_edge > 24 || hor_edge < 0, "Wrong index");
 			return (34 - (hor_edge / 5)) + 5 * (hor_edge % 5);
 		}
 
 		//得到某个竖边右上的横边的编号（限制为30~54）
 		inline Edge LeftToUpperEdge(Edge vec_edge)
 		{
-			WARNING_CHECK(vec_edge > 54 || vec_edge < 30, "Wrong index");
+			GADT_WARNING_CHECK(vec_edge > 54 || vec_edge < 30, "Wrong index");
 			return (14 - 5 * (vec_edge % 5)) + (vec_edge / 5);
 		}
 
@@ -405,7 +186,7 @@ namespace dots_and_boxes
 		//Get the edge num of the box below a horizon edge.
 		inline size_t GetLowerBoxEdgeNum(const Board& board, Edge hor_edge)
 		{
-			WARNING_CHECK(hor_edge > 24, "Wrong index");
+			GADT_WARNING_CHECK(hor_edge > 24, "Wrong index");
 			Edge lower_left_edge = UpperToLeftEdge(hor_edge);
 			return board.get(hor_edge) + board.get(lower_left_edge) + board.get(lower_left_edge + 5) + board.get(hor_edge + 5);
 		}
@@ -636,111 +417,111 @@ namespace dots_and_boxes
 
 	}
 
-	//namespace 'game' include basic concept of game.
-	//namespace game
-	//{
-	//	typedef std::vector<Edge> ActionDes;
+	/*//namespace 'game' include basic concept of game.
+	namespace game
+	{
+		typedef std::vector<Edge> ActionDes;
 
-	//	struct Player
-	//	{
-	//		size_t _score;
-	//		ActionDes(*_func)(State&);
-	//		std::string _des;
-	//	};
+		struct Player
+		{
+			size_t _score;
+			ActionDes(*_func)(State&);
+			std::string _des;
+		};
 
-	//	class GameState :public State
-	//	{
-	//	private:
-	//		Player _fir_player;
-	//		Player _sec_player;
-	//		bool _auto_game;
+		class GameState :public State
+		{
+		private:
+			Player _fir_player;
+			Player _sec_player;
+			bool _auto_game;
 
-	//		Edge _last_action;
-	//		bool _last_player;
+			Edge _last_action;
+			bool _last_player;
 
-	//	public:
-	//		GameState();
-	//		GameState(Board board, Player fir_player, Player sec_player);
+		public:
+			GameState();
+			GameState(Board board, Player fir_player, Player sec_player);
 
-	//		//variable
-	//		inline Margin get_margin()
-	//		{
-	//			return Margin(_fir_player._score - _sec_player._score);
-	//		}
-	//		inline const Player& player(bool is_sec_player)
-	//		{
-	//			if (is_sec_player)
-	//			{
-	//				return _sec_player;
-	//			}
-	//			else
-	//			{
-	//				return _fir_player;
-	//			}
-	//		}
-	//		inline const Player& operator[](bool is_sec_player)
-	//		{
-	//			return player(is_sec_player);
-	//		}
-	//		inline Edge last_action()
-	//		{
-	//			return _last_action;
-	//		}
-	//		inline bool last_player()
-	//		{
-	//			return _last_player;
-	//		}
-	//		inline void set_player(bool is_sec_action, Player player)
-	//		{
-	//			if (is_sec_action)
-	//			{
-	//				_sec_player = player;
-	//			}
-	//			else
-	//			{
-	//				_fir_player = player;
-	//			}
-	//		}
-	//		inline void set_auto_game(bool auto_game)
-	//		{
-	//			_auto_game = auto_game;
-	//		}
+			//variable
+			inline Margin get_margin()
+			{
+				return Margin(_fir_player._score - _sec_player._score);
+			}
+			inline const Player& player(bool is_sec_player)
+			{
+				if (is_sec_player)
+				{
+					return _sec_player;
+				}
+				else
+				{
+					return _fir_player;
+				}
+			}
+			inline const Player& operator[](bool is_sec_player)
+			{
+				return player(is_sec_player);
+			}
+			inline Edge last_action()
+			{
+				return _last_action;
+			}
+			inline bool last_player()
+			{
+				return _last_player;
+			}
+			inline void set_player(bool is_sec_action, Player player)
+			{
+				if (is_sec_action)
+				{
+					_sec_player = player;
+				}
+				else
+				{
+					_fir_player = player;
+				}
+			}
+			inline void set_auto_game(bool auto_game)
+			{
+				_auto_game = auto_game;
+			}
 
-	//		//func
-	//		inline void GameEdgeRemove(bool is_sec_player, Edge edge)
-	//		{
-	//			if (is_sec_player)
-	//			{
-	//				_sec_player._score -= state::TheNumOfFullBoxWithTheEdge(*this, edge);
-	//			}
-	//			else
-	//			{
-	//				_fir_player._score -= state::TheNumOfFullBoxWithTheEdge(*this, edge);
-	//			}
-	//			reset(edge);
-	//		}
-	//		inline void GameEdgeSet(bool is_sec_player, Edge edge)
-	//		{
-	//			set(edge);
-	//			_last_action = edge;
-	//			_last_player = is_sec_player;
-	//			if (is_sec_player)
-	//			{
-	//				_sec_player._score += state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
-	//			}
-	//			else
-	//			{
-	//				_fir_player._score += state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
-	//			}
-	//		}
-	//		void DoActions(bool is_sec_player, ActionDes actions)
-	//		{
-	//			for (auto edge : actions)
-	//			{
-	//				GameEdgeSet(is_sec_player, edge);
-	//				console::Message("Edge " + console::I2S(edge), false);
-	//			}
-	//		}
-	//	};
-	//}
+			//func
+			inline void GameEdgeRemove(bool is_sec_player, Edge edge)
+			{
+				if (is_sec_player)
+				{
+					_sec_player._score -= state::TheNumOfFullBoxWithTheEdge(*this, edge);
+				}
+				else
+				{
+					_fir_player._score -= state::TheNumOfFullBoxWithTheEdge(*this, edge);
+				}
+				reset(edge);
+			}
+			inline void GameEdgeSet(bool is_sec_player, Edge edge)
+			{
+				set(edge);
+				_last_action = edge;
+				_last_player = is_sec_player;
+				if (is_sec_player)
+				{
+					_sec_player._score += state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
+				}
+				else
+				{
+					_fir_player._score += state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
+				}
+			}
+			void DoActions(bool is_sec_player, ActionDes actions)
+			{
+				for (auto edge : actions)
+				{
+					GameEdgeSet(is_sec_player, edge);
+					console::Message("Edge " + console::I2S(edge), false);
+				}
+			}
+		};
+	}*/
 }

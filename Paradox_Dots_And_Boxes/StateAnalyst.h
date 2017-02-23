@@ -1,9 +1,6 @@
-#pragma once
-
-#include "stdafx.h"
 #include "GameDefine.h"
 
-using namespace std;
+#pragma once
 
 namespace dots_and_boxes
 {
@@ -170,7 +167,7 @@ namespace dots_and_boxes
 						return i;
 					}
 				}
-				console::Error("chain list is full!");
+				gadt::console::ShowError("chain list is full!");
 				return 0;
 			}
 
@@ -207,9 +204,9 @@ namespace dots_and_boxes
 				{
 					if (box.index() % 5 == 0)
 					{
-						cout << endl;
+						std::cout << std::endl;
 					}
-					cout << box.type() << " ";
+					std::cout << box.type() << " ";
 				}
 			}
 

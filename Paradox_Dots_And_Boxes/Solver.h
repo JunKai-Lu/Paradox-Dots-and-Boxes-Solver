@@ -1,15 +1,9 @@
-#include "stdafx.h"
-#include <iostream>
-#include <string>
-#include <stdlib.h>
-#include <time.h>
-#include <map>
 #include <list>
-#include <fstream>
-#include <vector>
 #include <unordered_map>
 #include <thread>
 #include <mutex>
+#include <io.h>
+#include <direct.h>
 
 #include "GameDefine.h"
 #include "StateAnalyst.h"
@@ -34,7 +28,7 @@ namespace dots_and_boxes
 	*/
 
 	//define STL.
-	typedef std::unordered_map<BitBoard, Margin> SolverHash;
+	typedef std::unordered_map<BoardValue, Margin> SolverHash;
 
 	namespace solver
 	{
@@ -88,7 +82,7 @@ namespace dots_and_boxes
 		* [hash_table] is the hash_table that would be fill in datassss
 		* [target_layer] is the target layer
 		*/
-		bool LoadHashTable(std::unordered_map<BitBoard, Margin>* hash_table, size_t target_layer);
+		bool LoadHashTable(std::unordered_map<BoardValue, Margin>* hash_table, size_t target_layer);
 
 		/*
 		* Compute new storage then save it to map.

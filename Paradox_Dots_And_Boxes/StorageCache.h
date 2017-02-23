@@ -1,18 +1,12 @@
-#include "stdafx.h"
-#include <vector>
-#include <map>
-#include <string>
-#include <fstream>
-
 #include "GameDefine.h"
 
 #pragma  once
 
 namespace dots_and_boxes
 {
-	typedef std::pair<BitBoard, Margin> SolverState;
+	typedef std::pair<BoardValue, Margin> SolverState;
 	typedef std::vector<SolverState> Storage;
-	typedef std::map<BitBoard, Margin> SolverStateMap;
+	typedef std::map<BoardValue, Margin> SolverStateMap;
 
 	/*
 	* StorageCache include memory of save file method. 
@@ -58,7 +52,7 @@ namespace dots_and_boxes
 			* [board] board of the solver state that need be push to cache.
 			* [margin] margin of the solver state that need be push to cache.
 		*/
-		inline void Push(BitBoard board,Margin margin)
+		inline void Push(BoardValue board,Margin margin)
 		{
 			_count++;
 			if (_memory_method)
@@ -97,11 +91,11 @@ namespace dots_and_boxes
 		}
 
 	private:
-		inline void PushToStorage(BitBoard board, Margin margin)
+		inline void PushToStorage(BoardValue board, Margin margin)
 		{
 			_storage->push_back(SolverState(board,margin));
 		}
-		inline void PushToFile(BitBoard board, Margin margin)
+		inline void PushToFile(BoardValue board, Margin margin)
 		{
 			_os << board << " " << margin << std::endl;
 		}

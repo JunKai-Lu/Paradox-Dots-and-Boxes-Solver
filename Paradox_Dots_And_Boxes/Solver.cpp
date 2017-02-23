@@ -1,14 +1,3 @@
-#include "stdafx.h"
-#include <iostream>
-#include <string>
-#include <stdlib.h>
-#include <sstream>
-#include <unordered_map>
-#include <list>
-#include <io.h>
-#include <direct.h>
-#include <time.h>
-
 #include "GameDefine.h"
 #include "StateAnalyst.h"
 #include "Solver.h"
@@ -16,6 +5,7 @@
 #define COUT_MUTEX_TIME 100
 
 using namespace std;
+using namespace gadt;
 
 namespace dots_and_boxes
 {
@@ -92,7 +82,7 @@ namespace dots_and_boxes
 			//for all solver state in original storage.
 			for (SolverState& ss : original_storage)
 			{
-				Board current_board = ss.first;
+				Board current_board = Board(ss.first);
 				Margin current_margin = ss.second;
 				for (Edge i = 0; i <MAX_EDGE; i++)
 				{
@@ -152,7 +142,7 @@ namespace dots_and_boxes
 
 			for (SolverState& ss : original_storage)
 			{
-				Board current_board = ss.first;
+				Board current_board = Board(ss.first);
 				Margin current_margin = ss.second;
 				for (Edge i = 0; i <MAX_EDGE; i++)
 				{
@@ -255,7 +245,7 @@ namespace dots_and_boxes
 				size_t count = 0;
 				for (;;)
 				{
-					BitBoard bit;
+					BoardValue bit;
 					Margin mar;
 					target_file >> bit >> mar;
 					if (target_file.eof())
@@ -284,7 +274,7 @@ namespace dots_and_boxes
 				_log << "================================== " << endl << endl;
 				return true;
 			}
-			console::Error("can not find file " + path.str());
+			console::ShowError("can not find file " + path.str());
 			return false;
 		}
 
@@ -302,7 +292,7 @@ namespace dots_and_boxes
 			path << "/layer_" << layer;// <<;
 
 			ofstream os((path.str() + "_final.dat").c_str());
-			console::Message(("Output target = " + path.str() + "_final.dat"), false);
+			console::ShowMessage(("Output target = " + path.str() + "_final.dat"), false);
 			size_t count = 0;
 
 			for (auto ss : ss_map)

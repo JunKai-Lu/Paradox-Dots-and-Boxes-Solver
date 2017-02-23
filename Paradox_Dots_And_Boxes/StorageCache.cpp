@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "StorageCache.h"
 #include "GameDefine.h"
 

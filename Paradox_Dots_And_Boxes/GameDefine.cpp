@@ -1,11 +1,7 @@
-#include "stdafx.h"
-#include <iostream>
-#include <vector>
-
 #include "GameDefine.h"
 
-
 using namespace std;
+using namespace gadt;
 
 namespace dots_and_boxes
 {
@@ -16,9 +12,9 @@ namespace dots_and_boxes
 
 	void State::Visualization(ActionVec action_vec) const
 	{
-		const console::color::Color edge_color = console::color::yellow;
-		const console::color::Color action_color = console::color::white;
-		const console::color::Color dot_color = console::color::gray;
+		const console::ConsoleColor edge_color = console::YELLOW;
+		const console::ConsoleColor action_color = console::WHITE;
+		const console::ConsoleColor dot_color = console::GRAY;
 
 		cout << endl;
 		string interval = "     ";
@@ -136,9 +132,9 @@ namespace dots_and_boxes
 
 	void State::EdgeVisualization() const
 	{
-		const console::color::Color edge_color = console::color::yellow;
-		const console::color::Color action_color = console::color::white;
-		const console::color::Color dot_color = console::color::gray;
+		const console::ConsoleColor edge_color = console::YELLOW;
+		const console::ConsoleColor action_color = console::WHITE;
+		const console::ConsoleColor dot_color = console::GRAY;
 		cout << endl;
 		string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
@@ -307,7 +303,7 @@ namespace dots_and_boxes
 
 	State State::RandomState(size_t edge_num)
 	{
-		WARNING_CHECK(edge_num >= MAX_EDGE, "out of range");
+		GADT_WARNING_CHECK(edge_num >= MAX_EDGE, "out of range");
 		Board board;
 		vector<Edge> moves(60);
 		for (Edge i = 0; i < edge_num; i++)
@@ -1029,7 +1025,7 @@ namespace dots_and_boxes
 		//judge whether a edge is the upper edge of a box that is first box of a dead chain.
 		bool IsUpperEdgeOfFirstBoxOfDeadChain(const Board& board, Edge edge)
 		{
-			WARNING_CHECK(edge > 25, "wrong edge");
+			GADT_WARNING_CHECK(edge > 25, "wrong edge");
 
 			Edge fir_box_lower_edge = edge + 5;
 			Edge fir_box_left_edge = state::UpperToLeftEdge(edge);
@@ -1126,7 +1122,6 @@ namespace dots_and_boxes
 			return false;
 		}
 
-		
 	}
 
 	/*namespace game
