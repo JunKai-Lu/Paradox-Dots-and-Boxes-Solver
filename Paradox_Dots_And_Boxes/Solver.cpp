@@ -329,7 +329,7 @@ namespace dots_and_boxes
 			vector < Storage > storage_vec(thread_num());
 			if (!LoadStorages(storage_vec, current_layer))
 			{
-				system("pause");
+				console::SystemPause();
 				return;
 			}
 

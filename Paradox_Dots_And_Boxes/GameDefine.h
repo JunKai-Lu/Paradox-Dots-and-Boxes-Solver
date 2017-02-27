@@ -1,6 +1,9 @@
 #include "./include/gadtlib.h"
 #include "./include/bitboard.hpp"
 
+#ifdef GADT_UNIX
+	#define DAB_UNIX
+#endif
 #pragma  once
 
 //MACROS
