@@ -11,7 +11,7 @@ namespace dots_and_boxes
 	FrontStateWithDeadBox			Yes			Yes			No
 	RearState						No			No			No
 	RearStateWithDeadBox			No			Yes			No
-	RearStateWithDeadChain			No			Yes			No
+	RearStateWithDeadChain			No			No			Yes
 
 	*/
 
@@ -30,11 +30,11 @@ namespace dots_and_boxes
 		inline std::string ToString(StateType st)
 		{
 			RETURN_STRINGFY(st, FRONT)
-				RETURN_STRINGFY(st, REAR)
-				RETURN_STRINGFY(st, DEAD_BOX)
-				RETURN_STRINGFY(st, DEAD_CHAIN)
-				RETURN_STRINGFY(st, FINISH)
-				return "";
+			RETURN_STRINGFY(st, REAR)
+			RETURN_STRINGFY(st, DEAD_BOX)
+			RETURN_STRINGFY(st, DEAD_CHAIN)
+			RETURN_STRINGFY(st, FINISH)
+			return "";
 		}
 	}
 
@@ -55,13 +55,13 @@ namespace dots_and_boxes
 		inline std::string ToString(ChainType ct)
 		{
 			RETURN_STRINGFY(ct, UNDEFINED)
-				RETURN_STRINGFY(ct, CHAIN)
-				RETURN_STRINGFY(ct, CIRCLE)
-				RETURN_STRINGFY(ct, OPEN_CHAIN)
-				RETURN_STRINGFY(ct, OPEN_CIRCLE)
-				RETURN_STRINGFY(ct, DEAD_CHAIN)
-				RETURN_STRINGFY(ct, DEAD_CIRCLE)
-				return "";
+			RETURN_STRINGFY(ct, CHAIN)
+			RETURN_STRINGFY(ct, CIRCLE)
+			RETURN_STRINGFY(ct, OPEN_CHAIN)
+			RETURN_STRINGFY(ct, OPEN_CIRCLE)
+			RETURN_STRINGFY(ct, DEAD_CHAIN)
+			RETURN_STRINGFY(ct, DEAD_CIRCLE)
+			return "";
 		}
 	}
 
@@ -187,7 +187,7 @@ namespace dots_and_boxes
 			//merge two chains into a single chain.
 			void MergeChain(size_t fir_chain, size_t sec_chain, chain_type::ChainType new_chain_type);
 
-			//combine two chains from a source box they shared. the box must be source of 3 or more chains.
+			//combine two chains from a source box they shared. the box must be the source of 3 or more chains.
 			void CombineChainsFromSourceBox(Edge box_index);
 
 			//get the first edge of appointed chain.

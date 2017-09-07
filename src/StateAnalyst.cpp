@@ -28,7 +28,7 @@ namespace dots_and_boxes
 		{
 			ActionVec temp;
 			Edge fir = state::GetFirstFreeEdgeInDeadBox(board);
-			GADT_WARNING_CHECK(fir == MAX_EDGE, "no dead box exist");
+			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, fir == MAX_EDGE, "no dead box exist");
 			temp.set(fir);
 			return temp;
 		}
@@ -320,9 +320,9 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					GADT_WARNING_CHECK(true, "wrong state in box " + console::I2S(checking_box_index));
+					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "wrong state in box " + console::ToString(checking_box_index));
 				}
-				GADT_WARNING_CHECK(count >= MAX_BOX, "infinite loop");
+				GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, count >= MAX_BOX, "infinite loop");
 			}
 		}
 
@@ -354,7 +354,7 @@ namespace dots_and_boxes
 						{
 							if (_boxes[checking_box_index].own_edge(i) != ignoring_edge_index && !_board.get(_boxes[checking_box_index].own_edge(i)))
 							{
-								GADT_WARNING_CHECK(!_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
+								GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, !_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
 								ignoring_edge_index = _boxes[checking_box_index].own_edge(i);
 								checking_box_index = _boxes[checking_box_index].neighbour_box(i);
 								break;
@@ -364,9 +364,9 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					GADT_WARNING_CHECK(true, "wrong state in box " + console::I2S(checking_box_index));
+					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "wrong state in box " + console::ToString(checking_box_index));
 				}
-				GADT_WARNING_CHECK(count >= MAX_BOX, "infinite loop");
+				GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, count >= MAX_BOX, "infinite loop");
 			}
 		}
 
@@ -443,10 +443,10 @@ namespace dots_and_boxes
 
 					}
 
-					GADT_WARNING_CHECK(true, "no find neighbour box that belong to same chain.");
+					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "no find neighbour box that belong to same chain.");
 				}
 			}
-			GADT_WARNING_CHECK(true, "no find box belong to chain " + console::I2S(chain_index));
+			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "no find box belong to chain " + console::ToString(chain_index));
 			return MAX_EDGE;
 		}
 
@@ -461,7 +461,7 @@ namespace dots_and_boxes
 					temp.set(GetFirstEdgeOfChain(i));
 				}
 			}
-			GADT_WARNING_CHECK(temp.none(), "no any action exist in this board");
+			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, temp.none(), "no any action exist in this board");
 			return temp;
 		}
 
@@ -565,7 +565,7 @@ namespace dots_and_boxes
 	//Get random action in action analyst.
 	Edge ActionAnalyst::RandomAction()
 	{
-		GADT_WARNING_CHECK(_result.none(), "no any action is legal.");
+		GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, _result.none(), "no any action is legal.");
 		Edge actions[MAX_EDGE];
 		size_t c_index = 0;
 		for (Edge edge = 0; edge < MAX_EDGE; edge++)

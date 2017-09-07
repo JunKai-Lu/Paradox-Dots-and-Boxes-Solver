@@ -303,7 +303,7 @@ namespace dots_and_boxes
 
 	State State::RandomState(size_t edge_num)
 	{
-		GADT_WARNING_CHECK(edge_num >= MAX_EDGE, "out of range");
+		GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, edge_num >= MAX_EDGE, "out of range");
 		Board board;
 		vector<Edge> moves(60);
 		for (Edge i = 0; i < edge_num; i++)
@@ -503,7 +503,6 @@ namespace dots_and_boxes
 		//get the minimal state of the box.
 		Board MinimalForm(const Board& target)
 		{
-
 			Board min = target;
 			Board prototype = target;
 			Board reversed = ReverseBox(min);
@@ -1022,10 +1021,10 @@ namespace dots_and_boxes
 			return false;
 		}
 
-		//judge whether a edge is the upper edge of a box that is first box of a dead chain.
+		//return true if a edge is the upper edge of a box that is the first box of a dead chain.
 		bool IsUpperEdgeOfFirstBoxOfDeadChain(const Board& board, Edge edge)
 		{
-			GADT_WARNING_CHECK(edge > 25, "wrong edge");
+			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, edge > 25, "wrong edge");
 
 			Edge fir_box_lower_edge = edge + 5;
 			Edge fir_box_left_edge = state::UpperToLeftEdge(edge);
@@ -1080,7 +1079,7 @@ namespace dots_and_boxes
 			return false;
 		}
 
-		//judge whether two edge is upper edge of two neighbour box.
+		//reture if those edge are the upper edge of two neighbour box respectively.
 		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b)
 		{
 			//not left side box.
@@ -1123,25 +1122,4 @@ namespace dots_and_boxes
 		}
 
 	}
-
-	/*namespace game
-	{
-		GameState::GameState() :
-			State(),
-			_fir_player{ 0,nullptr,"MCTS" },
-			_sec_player{ 0,nullptr,"MCTS" },
-			_last_action(0)
-		{
-
-		}
-
-		GameState::GameState(Board board, Player fir_player, Player sec_player) :
-			State(board),
-			_fir_player(fir_player),
-			_sec_player(sec_player),
-			_last_action(0)
-		{
-
-		}
-	}*/
 }

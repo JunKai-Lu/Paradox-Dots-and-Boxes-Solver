@@ -1,7 +1,7 @@
-#include "./include/gadtlib.h"
-#include "./include/bitboard.hpp"
+#include "../include/gadtlib.h"
+#include "../include/bitboard.hpp"
 
-#ifdef GADT_UNIX
+#ifdef GADT_GNUC
 	#define DAB_UNIX
 #endif
 #pragma  once
@@ -9,26 +9,26 @@
 //MACROS
 #define RETURN_STRINGFY(parameter,str) if(parameter == str){return #str;}
 
-//CONSTANTS
-#define GAME_SIZE 5
-#define MAX_EDGE 60
-#define MAX_BOX 25
-#define MAX_CHAIN 10
-
-#define EMPTY_BOARD 0
-
-#define RED_BOX 1
-#define BLUE_BOX -1
-#define EMPTY_BOX 0
-
 namespace dots_and_boxes
 {
+	//CONSTANTS
+	constexpr const size_t GAME_SIZE = 5;
+	constexpr const size_t MAX_EDGE = 60;
+	constexpr const size_t MAX_BOX = 25;
+	constexpr const size_t MAX_CHAIN = 10;
+	constexpr const size_t EMPTY_BOARD = 0;
+	constexpr const size_t RED_BOX = 1;
+	constexpr const size_t BLUE_BOX = -1;
+	constexpr const size_t EMPTY_BOX = 0;
+
 	//type define.
-	typedef unsigned char Edge;
-	typedef short Margin;
-	typedef uint64_t BoardValue;
-	typedef gadt::BitBoard64 Board;
-	typedef gadt::BitBoard64 ActionVec;
+	using Edge = uint8_t;
+	using Margin = uint16_t;
+	using BoardValue = gadt::bitboard::gadt_int64;
+	using Board = gadt::bitboard::BitBoard64;
+	using ActionVec = gadt::bitboard::BitBoard64;
+
+	constexpr const bool g_DAB_DEFINE_WARNING = true;
 
 	//state is used for show board mainly.
 	class State
@@ -80,10 +80,10 @@ namespace dots_and_boxes
 			inline std::string ToString(BoxType bt)
 			{
 				RETURN_STRINGFY(bt, FULL_BOX)
-					RETURN_STRINGFY(bt, DEAD_BOX)
-					RETURN_STRINGFY(bt, CHAIN_BOX)
-					RETURN_STRINGFY(bt, FREE_BOX)
-					return "";
+				RETURN_STRINGFY(bt, DEAD_BOX)
+				RETURN_STRINGFY(bt, CHAIN_BOX)
+				RETURN_STRINGFY(bt, FREE_BOX)
+				return "";
 			}
 		}
 
@@ -139,14 +139,14 @@ namespace dots_and_boxes
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge UpperToLeftEdge(Edge hor_edge)
 		{
-			GADT_WARNING_CHECK(hor_edge > 24 || hor_edge < 0, "Wrong index");
+			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, hor_edge > 24 || hor_edge < 0, "Wrong index");
 			return (34 - (hor_edge / 5)) + 5 * (hor_edge % 5);
 		}
 
 		//得到某个竖边右上的横边的编号（限制为30~54）
 		inline Edge LeftToUpperEdge(Edge vec_edge)
 		{
-			GADT_WARNING_CHECK(vec_edge > 54 || vec_edge < 30, "Wrong index");
+			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, vec_edge > 54 || vec_edge < 30, "Wrong index");
 			return (14 - 5 * (vec_edge % 5)) + (vec_edge / 5);
 		}
 
@@ -189,15 +189,14 @@ namespace dots_and_boxes
 		//Get the edge num of the box below a horizon edge.
 		inline size_t GetLowerBoxEdgeNum(const Board& board, Edge hor_edge)
 		{
-			GADT_WARNING_CHECK(hor_edge > 24, "Wrong index");
+			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, hor_edge > 24, "Wrong index");
 			Edge lower_left_edge = UpperToLeftEdge(hor_edge);
 			return board.get(hor_edge) + board.get(lower_left_edge) + board.get(lower_left_edge + 5) + board.get(hor_edge + 5);
 		}
 
-		//return whether how many full-box as the edge as their part.
+		//return the number of full-box which contain the edge.
 		inline Margin TheNumOfFullBoxWithTheEdge(const Board& board, Edge index)
 		{
-
 			if (!board.get(index))
 			{
 				return 0;
@@ -419,112 +418,4 @@ namespace dots_and_boxes
 		bool IsUpperEdgeOfNeighbourBox(Edge a, Edge b);
 
 	}
-
-	/*//namespace 'game' include basic concept of game.
-	namespace game
-	{
-		typedef std::vector<Edge> ActionDes;
-
-		struct Player
-		{
-			size_t _score;
-			ActionDes(*_func)(State&);
-			std::string _des;
-		};
-
-		class GameState :public State
-		{
-		private:
-			Player _fir_player;
-			Player _sec_player;
-			bool _auto_game;
-
-			Edge _last_action;
-			bool _last_player;
-
-		public:
-			GameState();
-			GameState(Board board, Player fir_player, Player sec_player);
-
-			//variable
-			inline Margin get_margin()
-			{
-				return Margin(_fir_player._score - _sec_player._score);
-			}
-			inline const Player& player(bool is_sec_player)
-			{
-				if (is_sec_player)
-				{
-					return _sec_player;
-				}
-				else
-				{
-					return _fir_player;
-				}
-			}
-			inline const Player& operator[](bool is_sec_player)
-			{
-				return player(is_sec_player);
-			}
-			inline Edge last_action()
-			{
-				return _last_action;
-			}
-			inline bool last_player()
-			{
-				return _last_player;
-			}
-			inline void set_player(bool is_sec_action, Player player)
-			{
-				if (is_sec_action)
-				{
-					_sec_player = player;
-				}
-				else
-				{
-					_fir_player = player;
-				}
-			}
-			inline void set_auto_game(bool auto_game)
-			{
-				_auto_game = auto_game;
-			}
-
-			//func
-			inline void GameEdgeRemove(bool is_sec_player, Edge edge)
-			{
-				if (is_sec_player)
-				{
-					_sec_player._score -= state::TheNumOfFullBoxWithTheEdge(*this, edge);
-				}
-				else
-				{
-					_fir_player._score -= state::TheNumOfFullBoxWithTheEdge(*this, edge);
-				}
-				reset(edge);
-			}
-			inline void GameEdgeSet(bool is_sec_player, Edge edge)
-			{
-				set(edge);
-				_last_action = edge;
-				_last_player = is_sec_player;
-				if (is_sec_player)
-				{
-					_sec_player._score += state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
-				}
-				else
-				{
-					_fir_player._score += state::TheNumOfFullBoxWithTheEdge(board::Create(*this), edge);
-				}
-			}
-			void DoActions(bool is_sec_player, ActionDes actions)
-			{
-				for (auto edge : actions)
-				{
-					GameEdgeSet(is_sec_player, edge);
-					console::Message("Edge " + console::I2S(edge), false);
-				}
-			}
-		};
-	}*/
 }

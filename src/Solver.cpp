@@ -292,7 +292,7 @@ namespace dots_and_boxes
 			path << "/layer_" << layer;// <<;
 
 			ofstream os((path.str() + "_final.dat").c_str());
-			console::ShowMessage(("Output target = " + path.str() + "_final.dat"), false);
+			console::ShowMessage(("Output target = " + path.str() + "_final.dat"));
 			size_t count = 0;
 
 			for (auto ss : ss_map)
