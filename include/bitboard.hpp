@@ -1,14 +1,3 @@
-/*
-* bitboard include BitBoard64,BitBoard128, BitPoker and BitMahjong.
-*
-* BitBoard is a bit array whose max size is 64 and the size can not be change.
-* BitPoker is an unsigned int array whose max size is 16, the value of each one is limit between 0 and 15.
-* BitMahjong is an unsigned int vector whose max size is 42, each value is limit between 0 and 7.
-*
-* in poker games, we have cards with 15 different numbers(assume black joker and red joker is different),and the cards can be saved by bitpokers.
-* in mahjong games. there are <40 kinds of tile and each one is less than 8 in game, so we design a vector by using two 64-bit uint to save these info.
-*/
-
 /* Copyright (c) 2017 Junkai Lu <junkai-lu@outlook.com>.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -370,7 +359,7 @@ namespace gadt
 			}
 
 			//initilize BitBoard by list
-			inline BitBoard64(std::initializer_list<size_t> init_list):
+			explicit inline BitBoard64(std::initializer_list<size_t> init_list):
 				_data(0)
 			{
 #ifdef GADT_DEBUG_INFO
@@ -532,7 +521,7 @@ namespace gadt
 						c[64 - 1 - i] = '0';
 					}
 				}
-				return std::string(c);
+				return std::string(c, 64);
 			}
 
 			inline bool operator[](size_t index) const
@@ -559,6 +548,18 @@ namespace gadt
 			{
 				return _data == target._data;
 			}
+			inline BitBoard64 operator&(gadt_int64 target) const
+			{
+				return BitBoard64(_data & target);
+			}
+			inline BitBoard64 operator|(gadt_int64 target) const
+			{
+				return BitBoard64(_data | target);
+			}
+			inline BitBoard64 operator^(gadt_int64 target) const
+			{
+				return BitBoard64(_data ^ target);
+			}
 			inline BitBoard64 operator&(const BitBoard64 target) const 
 			{ 
 				return BitBoard64(_data & target._data); 
@@ -574,6 +575,20 @@ namespace gadt
 			inline BitBoard64 operator~() const
 			{
 				return BitBoard64(~_data);
+			}
+			inline void operator&=(gadt_int64 target)
+			{
+				_data &= target;
+#ifdef GADT_DEBUG_INFO
+				refresh();
+#endif
+			}
+			inline void operator|=(gadt_int64 target)
+			{
+				_data |= target;
+#ifdef GADT_DEBUG_INFO
+				refresh();
+#endif
 			}
 			inline void operator&=(const BitBoard64 target) 
 			{

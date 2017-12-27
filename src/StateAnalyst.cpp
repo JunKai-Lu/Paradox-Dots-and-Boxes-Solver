@@ -320,7 +320,7 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "wrong state in box " + console::ToString(checking_box_index));
+					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "wrong state in box " + gadt::ToString(checking_box_index));
 				}
 				GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, count >= MAX_BOX, "infinite loop");
 			}
@@ -364,7 +364,7 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "wrong state in box " + console::ToString(checking_box_index));
+					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "wrong state in box " + gadt::ToString(checking_box_index));
 				}
 				GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, count >= MAX_BOX, "infinite loop");
 			}
@@ -446,7 +446,7 @@ namespace dots_and_boxes
 					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "no find neighbour box that belong to same chain.");
 				}
 			}
-			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "no find box belong to chain " + console::ToString(chain_index));
+			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "no find box belong to chain " + gadt::ToString(chain_index));
 			return MAX_EDGE;
 		}
 
@@ -584,8 +584,9 @@ namespace dots_and_boxes
 	void ActionAnalyst::Visualization(Edge tag_edge) const
 	{
 		const console::ConsoleColor edge_color = console::YELLOW;
-		const console::ConsoleColor action_color = console::WHITE;
-		const console::ConsoleColor dot_color = console::GRAY;
+		const console::ConsoleColor action_color = console::GRAY;
+		const console::ConsoleColor dot_color = console::WHITE;
+		const console::ConsoleColor box_color = console::WHITE;
 		const console::ConsoleColor tag_color = console::GREEN;
 		cout << endl;
 		string interval = "     ";
@@ -596,57 +597,57 @@ namespace dots_and_boxes
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "¡ð";
-				console::Cprintf("¡ð", dot_color);
+				console::Cprintf("+", dot_color);
 				if (_board.get(index))
 				{
 					if(index == tag_edge)
 					{
-						console::Cprintf("©¥", tag_color);
+						console::Cprintf("---", tag_color);
 					}
 					else
 					{
-						console::Cprintf("©¥", edge_color);
+						console::Cprintf("---", edge_color);
 					}
 				}
 				else
 				{
-					cout << "  ";
+					cout << "   ";
 				}
 			}
-			console::Cprintf("¡ð" + interval, dot_color);
+			console::Cprintf("+" + interval, dot_color);
 			//cout << "¡ð" << endl;
 
 			//horizon edges, second grid.
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "¡ð";
-				console::Cprintf("¡ð", dot_color);
+				console::Cprintf("+", dot_color);
 				if (_board.get(index))
 				{
 					if (index == tag_edge)
 					{
-						console::Cprintf("©¥", tag_color);
+						console::Cprintf("---", tag_color);
 					}
 					else
 					{
-						console::Cprintf("©¥", edge_color);
+						console::Cprintf("---", edge_color);
 					}
 				}
 				else
 				{
 					if (_result.get(index))
 					{
-						console::Cprintf("©¬", action_color);
+						console::Cprintf(" - ", action_color);
 						//cout << "©¬";
 					}
 					else
 					{
-						cout << "  ";
+						cout << "   ";
 					}
 
 				}
 			}
-			console::Cprintf("¡ð\n", dot_color);
+			console::Cprintf("+\n", dot_color);
 
 			//vertical edges, first grid.
 			cout << interval;
@@ -656,22 +657,22 @@ namespace dots_and_boxes
 				{
 					if(index == tag_edge)
 					{ 
-						console::Cprintf("©§", tag_color);
+						console::Cprintf("|", tag_color);
 					}
 					else
 					{
-						console::Cprintf("©§", edge_color);
+						console::Cprintf("|", edge_color);
 					}
 					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
 					{
-						cout << "¡ö";
+						console::Cprintf(" X ", box_color);
 					}
 					else
 					{
-						cout << "  ";
+						cout << "   ";
 					}
 				}
 				else
@@ -683,16 +684,16 @@ namespace dots_and_boxes
 			{
 				if ((59 - y) == tag_edge)
 				{
-					console::Cprintf("©§" + interval, tag_color);
+					console::Cprintf("|" + interval, tag_color);
 				}
 				else
 				{
-					console::Cprintf("©§" + interval, edge_color);
+					console::Cprintf("|" + interval, edge_color);
 				}
 			}
 			else
 			{
-				cout << "  " + interval;
+				cout << " " + interval;
 			}
 
 			//vertical edges, second grid.
@@ -702,22 +703,22 @@ namespace dots_and_boxes
 				{
 					if (index == tag_edge)
 					{
-						console::Cprintf("©§", tag_color);
+						console::Cprintf("|", tag_color);
 					}
 					else
 					{
-						console::Cprintf("©§", edge_color);
+						console::Cprintf("|", edge_color);
 					}
 					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
 					{
-						cout << "¡ö";
+						console::Cprintf(" X ", box_color);
 					}
 					else
 					{
-						cout << "  ";
+						cout << "   ";
 					}
 				}
 				else
@@ -725,13 +726,13 @@ namespace dots_and_boxes
 					if (_result.get(index))
 					{
 						//cout << "©®";
-						console::Cprintf("©®", action_color);
+						console::Cprintf("!", action_color);
 					}
 					else
 					{
-						cout << "  ";
+						cout << " ";
 					}
-					cout << "  ";
+					cout << "   ";
 				}
 			}
 
@@ -741,11 +742,11 @@ namespace dots_and_boxes
 			{
 				if ((59-y) == tag_edge)
 				{
-					console::Cprintf("©§\n", tag_color);
+					console::Cprintf("|\n", tag_color);
 				}
 				else
 				{
-					console::Cprintf("©§\n", edge_color);
+					console::Cprintf("|\n", edge_color);
 				}
 			}
 			else
@@ -753,11 +754,11 @@ namespace dots_and_boxes
 				if (_result.get(59 - y))
 				{
 					//cout << "©®" << endl;
-					console::Cprintf("©®\n", action_color);
+					console::Cprintf("!\n", action_color);
 				}
 				else
 				{
-					cout << "  " << endl;
+					cout << " " << endl;
 				}
 			}
 		}
@@ -767,40 +768,40 @@ namespace dots_and_boxes
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "¡ð";
-			console::Cprintf("¡ð", dot_color);
+			console::Cprintf("+", dot_color);
 			if (_board.get(index))
 			{
 				if (index == tag_edge)
 				{
-					console::Cprintf("©¥", tag_color);
+					console::Cprintf("---", tag_color);
 				}
 				else
 				{
-					console::Cprintf("©¥", edge_color);
+					console::Cprintf("---", edge_color);
 				}
 			}
 			else
 			{
-				cout << "  ";
+				cout << "   ";
 			}
 		}
 		//cout << "¡ð" << endl;
-		console::Cprintf("¡ð" + interval, dot_color);
+		console::Cprintf("+" + interval, dot_color);
 
 		//print lower horizon edges, second grid.
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "¡ð";
-			console::Cprintf("¡ð", dot_color);
+			console::Cprintf("+", dot_color);
 			if (_board.get(index))
 			{
 				if (index == tag_edge)
 				{
-					console::Cprintf("©¥", tag_color);
+					console::Cprintf("---", tag_color);
 				}
 				else
 				{
-					console::Cprintf("©¥", edge_color);
+					console::Cprintf("---", edge_color);
 				}
 			}
 			else
@@ -808,16 +809,16 @@ namespace dots_and_boxes
 				if (_result.get(index))
 				{
 					//cout << "©¬";
-					console::Cprintf("©¬", action_color);
+					console::Cprintf(" - ", action_color);
 				}
 				else
 				{
-					cout << "  ";
+					cout << "   ";
 				}
 			}
 		}
 		//cout << "¡ð" << endl;
-		console::Cprintf("¡ð\n\n", dot_color);
+		console::Cprintf("+\n\n", dot_color);
 	}
 
 	//TODO Retro Analyst

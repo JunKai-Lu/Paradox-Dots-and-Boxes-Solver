@@ -1,7 +1,7 @@
 #include "GameDefine.h"
 #include "StateAnalyst.h"
 #include "Solver.h"
-#include "../include/gameshell.h"
+#include "../include/game_shell.h"
 
 using namespace std;
 using namespace gadt;
@@ -134,13 +134,13 @@ namespace dots_and_boxes
 			size_t current = solver::GetCurrentLayer();
 			if (aim_layer < current && aim_layer >0)
 			{
-				console::ShowMessage("aim layer = " + console::ToString(aim_layer));
-				console::Cprintf("input allow thread number (max = " + console::ToString(MAX_ALLOW_THREAD) + " )", console::YELLOW);
+				console::ShowMessage("aim layer = " + gadt::ToString(aim_layer));
+				console::Cprintf("input allow thread number (max = " + gadt::ToString(MAX_ALLOW_THREAD) + " )", console::YELLOW);
 				cin.getline(buffer, 50);
 				size_t thread_num = atoi(buffer);
 				if (thread_num <= MAX_ALLOW_THREAD && thread_num > 0)
 				{
-					console::ShowMessage("thread num = " + console::ToString(thread_num));
+					console::ShowMessage("thread num = " + gadt::ToString(thread_num));
 					bool use_file_cache;
 					console::Cprintf("input 'y' to use file cache.", console::YELLOW);
 					cin.getline(buffer, 50);
@@ -192,8 +192,8 @@ namespace dots_and_boxes
 			ss << ">> " << "aim layer = " << solver.aim_layer() << endl;
 			ss << ">> " << "current layer = " << solver.current_layer() << endl;
 			ss << ">> " << "thread number = " << solver.thread_num() << endl;
-			ss << ">> " << "use file cache = " << console::ToString(solver.file_cache()) << endl;
-			ss << ">> " << "use filter = " << console::ToString(solver.use_filter()) << endl;
+			ss << ">> " << "use file cache = " << gadt::ToString(solver.file_cache()) << endl;
+			ss << ">> " << "use filter = " << gadt::ToString(solver.use_filter()) << endl;
 
 			cout << endl;
 			cout << ss.str();
@@ -217,7 +217,7 @@ namespace dots_and_boxes
 			if (aim_layer < current && aim_layer >0)
 			{
 				solver.set_aim_layer(aim_layer);
-				console::ShowMessage("aim layer = " + console::ToString(aim_layer));
+				console::ShowMessage("aim layer = " + gadt::ToString(aim_layer));
 				Show(solver);
 			}
 			else
@@ -339,7 +339,7 @@ namespace dots_and_boxes
 		void ShowState(State& state)
 		{
 			//MoveAnalyst ma(state, true);
-			//state.Visualization();
+			//state.EdgeVisualization();
 			ActionAnalyst aa(state.board());
 			aa.Visualization();
 			console::Cprintf("state type = ", console::YELLOW);

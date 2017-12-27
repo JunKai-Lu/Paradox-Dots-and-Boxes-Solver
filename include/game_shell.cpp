@@ -1,8 +1,3 @@
-/*
-* game shell is used for game AI developing and this shell is consist of the concept we called 'pages',
-* each page is an single set of command and include data that binded to each page by use template.
-*/
-
 /* Copyright (c) 2017 Junkai Lu <junkai-lu@outlook.com>.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +19,7 @@
 * THE SOFTWARE.
 */
 
-#include "gameshell.h"
+#include "game_shell.h"
 
 namespace gadt
 {
@@ -50,11 +45,11 @@ namespace gadt
 			std::string GetCommandTypeSymbol(size_t i)
 			{
 				static const char* type_symbol[g_COMMAND_TYPE_NUMBER] = {
-					"[XX]",
-					"[YX]",
-					"[XY]",
-					"[YY]",
-					"[ P]"
+					"[F]",
+					"[F]",
+					"[F]",
+					"[F]",
+					"[P]"
 				};
 				return std::string(type_symbol[i]);
 			}
@@ -385,14 +380,14 @@ namespace gadt
 		}
 
 		//start from appointed page.
-		void GameShell::StartFromPage(std::string name)
+		void GameShell::StartFromPage(std::string name, std::string init_command)
 		{
 			if (page_exist(name))
 			{
 				be_focus();
 				_dir_list.push_back(name);
 				ClearScreen();
-				command::CommandParser parser;
+				command::CommandParser parser(init_command);
 				for (;;)
 				{
 					if (_dir_list.empty())

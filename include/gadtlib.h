@@ -77,6 +77,130 @@
 
 namespace gadt
 {
+	constexpr const bool GADT_STL_ENABLE_WARNING = true;
+	constexpr const bool GADT_TABLE_ENABLE_WARNING = true;
+
+	using AgentIndex = int8_t;//AgentIndex is the index of each player, default is int8_t. 0 is the default no-winner index.
+	using UcbValue = double;
+	using EvalValue = double;
+
+	/*
+	* struct Coordinate is used to express a plane coordinate.
+	*/
+	struct Coordinate
+	{
+		int x;
+		int y;
+
+		operator bool()
+		{
+			return x != 0 || y != 0;
+		}
+
+		inline bool operator==(Coordinate coord) const
+		{
+			return x == coord.x && y == coord.y;
+		}
+
+		inline bool operator!=(Coordinate coord) const
+		{
+			return x != coord.x || y != coord.y;
+		}
+
+		inline Coordinate operator+(Coordinate coord) const
+		{
+			return { x + coord.x,y + coord.y };
+		}
+
+		inline Coordinate operator-(Coordinate coord) const
+		{
+			return { x - coord.x,y - coord.y };
+		}
+
+		inline Coordinate operator*(int i) const
+		{
+			return { x*i, y*i };
+		}
+
+		inline Coordinate operator/(int i) const
+		{
+			return { x/i, y/i };
+		}
+
+		inline int operator*(Coordinate coord) const
+		{
+			return { (x * coord.x) + (y* coord.y) };
+		}
+
+		inline void operator*=(int i)
+		{
+			x *= i;
+			y *= i;
+		}
+
+		inline void operator/=(Coordinate coord)
+		{
+			x /= coord.x;
+			y /= coord.y;
+		}
+
+		inline void operator/=(int i)
+		{
+			x /= i;
+			y /= i;
+		}
+
+		inline void operator+=(Coordinate coord)
+		{
+			x += coord.x;
+			y += coord.y;
+		}
+
+		inline void operator-=(Coordinate coord)
+		{
+			x -= coord.x;
+			y -= coord.y;
+		}
+
+		inline void swap()
+		{
+			int t = x; x = y; y = t;
+		}
+
+		inline void swap(Coordinate& coord)
+		{
+			Coordinate t = coord; *this = coord; coord = *this;
+		}
+
+		std::string to_string() const
+		{
+			std::stringstream ss;
+			ss << "[" << x << "," << y << "]";
+			return ss.str();
+		}
+	};
+
+	//srting to interger.
+	inline int ToInt(std::string str)
+	{
+		return atoi(str.c_str());
+	}
+
+	//bool convert to string.
+	inline std::string ToString(bool data)
+	{
+		return data ? "true" : "false";
+	}
+
+	//convert to string.
+	template<typename T>
+	inline std::string ToString(T data)
+	{
+		std::stringstream ss;
+		ss << data;
+		return ss.str();
+	}
+
 	namespace console
 	{
 		//console color type
@@ -132,53 +256,24 @@ namespace gadt
 				change_color(temp_color);
 			}
 		};
-		
-		//bool to string. that can be replaced by '<< boolalpha'
-		inline std::string BoolToString(bool b)
-		{
-			if (b)
-			{
-				return "true";
-			}
-			return "false";
-		}
-
-		//interger to string.
-		inline std::string IntergerToString(size_t i)
-		{
-			std::ostringstream os;
-			if (os << i) return os.str();
-			return "invalid conversion";
-		}
-
-		//double to string
-		inline std::string DoubleToString(double d)
-		{
-			std::ostringstream os;
-			if (os << d) return os.str();
-			return "invalid conversion";
-		}
-
-		//bool convert to string.
-		inline std::string ToString(bool data)
-		{
-			return data? "true":"false";
-		}
-
-		//convert to string.
-		template<typename T>
-		inline std::string ToString(T data)
-		{
-			std::stringstream ss;
-			ss << data;
-			return ss.str();
-		}
 
 		//colorful print.
 		template<typename T>
 		inline void Cprintf(T data, ConsoleColor color)
 		{
 			costream::print<T>(data, color);
+		}
+
+		//get input from keyboard as string.
+		template<typename T = std::string>
+		T GetInput(std::string tip = "Input >>")
+		{
+			std::cout << tip;
+			T input;
+			std::cin.clear();
+			std::cin.sync();
+			std::cin >> input;
+			return input;
 		}
 
 		//show error in terminal.
@@ -233,105 +328,6 @@ namespace gadt
 		};
 	}
 
-	namespace player
-	{
-		//PlayerIndex allows to define a index start from any number and with any length.
-		template<int begin_index, size_t length>
-		class PlayerIndex
-		{
-		protected:
-			int _index;
-
-		public:
-
-			PlayerIndex() :_index(0) {}
-			PlayerIndex(int index) :_index(index) {}
-
-			//get next index. 
-			inline int get_next() const
-			{
-				constexpr int end = length != 0 ? begin_index + (int)length : begin_index + 1;
-				return _index + 1 < end ? _index + 1 : begin_index;
-			}
-
-			//get prev index.
-			inline int get_prev() const
-			{
-				constexpr int end = length != 0 ? begin_index + (int)length : begin_index + 1;
-				return _index - 1 < begin_index ? end - 1 : _index - 1;
-			}
-
-			//get index after jump.
-			inline int get_jump(int value) const
-			{
-				constexpr int end = (length != 0 ? begin_index + (int)length : begin_index + 1);
-				value = value % (int)length;
-				return _index + value >= end ? _index - ((int)length - value) : _index + value;
-			}
-
-			//set index
-			inline void set(int index)
-			{
-				_index = index;
-			}
-
-			//jump index.
-			inline void jump(int value)
-			{
-				_index = get_jump(value);
-			}
-
-			//change to next index.
-			inline void to_next()
-			{
-				_index = get_next();
-			}
-
-			//change to prev index.
-			inline void to_prev()
-			{
-				_index = get_prev();
-			}
-
-			//get current index.
-			inline int current() const
-			{
-				return _index;
-			}
-		};
-
-		//PlayerGroup is an ordered container of player data that derived from PlayerIndex.
-		template<typename Tdata, int begin_index, size_t length>
-		class PlayerGroup: public PlayerIndex<begin_index, length>
-		{
-		protected:
-			Tdata _data[length];
-
-		public:
-
-			PlayerGroup(){}
-			PlayerGroup(int index) :PlayerIndex<begin_index, length>(index) {}
-
-			//get data of current player.
-			inline Tdata& data()
-			{
-				return _data[this->_index - begin_index];
-			}
-
-			//get data of apointed index.
-			inline Tdata& data(size_t index)
-			{
-				return _data[index - begin_index];
-			}
-
-			//operateor[]
-			inline Tdata& operator[](size_t index)
-			{
-				return data(index);
-			}
-		};
-	}
-
 	namespace file
 	{
 		//return true if the folder exists.
@@ -344,207 +340,52 @@ namespace gadt
 		bool RemoveDir(std::string path);
 	}
 
-	namespace log
+	namespace func
 	{
-		//error log class. 
-		class ErrorLog
+		//get mex element in vector.
+		template<typename T>
+		size_t GetMaxElement(const std::vector<T>& vec)
 		{
-		private:
-			std::vector<std::string> _error_list;
-
-		public:
-			//default constructor.
-			ErrorLog()
+			size_t best_index = 0;
+			const T* best_ele = &vec[0];
+			for (size_t i = 1; i < vec.size(); i++)
 			{
-
-			}
-
-			//constructor with init list.
-			ErrorLog(std::initializer_list<std::string> init_list)
-			{
-				for (auto err : init_list)
+				if (vec[i] > *best_ele)
 				{
-					_error_list.push_back(err);
+					best_ele = &vec[i];
+					best_index = i;
 				}
 			}
+			return best_index;
+		}
 
-			//copy constructor is banned
-			ErrorLog(const ErrorLog&) = delete;
-
-			//add a new error.
-			inline void add(std::string err)
+		//get max element in vector.
+		template<typename T>
+		size_t GetMaxElement(const std::vector<T>& vec, std::function<bool(const T&, const T&)> more_than)
+		{
+			size_t best_index = 0;
+			T* best_ele = &vec[0];
+			for (size_t i = 1; i < vec.size(); i++)
 			{
-				_error_list.push_back(err);
-			}
-
-			//return true if no error exist.
-			inline bool is_empty() const
-			{
-				return _error_list.size() == 0;
-			}
-
-			//output as json format.
-			inline std::string output() const
-			{
-				std::stringstream ss;
-				ss << "[";
-				for (size_t i = 0; i < _error_list.size(); i++)
+				if (more_than(vec[i], *best_ele))
 				{
-					ss << "\"" << _error_list[i] << "\"";
-					if (i != _error_list.size() - 1)
-					{
-						ss << "," << std::endl;
-					}
+					best_ele = &vec[i];
+					best_index = i;
 				}
-				ss << "]";
-				return ss.str();
 			}
-		};
-	}
+			return best_index;
+		}
 
-	namespace table
-	{
-		//enable warning in table.
-		constexpr const bool g_TABLE_ENABLE_WARNING = true;
-
-		//basic cell of table.
-		struct TableCell
+		//get random elements from a vector.
+		template<typename T>
+		const T& GetRandomElement(const std::vector<T>& vec)
 		{
-			std::string				str;
-			console::ConsoleColor	color;
-
-			TableCell() :
-				str(),
-				color(console::DEFAULT)
-			{
-			}
-
-			TableCell(std::string _str) :
-				str(_str),
-				color(console::DEFAULT)
-			{
-			}
-
-			TableCell(console::ConsoleColor _color) :
-				str(),
-				color(_color)
-			{
-			}
-
-			TableCell(std::string _str,console::ConsoleColor _color) :
-				str(_str),
-				color(_color)
-			{
-			}
-		};
-
-		//console table
-		class ConsoleTable
-		{
-		private:
-			using pointer = TableCell*;
-			using reference = TableCell&;
-			using CellSet = std::vector<std::vector<TableCell>>;
-			using Column = std::vector<TableCell*>;
-			using Row = std::vector<TableCell*>;	
-			using CellOutputFunc = std::function<void(const TableCell&, std::ostream&, size_t)>;
-			using FrameOutputFunc = std::function<void(std::string str, std::ostream&)>;
-
-			//size
-			const size_t _column_size;
-			const size_t _row_size;
-			
-			//cells
-			CellSet				_cells;
-			std::vector<Column> _column;
-			std::vector<Row>	_row;
-			std::vector<size_t> _column_width;
-			
-			//title
-			bool _enable_title;
-			TableCell _title_cell;
-
-			//static member.
-			static const size_t _default_width;
-
-		private:
-			//initialize cells and column/row
-			void init_cells();
-
-			//basic output.
-			void basic_output(std::ostream& os, CellOutputFunc cell_cb, bool enable_frame, bool enable_index);
-
-		public:
-			//constructor function
-			ConsoleTable(size_t column_size, size_t row_size);
-
-			//constructor function with initializer list.
-			ConsoleTable(size_t column_size, size_t row_size, std::initializer_list<std::initializer_list<std::string>> list);
-
-			inline const Row& get_row(size_t index) 
-			{
-				GADT_CHECK_WARNING(g_TABLE_ENABLE_WARNING, index >= _row_size, "TABLE01: out of row range.");
-				return _row[index]; 
-			}
-
-			inline const Column& get_column(size_t index) 
-			{ 
-				GADT_CHECK_WARNING(g_TABLE_ENABLE_WARNING, index >= _column_size, "TABLE02: out of column range.");
-				return _column[index]; 
-			}
-			
-			inline reference cell(size_t column, size_t row)
-			{
-				GADT_CHECK_WARNING(g_TABLE_ENABLE_WARNING, row >= _row_size, "TABLE01: out of row range.");
-				GADT_CHECK_WARNING(g_TABLE_ENABLE_WARNING, column >= _column_size, "TABLE02: out of column range.");
-				return (_cells[column])[row];
-			}
-
-			inline size_t row_size() const 
-			{
-				return _row_size; 
-			}
-			
-			inline size_t column_size() const 
-			{
-				return _column_size; 
-			}
-
-			inline const Row& operator[](size_t index)
-			{
-				return get_row(index);
-			}
-
-			inline void set_width(size_t column, size_t width)
-			{
-				GADT_CHECK_WARNING(g_TABLE_ENABLE_WARNING, column >= _column_size, "TABLE02: out of column range.");
-				_column_width[column] = width;
-			}
-
-			inline void enable_title(TableCell cell)
-			{
-				_enable_title = true;
-				_title_cell = cell;
-			}
-
-			inline void disable_title()
-			{
-				_enable_title = false;
-			}
-
-			void set_width(std::initializer_list<size_t> width_list);
-
-			void set_cell_in_row(size_t row, TableCell cell);
-
-			void set_cell_in_row(size_t row, std::initializer_list<TableCell> cell_list);
-
-			void set_cell_in_column(size_t column, TableCell cell);
-
-			void set_cell_in_column(size_t column, std::initializer_list<TableCell> cell_list);
-
-			std::string output_string(bool enable_frame = true, bool enable_index = false);
-
-			void print(bool enable_frame = true, bool enable_index = false);
-		};
+			GADT_CHECK_WARNING(GADT_STL_ENABLE_WARNING, vec.size() == 0, "empty container");
+			size_t rnd = rand() % vec.size();
+			return vec[rnd];
+		}
+		
+		//get manhattan distance between two coordinate.
+		size_t GetManhattanDistance(Coordinate fir, Coordinate sec);
 	}
 }

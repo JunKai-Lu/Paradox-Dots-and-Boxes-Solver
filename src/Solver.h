@@ -2,8 +2,6 @@
 #include <unordered_map>
 #include <thread>
 #include <mutex>
-//#include <io.h>
-//#include <direct.h>
 
 #include "GameDefine.h"
 #include "StateAnalyst.h"

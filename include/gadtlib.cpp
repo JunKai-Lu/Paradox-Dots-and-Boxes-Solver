@@ -1,8 +1,3 @@
-/*
-* gadt lib include some basic function of Game Ai Development Toolkit.
-*
-*/
-
 /* Copyright (c) 2017 Junkai Lu <junkai-lu@outlook.com>.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -87,6 +82,7 @@ namespace gadt
 			std::cout << std::endl << std::endl;
 		}
 
+		//warning check.
 		void WarningCheck(bool condition, std::string reason, std::string file, int line, std::string function)
 		{
 			if (condition)
@@ -97,7 +93,7 @@ namespace gadt
 				std::cout << std::endl;
 				Cprintf("[File]: " + file, GRAY);
 				std::cout << std::endl;
-				Cprintf("[Line]: " + IntergerToString(line), GRAY);
+				Cprintf("[Line]: " + ToString(line), GRAY);
 				std::cout << std::endl;
 				Cprintf("[Func]: " + function, GRAY);
 				std::cout << std::endl;
@@ -105,6 +101,7 @@ namespace gadt
 			}
 		}
 
+		//pause.
 		void SystemPause()
 		{
 #ifdef __GADT_GNUC
@@ -114,6 +111,8 @@ namespace gadt
 			system("pause");
 #endif
 		}
+
+		//clear screen
 		void SystemClear()
 		{
 #ifdef __GADT_GNUC
@@ -213,256 +212,13 @@ namespace gadt
 		}
 	}
 
-	namespace table
+	namespace func
 	{
-		const size_t ConsoleTable::_default_width = 1;
-
-		void ConsoleTable::init_cells()
+		size_t GetManhattanDistance(Coordinate fir, Coordinate sec)
 		{
-			//init columns
-			for (size_t column = 0; column < _column_size; column++)
-			{
-				Column temp;
-				for (size_t row = 0; row < _row_size; row++)
-				{
-					temp.push_back(&((_cells[column])[row]));
-				}
-				_column.push_back(temp);
-			}
-
-			//init rows
-			for (size_t row = 0; row < _row_size; row++)
-			{
-				Row temp;
-				for (size_t column = 0; column < _column_size; column++)
-				{
-					temp.push_back(&((_cells[column])[row]));
-				}
-				_row.push_back(temp);
-			}
-		}
-
-		void ConsoleTable::basic_output(std::ostream & os, CellOutputFunc cell_cb, bool enable_frame, bool enable_index)
-		{
-			std::string frame = enable_frame ? "+-|" : "   ";
-			const size_t space_before_line_size = 4;
-			std::string space_before_line(space_before_line_size, ' ');
-			
-			os << std::endl;
-
-			//print indexs upper the table.
-			
-			if (enable_index )
-			{
-				os << space_before_line << " ";
-				for (size_t column = 0; column < _column_size; column++)
-				{
-					std::string index = console::IntergerToString(column + 1);
-					os << index << std::string((_column_width[column] * 2) - index.length() + 1, ' ');
-				}
-				os << std::endl;
-			}
-
-			//print title
-			if (_enable_title)
-			{
-				size_t str_width = 1;
-				for (auto w : _column_width) { str_width += (w *2 + 1); }
-				str_width -= 2;
-				os << space_before_line << frame[0];
-				os << std::string(str_width, frame[1]);
-				os << frame[0] << std::endl;
-
-				os << space_before_line << frame[2];
-				if (_title_cell.str.length() >= str_width)
-				{
-					cell_cb(_title_cell, os, str_width);
-				}
-				else
-				{
-					size_t before_space = (str_width - _title_cell.str.length()) / 2;
-					size_t after_space = str_width - _title_cell.str.length() - before_space;
-					os << std::string(before_space, ' ');
-					cell_cb(_title_cell, os, str_width);
-					os << std::string(after_space, ' ');
-				}
-				os << frame[2] << std::endl;
-			}
-
-			//print upper line of the table.
-			os << space_before_line << frame[0];
-			for (size_t column = 0; column < _column_size; column++)
-			{
-				os << std::string(_column_width[column] * 2, frame[1]) << frame[0];
-				if (column == _column_size - 1) 
-				{
-					os << std::endl; 
-				}
-			}
-
-			for (size_t row = 0; row < _row_size; row++)
-			{
-				//print first line , include value and space.
-				if (enable_index)
-				{
-					std::string index = console::IntergerToString(row + 1);
-					os << ' ' << index << std::string(space_before_line_size - index.length() - 1, ' ');
-				}
-				else
-				{
-					os << space_before_line;
-				}
-				os << frame[2];
-				for (size_t column = 0; column < _column_size; column++)
-				{
-					const size_t width = _column_width[column] * 2;
-					const TableCell& c = cell(column, row);
-					cell_cb(c, os, width);
-					if (c.str.length() < width)
-					{
-						os << std::string(width - c.str.length(), ' ');
-					}
-					if (column != _column_size - 1) { os << frame[2]; }
-					else 
-					{
-						os << frame[2] << std::endl;
-					}
-				}
-
-				//print second line
-				os << space_before_line << frame[0];
-				for (size_t column = 0; column < _column_size; column++)
-				{
-					os << std::string(_column_width[column] * 2, frame[1]);
-					os << frame[0];
-					if (column == _column_size - 1) 
-					{
-						os << std::endl;
-					}
-				}
-			}
-
-		}
-
-		ConsoleTable::ConsoleTable(size_t column_size, size_t row_size) :
-			_column_size(column_size),
-			_row_size(row_size),
-			_cells(column_size, std::vector<TableCell>(row_size, TableCell())),
-			_column_width(column_size,_default_width)
-		{
-			init_cells();
-		}
-
-		ConsoleTable::ConsoleTable(size_t column_size, size_t row_size, std::initializer_list<std::initializer_list<std::string>> list) :
-			_column_size(column_size),
-			_row_size(row_size),
-			_cells(column_size, std::vector<TableCell>(row_size, TableCell())),
-			_column_width(column_size, _default_width)
-		{
-			init_cells();
-			size_t y = 0;
-			for (auto row : list)
-			{
-				size_t x = 0;
-				for (auto value : row)
-				{
-					if (x < _column_size && y < _row_size)
-					{
-						((_cells[x])[y]).str = value;
-					}
-					x++;
-				}
-				y++;
-			}
-		}
-		
-		void ConsoleTable::set_width(std::initializer_list<size_t> width_list)
-		{
-			size_t i = 0;
-			for (size_t width : width_list)
-			{
-				if (i < column_size())
-				{
-					_column_width[i] = width;
-				}
-				i++;
-			}
-		}
-
-		void ConsoleTable::set_cell_in_row(size_t row, TableCell cell)
-		{
-			for (pointer cell_ptr : get_row(row))
-			{
-				*cell_ptr = cell;
-			}
-		}
-
-		void ConsoleTable::set_cell_in_row(size_t row, std::initializer_list<TableCell> cell_list)
-		{
-			size_t i = 0;
-			for (const TableCell& cell : cell_list)
-			{
-				if (i < get_row(row).size())
-				{
-					*get_row(row)[i] = cell;
-				}
-				i++;
-			}
-		}
-
-		void ConsoleTable::set_cell_in_column(size_t column, TableCell cell)
-		{
-			for (pointer cell_ptr : get_column(column))
-			{
-				*cell_ptr = cell;
-			}
-		}
-
-		void ConsoleTable::set_cell_in_column(size_t column, std::initializer_list<TableCell> cell_list)
-		{
-			size_t i = 0;
-			for (const TableCell& cell : cell_list)
-			{
-				if (i < get_column(column).size())
-				{
-					*get_column(column)[i] = cell;
-				}
-				i++;
-			}
-		}
-		
-		//output string
-		std::string ConsoleTable::output_string(bool enable_frame, bool enable_index)
-		{
-			CellOutputFunc cell_cb = [](const TableCell& c, std::ostream& os, size_t width)->void {
-				std::string str = c.str;
-				if (str.length() > width)
-				{
-					str = str.substr(0, width);
-				}
-				os << str;
-			};
-			std::stringstream ss;
-			basic_output(ss, cell_cb, enable_frame, enable_index);
-			return ss.str();
-		}
-
-		//print 
-		void ConsoleTable::print(bool enable_frame, bool enable_index)
-		{
-			CellOutputFunc callback = [](const TableCell& c, std::ostream& os, size_t width)->void {
-				std::string str = c.str;
-				if (str.length() > width)
-				{
-					str = str.substr(0, width);
-				}
-				else
-				{
-					//str = str + std::string(width - str.length(), ' ');
-				}
-				console::Cprintf(str, c.color);
-			};
-			basic_output(std::cout, callback, enable_frame, enable_index);
+			return abs(fir.x - sec.x) + abs(fir.y - sec.y);
 		}
 	}
 }
+
+

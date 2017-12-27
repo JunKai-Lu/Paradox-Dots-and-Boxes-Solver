@@ -25,27 +25,27 @@ namespace dots_and_boxes
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
-				console::Cprintf("○", dot_color);
+				console::Cprintf("+", dot_color);
 				if (_board.get(index))
 				{
-					console::Cprintf("━", edge_color);
+					console::Cprintf("---", edge_color);
 					//cout << "━";
 				}
 				else
 				{
 					if (action_vec.get(index))
 					{
-						console::Cprintf("┈", action_color);
+						console::Cprintf("---", action_color);
 						//cout << "┈";
 					}
 					else
 					{
-						cout << "  ";
+						cout << "   ";
 					}
 
 				}
 			}
-			console::Cprintf("○\n", dot_color);
+			console::Cprintf("+\n", dot_color);
 			//cout << "○" << endl;
 
 			//然后得到纵边坐标
@@ -55,17 +55,17 @@ namespace dots_and_boxes
 				if (_board.get(index))
 				{
 					//cout << "┃";
-					console::Cprintf("┃", edge_color);
+					console::Cprintf("|", edge_color);
 					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
 					{
-						cout << "■";
+						cout << " X ";
 					}
 					else
 					{
-						cout << "  ";
+						cout << "   ";
 					}
 				}
 				else
@@ -73,31 +73,31 @@ namespace dots_and_boxes
 					if (action_vec.get(index))
 					{
 						//cout << "┊";
-						console::Cprintf("┊", action_color);
+						console::Cprintf("|", action_color);
 					}
 					else
 					{
-						cout << "  ";
+						cout << " ";
 					}
-					cout << "  ";
+					cout << " ";
 				}
 			}
 
 			if (_board.get(59 - y))
 			{
 				//cout << "┃" << endl;
-				console::Cprintf("┃\n", edge_color);
+				console::Cprintf("|\n", edge_color);
 			}
 			else
 			{
 				if (action_vec.get(59 - y))
 				{
 					//cout << "┊" << endl;
-					console::Cprintf("┊\n", action_color);
+					console::Cprintf("|\n", action_color);
 				}
 				else
 				{
-					cout << "  " << endl;
+					cout << " " << endl;
 				}
 			}
 		}
@@ -107,34 +107,36 @@ namespace dots_and_boxes
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
-			console::Cprintf("○", dot_color);
+			console::Cprintf("+", dot_color);
 			if (_board.get(index))
 			{
 				//cout << "━";
-				console::Cprintf("━", edge_color);
+				console::Cprintf("---", edge_color);
 			}
 			else
 			{
 				if (action_vec.get(index))
 				{
 					//cout << "┈";
-					console::Cprintf("┈", action_color);
+					console::Cprintf("---", action_color);
 				}
 				else
 				{
-					cout << "  ";
+					cout << "   ";
 				}
 			}
 		}
 		//cout << "○" << endl;
-		console::Cprintf("○\n\n", dot_color);
+		console::Cprintf("+\n\n", dot_color);
 	}
 
 	void State::EdgeVisualization() const
 	{
 		const console::ConsoleColor edge_color = console::YELLOW;
-		const console::ConsoleColor action_color = console::WHITE;
+		const console::ConsoleColor action_color = console::RED;
 		const console::ConsoleColor dot_color = console::GRAY;
+		const console::ConsoleColor box_color = console::BLUE;
+
 		cout << endl;
 		string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
@@ -144,28 +146,28 @@ namespace dots_and_boxes
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
-				console::Cprintf("○", dot_color);
+				console::Cprintf("+", dot_color);
 				if (_board.get(index))
 				{
-					console::Cprintf("━", edge_color);
+					console::Cprintf("---", edge_color);
 					//cout << "━";
 				}
 				else
 				{
-					cout << "  ";
+					cout << "   ";
 				}
 			}
-			console::Cprintf("○" + interval, dot_color);
+			console::Cprintf("+" + interval, dot_color);
 			//cout << "○" << endl;
 
 			//horizon edges, second grid.
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
 				//cout << "○";
-				console::Cprintf("○", dot_color);
+				console::Cprintf("+ ", dot_color);
 				if (_board.get(index))
 				{
-					console::Cprintf("━", edge_color);
+					console::Cprintf("--", edge_color);
 					//cout << "━";
 				}
 				else
@@ -180,7 +182,7 @@ namespace dots_and_boxes
 					}
 				}
 			}
-			console::Cprintf("○\n", dot_color);
+			console::Cprintf("+ \n", dot_color);
 
 			//vertical edges, first grid.
 			cout << interval;
@@ -189,17 +191,17 @@ namespace dots_and_boxes
 				if (_board.get(index))
 				{
 					//cout << "┃";
-					console::Cprintf("┃", edge_color);
+					console::Cprintf("|", edge_color);
 					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
 					{
-						cout << "■";
+						console::Cprintf(" X ", box_color);
 					}
 					else
 					{
-						cout << "  ";
+						cout << "   ";
 					}
 				}
 				else
@@ -210,11 +212,11 @@ namespace dots_and_boxes
 			if (_board.get(59 - y))
 			{
 				//cout << "┃" << endl;
-				console::Cprintf("┃" + interval, edge_color);
+				console::Cprintf("|" + interval, edge_color);
 			}
 			else
 			{
-				cout << "  " + interval;
+				cout << " " + interval;
 			}
 
 			//vertical edges, second grid.
@@ -223,13 +225,13 @@ namespace dots_and_boxes
 				if (_board.get(index))
 				{
 					//cout << "┃";
-					console::Cprintf("┃", edge_color);
+					console::Cprintf("| ", edge_color);
 					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
 					{
-						cout << "■";
+						console::Cprintf("X ", box_color);
 					}
 					else
 					{
@@ -250,12 +252,10 @@ namespace dots_and_boxes
 				}
 			}
 
-
-
 			if (_board.get(59 - y))
 			{
 				//cout << "┃" << endl;
-				console::Cprintf("┃\n", edge_color);
+				console::Cprintf("|\n", edge_color);
 			}
 			else
 			{
@@ -268,29 +268,29 @@ namespace dots_and_boxes
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
-			console::Cprintf("○", dot_color);
+			console::Cprintf("+", dot_color);
 			if (_board.get(index))
 			{
 				//cout << "━";
-				console::Cprintf("━", edge_color);
+				console::Cprintf("---", edge_color);
 			}
 			else
 			{
-				cout << "  ";
+				cout << "   ";
 			}
 		}
 		//cout << "○" << endl;
-		console::Cprintf("○" + interval, dot_color);
+		console::Cprintf("+" + interval, dot_color);
 
 		//print lower horizon edges, second grid.
 		for (Edge index = 25; index < 30; index++)
 		{
 			//cout << "○";
-			console::Cprintf("○", dot_color);
+			console::Cprintf("+ ", dot_color);
 			if (_board.get(index))
 			{
 				//cout << "━";
-				console::Cprintf("━", edge_color);
+				console::Cprintf("--", edge_color);
 			}
 			else
 			{
@@ -298,7 +298,7 @@ namespace dots_and_boxes
 			}
 		}
 		//cout << "○" << endl;
-		console::Cprintf("○\n\n", dot_color);
+		console::Cprintf("+ \n\n", dot_color);
 	}
 
 	State State::RandomState(size_t edge_num)
