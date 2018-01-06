@@ -79,7 +79,7 @@ namespace dots_and_boxes
 					{
 						cout << " ";
 					}
-					cout << " ";
+					cout << "   ";
 				}
 			}
 
