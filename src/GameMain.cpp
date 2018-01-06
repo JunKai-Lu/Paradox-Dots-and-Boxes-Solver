@@ -1,7 +1,6 @@
 #include "GameDefine.h"
 #include "StateAnalyst.h"
 #include "Solver.h"
-#include "../include/game_shell.h"
 
 using namespace std;
 using namespace gadt;

@@ -1,5 +1,6 @@
-#include "../include/gadtlib.h"
-#include "../include/bitboard.hpp"
+#include "../lib/gadt/src/gadtlib.h"
+#include "../lib/gadt/src/bitboard.hpp"
+#include "../lib/gadt/src/game_shell.h"
 
 #ifdef GADT_GNUC
 	#define DAB_UNIX

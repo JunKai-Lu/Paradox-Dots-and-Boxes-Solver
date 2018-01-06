@@ -1,0 +1,3 @@
+[submodule "lib/gadt"]
+	path = lib/gadt
+	url = https://github.com/Junkai-Lu/Game-AI-Development-Toolkit.git
