@@ -5,6 +5,7 @@
 #ifdef GADT_GNUC
 	#define DAB_UNIX
 #endif
+
 #pragma  once
 
 //MACROS
@@ -13,6 +14,7 @@
 namespace dots_and_boxes
 {
 	//CONSTANTS
+	constexpr const bool DAB_WARNING = true;
 	constexpr const size_t GAME_SIZE = 5;
 	constexpr const size_t MAX_EDGE = 60;
 	constexpr const size_t MAX_BOX = 25;

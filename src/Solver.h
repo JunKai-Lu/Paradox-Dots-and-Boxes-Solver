@@ -110,6 +110,13 @@ namespace dots_and_boxes
 			return state::IsReasonable(board);
 		}
 
+		class LayerInfo
+		{
+		private:
+			size_t layer;
+			std::string _file_path;
+		};
+
 
 		class Solver
 		{
