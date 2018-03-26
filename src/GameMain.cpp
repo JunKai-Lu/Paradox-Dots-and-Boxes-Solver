@@ -1,12 +1,46 @@
 #include "GameDefine.h"
 #include "StateAnalyst.h"
 #include "Solver.h"
+#include "StateRepresentation.hpp"
+#include "LayerConatiner.hpp"
+#include "DbController.hpp"
 
 using namespace std;
 using namespace gadt;
 
+namespace dots_and_boxes_solver
+{
+	void ShellInit()
+	{
+		shell::GameShell dab("Dots-And-Boxes");
+		dab.SetDefaultInfoFunc([]() {
+			console::Cprintf("=============================================\n", console::GRAY);
+			console::Cprintf("    PARADOX Dots and Boxes\n", console::BLUE);
+			console::Cprintf("    Copyright @ Junkai-Lu 2016\n", console::BLUE);
+			console::Cprintf("=============================================\n\n", console::GRAY);
+		});
+		auto* root = dab.CreateShellPage("root");
+		auto* solver = dab.CreateShellPage("solver");
+		auto* dab55 = dab.CreateShellPage<GameController<5, 5>>("dab55");
+		
+		root->AddChildPage("solver", "game solver");
+		solver->AddChildPage("dab55", "5x5 game");
+
+		dab.StartFromPage("root", "./solver");
+	}
+
+	void DabTest()
+	{
+		DabState<6, 4>().Visualization();
+
+		
+	}
+}
+
 namespace dots_and_boxes
 {
+	
+
 	namespace root_shell
 	{
 		void Sample(int x)
@@ -425,6 +459,8 @@ namespace dots_and_boxes
 		root->AddChildPage("state", "start state-debug");
 		root->AddFunction("sample", "get sample to check.", root_shell::Sample);
 		root->AddFunction("debug", "debug mode.", root_shell::Debug);
+		root->AddFunction("test", "run test fnction", dots_and_boxes_solver::DabTest);
+
 
 		//page solver
 		solver->AddFunction("thread", "change thread number", solver_shell::Thread);
@@ -472,7 +508,8 @@ namespace dots_and_boxes
 
 int main()
 {
-	dots_and_boxes::ShellDefine();
+	//dots_and_boxes::ShellDefine();
+	dots_and_boxes_solver::ShellInit();
 	return 0;
 }
 

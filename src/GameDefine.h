@@ -11,6 +11,23 @@
 //MACROS
 #define RETURN_STRINGFY(parameter,str) if(parameter == str){return #str;}
 
+namespace dots_and_boxes_solver
+{
+	//CONSTANTS
+	constexpr const bool DAB_WARNING = true;
+	constexpr const char* DAB_DB_PATH = "./db/";
+
+	using BoardType = gadt::bitboard::BitBoard64;
+	using BoardValueType = gadt::bitboard::gadt_int64;
+	using EdgeIndex = uint8_t;
+	using MarginType = int8_t;
+
+	constexpr bool IsLegalGameSize(const size_t width, const size_t height)
+	{
+		return width > 0 && height > 0 && width >= height && (2 * width * height + width + height) <= 64;
+	}
+}
+
 namespace dots_and_boxes
 {
 	//CONSTANTS
