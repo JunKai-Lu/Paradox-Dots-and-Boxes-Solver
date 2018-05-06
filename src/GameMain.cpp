@@ -10,6 +10,114 @@ using namespace gadt;
 
 namespace dots_and_boxes_solver
 {
+	//test codes.
+	void DabTest()
+	{
+		DabState<6, 4> dab64;
+		dab64.BeFull();
+		dab64.Visualization();
+	}
+
+	//generate a game with defined width and height.
+	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
+	void InitGameSolverPage(gadt::shell::page::ShellPage<GameController<WIDTH, HEIGHT>>* page)
+	{
+		//cmd 'info'£¬ prin info of all layers.
+		page->AddFunction("info", "print info of all layers", [](GameController<WIDTH, HEIGHT>& game)->void {
+			game.PrintInfo();
+		});
+
+		//cmd 'create', create next layer(if possible);
+		page->AddFunction("create", "create next layer", [](GameController<WIDTH, HEIGHT>& game)->void {
+			game.CreateNextLayer();
+		});
+
+		//cmd 'reload'
+		page->AddFunction("reload", "reload all layers", [](GameController<WIDTH, HEIGHT>& game)->void {
+			game.LoadLayerControllers();
+		});
+
+		//cmd 'map'
+		page->AddFunction("map", "start 'map' operation in current layer", [](GameController<WIDTH, HEIGHT>& game)->void {
+			std::cout << "TODO!!!!" << std::endl;
+		});
+
+		//cmd 'reduce'
+		page->AddFunction("reduce", "start 'reduce' operation in current layer", [](GameController<WIDTH, HEIGHT>& game)->void {
+			std::cout << "TODO!!!!" << std::endl;
+		});
+
+		//cmd 'layer'
+		page->AddFunction("layer", "print info of current layer", [](GameController<WIDTH, HEIGHT>& game)->void {
+			game.current_layer().PrintInfo();
+		});
+
+		//cmd 'partition'
+		page->AddFunction("partition", "set partition num", [](GameController<WIDTH, HEIGHT>& game)->void {
+			std::cout << "TODO!!!!" << std::endl;
+		});
+
+		//cmd 'update', allow user to regenerate(if need) current layer.
+		page->AddFunction("update", "update current layer", [](GameController<WIDTH, HEIGHT>& game)->void {
+			std::cout << "TODO!!!!" << std::endl;
+		});
+
+		//cmd 'switch', allow user to change the layer they control
+		page->AddFunction("switch", "switch to another layer", [](GameController<WIDTH, HEIGHT>& game, const gadt::shell::ParamsList& params)->void {
+			if (params.size() == 1)
+			{
+				int depth = gadt::ToInt(params[0]);
+				if (
+					depth >= 0 &&
+					depth <= EdgeCount<WIDTH, HEIGHT>() &&
+					depth > (EdgeCount<WIDTH, HEIGHT>() + 1 - game.existing_layers_count())
+					)
+				{
+					game.set_focus_layer_index((size_t)depth);
+					return;
+				}
+			}
+			gadt::console::ShowError("Wrong parameter");
+		});
+
+		//cmd 'clear', clear db/
+		page->AddFunction("cleardb", "clear game db", [](GameController<WIDTH, HEIGHT>& game, const gadt::shell::ParamsList& params)->void {
+			if (params.size() == 1)
+			{
+				if (params[0] == "all" || params[0] == "layer" || params[0] == "raw" || params[0] == "partition")
+				{
+					std::string str = gadt::console::GetInput("Please reinput command >>");
+					if (str == params[0])
+					{
+						if (params[0] == "all")
+						{
+							game.ClearDB();
+							gadt::console::ShowMessage("Clear DB Success!");
+						}
+						else if (params[0] == "layer")
+						{
+							game.current_layer().ClearRawFiles();
+							game.current_layer().ClearPartitionFiles();
+							gadt::console::ShowMessage("Clear Layer Files Success!");
+						}
+						else if (params[0] == "raw")
+						{
+							game.current_layer().ClearRawFiles();
+							gadt::console::ShowMessage("Clear Raw Files Success!");
+						}
+						else if (params[0] == "partition")
+						{
+							game.current_layer().ClearPartitionFiles();
+							gadt::console::ShowMessage("Clear Partition Files Success!");
+						}
+					}
+				}
+			}
+			gadt::console::ShowMessage("Operation Canceled.");
+		});
+	}
+
+	//init shell
 	void ShellInit()
 	{
 		shell::GameShell dab("Dots-And-Boxes");
@@ -26,14 +134,10 @@ namespace dots_and_boxes_solver
 		root->AddChildPage("solver", "game solver");
 		solver->AddChildPage("dab55", "5x5 game");
 
-		dab.StartFromPage("root", "./solver");
-	}
+		root->AddFunction("test", "test", DabTest);
+		InitGameSolverPage<5, 5>(dab55);
 
-	void DabTest()
-	{
-		DabState<6, 4>().Visualization();
-
-		
+		dab.StartFromPage("root", "./solver/dab55");
 	}
 }
 

@@ -27,8 +27,6 @@ namespace dots_and_boxes_solver
 		//static variables
 		static const size_t _w0 = 0;//first index of horizon edges in the array.
 		static const size_t _h0 = WIDTH * HEIGHT + WIDTH;//first index of vertical edges in the array.
-		static const size_t _num_of_edges = 2 * WIDTH * HEIGHT + WIDTH + HEIGHT;//number of edges.
-		static const size_t _num_of_boxes = WIDTH * HEIGHT;
 
 	private:
 		BoardType _edges;
@@ -53,7 +51,7 @@ namespace dots_and_boxes_solver
 		//return true if the 'edge' is ve.
 		inline bool is_ve(EdgeIndex edge) const
 		{
-			return edge >= _h0 && edge < _num_of_edges;
+			return edge >= _h0 && edge < num_of_edges();
 		}
 
 		//return true if the 'edge' is the.
@@ -71,13 +69,13 @@ namespace dots_and_boxes_solver
 		//return true if the 'edge' is lve.
 		inline bool is_lve(EdgeIndex edge) const
 		{
-			return edge >= _h0 && edge < (_num_of_edges - HEIGHT);
+			return edge >= _h0 && edge < (num_of_edges() - HEIGHT);
 		}
 
 		//return true if the 'edge' is ve.
 		inline bool is_rve(EdgeIndex edge) const
 		{
-			return edge >= (_h0 + HEIGHT) && edge < _num_of_edges;
+			return edge >= (_h0 + HEIGHT) && edge < num_of_edges();
 		}
 
 		//get the index by width and height
@@ -167,7 +165,7 @@ namespace dots_and_boxes_solver
 		//return true if the 'index' is the index of boxes.
 		inline bool is_box_index(size_t index) const
 		{
-			return index >= 0 && index < _num_of_boxes;
+			return index >= 0 && index < num_of_boxes();
 		}
 
 		//get the position of the box by index.
@@ -207,15 +205,15 @@ namespace dots_and_boxes_solver
 		}
 
 		//get the number of edges.
-		inline size_t num_of_edges() const
+		inline constexpr size_t num_of_edges() const
 		{
-			return _num_of_edges;
+			return EdgeCount<WIDTH, HEIGHT>();
 		}
 
 		//get the number of boxes.
-		inline size_t num_of_boxes() const
+		inline constexpr size_t num_of_boxes() const
 		{
-			return _num_of_boxes;
+			return BoxCount<WIDTH, HEIGHT>();
 		}
 
 		//return true if the edge exist.
@@ -274,6 +272,13 @@ namespace dots_and_boxes_solver
 		{
 			EdgeIndex edge = get_rve(box_pos);
 			return edge_exist(edge);
+		}
+
+		//fill in all the edges.
+		inline void set_all_edges()
+		{
+			for (size_t i = 0; i < num_of_edges(); i++)
+				set_edge(i);
 		}
 	};
 
@@ -399,11 +404,15 @@ namespace dots_and_boxes_solver
 
 		void BeFull()
 		{
-			for (size_t i = 1; i < _board.num_of_edges(); i++)
-			{
-				_board.set_edge(i);
-			}
+			_board.set_all_edges();
 		}
 
 	};
+
+	template<size_t WIDTH, size_t HEIGHT>
+	DabBoard<WIDTH, HEIGHT> GetTerminalBoard()
+	{
+		DabBoard<WIDTH, HEIGHT> board;
+		
+	}
 }

@@ -12,18 +12,11 @@ namespace dots_and_boxes_solver
 	class RetrospectMaper
 	{
 	private:
-		LayerPart& _source_layer;
-		//RawLayer& _targer_layer;
+		//DabFileLoader& _source_file;
+		//DabFileWriter& _target_file;
 		RetrospectFilterFunc _filter_func;
 
 	public:
-
-		RetrospectMaper(
-			RawLayer& source_layer, 
-			RetrospectFilterFunc filter_func = [](BoardValueType)->bool {return true; }
-		);
-		
-
 	};
 
 	//merger RawLayers into a Layer

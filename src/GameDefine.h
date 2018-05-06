@@ -15,8 +15,7 @@ namespace dots_and_boxes_solver
 {
 	//CONSTANTS
 	constexpr const bool DAB_WARNING = true;
-	constexpr const char* DAB_DB_PATH = "./db/";
-
+	
 	using BoardType = gadt::bitboard::BitBoard64;
 	using BoardValueType = gadt::bitboard::gadt_int64;
 	using EdgeIndex = uint8_t;
@@ -25,6 +24,18 @@ namespace dots_and_boxes_solver
 	constexpr bool IsLegalGameSize(const size_t width, const size_t height)
 	{
 		return width > 0 && height > 0 && width >= height && (2 * width * height + width + height) <= 64;
+	}
+
+	template<size_t WIDTH, size_t HEIGHT>
+	constexpr const size_t EdgeCount()
+	{
+		return 2 * WIDTH * HEIGHT + WIDTH + HEIGHT;
+	}
+
+	template<size_t WIDTH, size_t HEIGHT>
+	constexpr const size_t BoxCount()
+	{
+		return WIDTH * HEIGHT;
 	}
 }
 

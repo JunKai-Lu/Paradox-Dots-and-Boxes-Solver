@@ -1,6 +1,6 @@
 #include "GameDefine.h"
 #include <unordered_map>
-#include "../lib/gadt/lib/json11/json11.hpp"
+
 
 #pragma once
 
@@ -9,33 +9,18 @@ namespace dots_and_boxes_solver
 	using DabStateItem = std::pair<BoardValueType, MarginType>;
 	using DabStateTable = std::unordered_map<BoardValueType, MarginType>;
 
-	//managing the input and output of a text file.
-	class DabStoragedFile
+	//loader for layer files.
+	class DabFileLoader
 	{
 	private:
 		std::ifstream _ifs;
-		std::ofstream _ofs;
 
 	public:
 		//constuctor.
-		DabStoragedFile(std::string file_name) :
-			_ifs(),
-			_ofs()
+		DabFileLoader(std::string file_name) :
+			_ifs()
 		{
-			_ifs.open(file_name, std::ios::app);
-			_ofs.open(file_name, std::ios::app);
-		}
-
-		//save item into the end of the file.
-		inline void SaveItem(DabStateItem item)
-		{
-			_ofs << item.first << " " << (int)item.second << std::endl;
-		}
-
-		//save item into the end of the file.
-		inline void SaveItem(BoardValueType board, MarginType margin)
-		{
-			_ofs << board << " " << (int)margin << std::endl;
+			_ifs.open(file_name, std::ios::in);
 		}
 
 		//return next item of the file.
@@ -52,12 +37,37 @@ namespace dots_and_boxes_solver
 		{
 			return _ifs.eof() || !_ifs.is_open();
 		}
-
 	};
 
-	using RawLayer = DabStoragedFile;
-	using LayerPart = DabStoragedFile;
+	//writer for layer files.
+	class DabFileWriter
+	{
+	private:
+		std::ifstream _ifs;
+		std::ofstream _ofs;
 
+	public:
+		//constuctor.
+		DabFileWriter(std::string file_name) :
+			_ofs()
+		{
+			_ofs.open(file_name, std::ios::out);
+		}
+
+		//save item into the end of the file.
+		inline void SaveItem(DabStateItem item)
+		{
+			_ofs << item.first << " " << (int)item.second << std::endl;
+		}
+
+		//save item into the end of the file.
+		inline void SaveItem(BoardValueType board, MarginType margin)
+		{
+			_ofs << board << " " << (int)margin << std::endl;
+		}
+	};
+
+	//hash table of layer.
 	class LayerTable
 	{
 	private:
@@ -82,10 +92,10 @@ namespace dots_and_boxes_solver
 		}
 
 		//output this table to file.
-		void OutputToFile(LayerPart& layer)
+		void OutputToFile(DabFileWriter& writer)
 		{
 			for (auto item : _table)
-				layer.SaveItem(item);
+				writer.SaveItem(item);
 		}
 	};
 
