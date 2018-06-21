@@ -1,12 +1,9 @@
-#include "GameDefine.h"
+ï»¿#include "GameDefine.h"
 #include "StateAnalyst.h"
 #include "Solver.h"
 #include "StateRepresentation.hpp"
 #include "LayerConatiner.hpp"
 #include "DbController.hpp"
-
-using namespace std;
-using namespace gadt;
 
 namespace dots_and_boxes_solver
 {
@@ -19,117 +16,100 @@ namespace dots_and_boxes_solver
 	}
 
 	//generate a game with defined width and height.
-	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
-	void InitGameSolverPage(gadt::shell::page::ShellPage<GameController<WIDTH, HEIGHT>>* page)
+	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT)>::type>
+	void InitDbControllerPage(gadt::shell::GameShell& dab)
 	{
-		//cmd 'info'£¬ prin info of all layers.
-		page->AddFunction("info", "print info of all layers", [](GameController<WIDTH, HEIGHT>& game)->void {
-			game.PrintInfo();
-		});
+		using Controller = DbController<WIDTH, HEIGHT>;
 
-		//cmd 'create', create next layer(if possible);
-		page->AddFunction("create", "create next layer", [](GameController<WIDTH, HEIGHT>& game)->void {
-			game.CreateNextLayer();
-		});
+		auto db = dab.CreateShellPage<Controller>("db");
 
-		//cmd 'reload'
-		page->AddFunction("reload", "reload all layers", [](GameController<WIDTH, HEIGHT>& game)->void {
-			game.LoadLayerControllers();
+		//cmd 'info'ï¼Œ prin info of all layers.
+		db->AddFunction("info", "print info of all layers", [](Controller& controller)->void {
+			controller.PrintInfo();
 		});
 
 		//cmd 'map'
-		page->AddFunction("map", "start 'map' operation in current layer", [](GameController<WIDTH, HEIGHT>& game)->void {
+		db->AddFunction("map", "start 'map' operation in current layer", [](Controller& controller)->void {
+			controller.RunMapProcess(0);
 			std::cout << "TODO!!!!" << std::endl;
 		});
 
 		//cmd 'reduce'
-		page->AddFunction("reduce", "start 'reduce' operation in current layer", [](GameController<WIDTH, HEIGHT>& game)->void {
+		db->AddFunction("reduce", "start 'reduce' operation in current layer", [](Controller& controller)->void {
+			controller.RunReduceProcess(0);
 			std::cout << "TODO!!!!" << std::endl;
 		});
 
-		//cmd 'layer'
-		page->AddFunction("layer", "print info of current layer", [](GameController<WIDTH, HEIGHT>& game)->void {
-			game.current_layer().PrintInfo();
-		});
-
-		//cmd 'partition'
-		page->AddFunction("partition", "set partition num", [](GameController<WIDTH, HEIGHT>& game)->void {
-			std::cout << "TODO!!!!" << std::endl;
-		});
-
-		//cmd 'update', allow user to regenerate(if need) current layer.
-		page->AddFunction("update", "update current layer", [](GameController<WIDTH, HEIGHT>& game)->void {
-			std::cout << "TODO!!!!" << std::endl;
-		});
-
-		//cmd 'switch', allow user to change the layer they control
-		page->AddFunction("switch", "switch to another layer", [](GameController<WIDTH, HEIGHT>& game, const gadt::shell::ParamsList& params)->void {
+		//cmd 'checkout', allow user to change the layer they control
+		db->AddFunction("checkout", "switch to another layer", [](Controller& controller, const gadt::shell::ParamsList& params)->bool {
 			if (params.size() == 1)
 			{
-				int depth = gadt::ToInt(params[0]);
-				if (
-					depth >= 0 &&
-					depth <= EdgeCount<WIDTH, HEIGHT>() &&
-					depth > (EdgeCount<WIDTH, HEIGHT>() + 1 - game.existing_layers_count())
-					)
+				size_t layer = gadt::ToSizeT(params[0]);
+				if (layer >= 0 && layer <= EdgeCount<WIDTH, HEIGHT>() )
 				{
-					game.set_focus_layer_index((size_t)depth);
-					return;
+					controller.checkout(layer);
+					return true;
 				}
 			}
-			gadt::console::ShowError("Wrong parameter");
+			return false;
 		});
 
 		//cmd 'clear', clear db/
-		page->AddFunction("cleardb", "clear game db", [](GameController<WIDTH, HEIGHT>& game, const gadt::shell::ParamsList& params)->void {
+		db->AddFunction("clear", "clear game db", [](Controller& controller, const gadt::shell::ParamsList& params)->bool {
 			if (params.size() == 1)
 			{
-				if (params[0] == "all" || params[0] == "layer" || params[0] == "raw" || params[0] == "partition")
+				std::string str = gadt::console::GetInput("Please reinput target database to confirm your operation >>");
+				if (str == params[0])
 				{
-					std::string str = gadt::console::GetInput("Please reinput command >>");
-					if (str == params[0])
+					if (params[0] == "all")
 					{
-						if (params[0] == "all")
-						{
-							game.ClearDB();
-							gadt::console::ShowMessage("Clear DB Success!");
-						}
-						else if (params[0] == "layer")
-						{
-							game.current_layer().ClearRawFiles();
-							game.current_layer().ClearPartitionFiles();
-							gadt::console::ShowMessage("Clear Layer Files Success!");
-						}
-						else if (params[0] == "raw")
-						{
-							game.current_layer().ClearRawFiles();
-							gadt::console::ShowMessage("Clear Raw Files Success!");
-						}
-						else if (params[0] == "partition")
-						{
-							game.current_layer().ClearPartitionFiles();
-							gadt::console::ShowMessage("Clear Partition Files Success!");
-						}
+						controller.ClearDB();
+						gadt::console::ShowMessage("Clear DB Success!");
+						return true;
+					}
+					else if (params[0] == "layer")
+					{
+						controller.ClearLayer();
+						gadt::console::ShowMessage("Clear Layer Files Success!");
+						return true;
+					}
+					else if (params[0] == "raw")
+					{
+						controller.ClearRawFiles();
+						gadt::console::ShowMessage("Clear Raw Files Success!");
+						return true;
+					}
+					else if (params[0] == "partition")
+					{
+						controller.ClearPartFiles();
+						gadt::console::ShowMessage("Clear Partition Files Success!");
+						return true;
 					}
 				}
+				else
+				{
+					gadt::console::ShowMessage("Operation Canceled.");
+					return true;
+				}
 			}
-			gadt::console::ShowMessage("Operation Canceled.");
+			return false;
 		});
 	}
 
 	//init shell
 	void ShellInit()
 	{
-		shell::GameShell dab("Dots-And-Boxes");
+		gadt::shell::GameShell dab("Dots-And-Boxes");
 		dab.SetDefaultInfoFunc([]() {
-			console::Cprintf("=============================================\n", console::GRAY);
-			console::Cprintf("    PARADOX Dots and Boxes\n", console::BLUE);
-			console::Cprintf("    Copyright @ Junkai-Lu 2016\n", console::BLUE);
-			console::Cprintf("=============================================\n\n", console::GRAY);
+			using namespace gadt::console;
+			Cprintf("=============================================\n", COLOR_GRAY);
+			Cprintf("    PARADOX Dots and Boxes\n", COLOR_BLUE);
+			Cprintf("    Copyright @ Junkai-Lu 2018\n", COLOR_BLUE);
+			Cprintf("=============================================\n\n", COLOR_GRAY);
 		});
 		auto* root = dab.CreateShellPage("root");
 		auto* solver = dab.CreateShellPage("solver");
-		auto* dab55 = dab.CreateShellPage<GameController<5, 5>>("dab55");
+		auto* dab55 = dab.CreateShellPage<DbController<5, 5>>("dab55");
 		
 		root->AddChildPage("solver", "game solver");
 		solver->AddChildPage("dab55", "5x5 game");
@@ -167,7 +147,7 @@ namespace dots_and_boxes
 					console::ShowMessage("sample finish.");
 					break;
 				}
-				console::Cprintf("input 'return' to stop sample. or other input to continue.", console::GRAY);
+				console::Cprintf("input 'return' to stop sample. or other input to continue.", console::COLOR_GRAY);
 				char buffer[50];
 				cin.getline(buffer, 50);
 				if (string(buffer) == "return")
@@ -186,7 +166,7 @@ namespace dots_and_boxes
 		void Thread(solver::Solver& solver)
 		{
 			cout << ">> current thread num = " << solver.thread_num() << endl;
-			console::Cprintf("input thread num", console::YELLOW);
+			console::Cprintf("input thread num", console::COLOR_YELLOW);
 			size_t num;
 			cin >> num;
 			if (num > 0 && num <= MAX_ALLOW_THREAD)
@@ -198,7 +178,7 @@ namespace dots_and_boxes
 		void FileCache(solver::Solver& solver)
 		{
 			cout << ">> use file cache = " << std::boolalpha << solver.file_cache() << std::noboolalpha << endl;
-			console::Cprintf("input y to allow file cache.", console::YELLOW);
+			console::Cprintf("input y to allow file cache.", console::COLOR_YELLOW);
 			string str;
 			std::cin >> str;
 			if (str == "y")
@@ -215,7 +195,7 @@ namespace dots_and_boxes
 		void Filter(solver::Solver& solver)
 		{
 			cout << ">> use filter = " << std::boolalpha << solver.use_filter() << std::noboolalpha << endl;
-			console::Cprintf("input y to enable filter.", console::YELLOW);
+			console::Cprintf("input y to enable filter.", console::COLOR_YELLOW);
 			string str;
 			std::cin >> str;
 			if (str == "y")
@@ -256,7 +236,7 @@ namespace dots_and_boxes
 		}
 		void Set(solver::Solver& solver)
 		{
-			console::Cprintf("input solver aim('next' of layer number)", console::YELLOW);
+			console::Cprintf("input solver aim('next' of layer number)", console::COLOR_YELLOW);
 			char buffer[50];
 			cin.getline(buffer, 50);
 			size_t aim_layer;
@@ -272,14 +252,14 @@ namespace dots_and_boxes
 			if (aim_layer < current && aim_layer >0)
 			{
 				console::ShowMessage("aim layer = " + gadt::ToString(aim_layer));
-				console::Cprintf("input allow thread number (max = " + gadt::ToString(MAX_ALLOW_THREAD) + " )", console::YELLOW);
+				console::Cprintf("input allow thread number (max = " + gadt::ToString(MAX_ALLOW_THREAD) + " )", console::COLOR_YELLOW);
 				cin.getline(buffer, 50);
 				size_t thread_num = atoi(buffer);
 				if (thread_num <= MAX_ALLOW_THREAD && thread_num > 0)
 				{
 					console::ShowMessage("thread num = " + gadt::ToString(thread_num));
 					bool use_file_cache;
-					console::Cprintf("input 'y' to use file cache.", console::YELLOW);
+					console::Cprintf("input 'y' to use file cache.", console::COLOR_YELLOW);
 					cin.getline(buffer, 50);
 					if (string(buffer) == "y")
 					{
@@ -293,7 +273,7 @@ namespace dots_and_boxes
 					}
 
 					bool use_filter;
-					console::Cprintf("input 'y' to use filter.", console::YELLOW);
+					console::Cprintf("input 'y' to use filter.", console::COLOR_YELLOW);
 					cin.getline(buffer, 50);
 					if (string(buffer) == "y")
 					{
@@ -338,7 +318,7 @@ namespace dots_and_boxes
 		}
 		void Aim(solver::Solver& solver)
 		{
-			console::Cprintf("input solver aim('next' of layer number)", console::YELLOW);
+			console::Cprintf("input solver aim('next' of layer number)", console::COLOR_YELLOW);
 			char buffer[50];
 			cin.getline(buffer, 50);
 			size_t aim_layer;
@@ -433,7 +413,7 @@ namespace dots_and_boxes
 			if (list.size() != 0)
 			{
 				num = atoi(list[0].c_str());
-				console::Cprintf("execute next " + list[0], console::YELLOW);
+				console::Cprintf("execute next " + list[0], console::COLOR_YELLOW);
 			}
 			
 			for (size_t i = 0; i < num; i++)
@@ -479,7 +459,7 @@ namespace dots_and_boxes
 			//state.EdgeVisualization();
 			ActionAnalyst aa(state.board());
 			aa.Visualization();
-			console::Cprintf("state type = ", console::YELLOW);
+			console::Cprintf("state type = ", console::COLOR_YELLOW);
 			cout << state_type::ToString(aa.state_type()) << endl;
 		}
 		void ShowChain(State& state)
@@ -515,14 +495,14 @@ namespace dots_and_boxes
 		
 		void Create(State& state)
 		{
-			console::Cprintf("Create Mode", console::YELLOW);
+			console::Cprintf("Create Mode", console::COLOR_YELLOW);
 			cout << endl;
 			Board temp = state.board();
 			for (;;)
 			{
 				State(temp).EdgeVisualization();
 				console::ShowMessage("use ''return' to finish create mode.");
-				console::Cprintf("next edge", console::YELLOW);
+				console::Cprintf("next edge", console::COLOR_YELLOW);
 				std::string input;
 				std::cin >> input;
 				if (input == "return")
@@ -549,10 +529,10 @@ namespace dots_and_boxes
 		//Create Shell and Pages
 		shell::GameShell dab("Dots-And-Boxes");
 		dab.SetDefaultInfoFunc([]() {
-			console::Cprintf("=============================================\n", console::GRAY);
-			console::Cprintf("    PARADOX Dots and Boxes\n", console::BLUE);
-			console::Cprintf("    Copyright @ Junkai-Lu 2016\n", console::BLUE);
-			console::Cprintf("=============================================\n\n", console::GRAY);
+			console::Cprintf("=============================================\n", console::COLOR_GRAY);
+			console::Cprintf("    PARADOX Dots and Boxes\n", console::COLOR_BLUE);
+			console::Cprintf("    Copyright @ Junkai-Lu 2016\n", console::COLOR_BLUE);
+			console::Cprintf("=============================================\n\n", console::COLOR_GRAY);
 		});
 		auto* root = dab.CreateShellPage("root");
 		auto* solver = dab.CreateShellPage<solver::Solver>("solver");

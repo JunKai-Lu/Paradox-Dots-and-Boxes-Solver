@@ -1,7 +1,4 @@
-#include "GameDefine.h"
-
-using namespace std;
-using namespace gadt;
+ï»¿#include "GameDefine.h"
 
 namespace dots_and_boxes
 {
@@ -12,211 +9,214 @@ namespace dots_and_boxes
 
 	void State::Visualization(ActionVec action_vec) const
 	{
-		const console::ConsoleColor edge_color = console::YELLOW;
-		const console::ConsoleColor action_color = console::WHITE;
-		const console::ConsoleColor dot_color = console::GRAY;
+		using namespace gadt::console;
+		const ConsoleColor edge_color = COLOR_YELLOW;
+		const ConsoleColor action_color = COLOR_WHITE;
+		const ConsoleColor dot_color = COLOR_GRAY;
 
-		cout << endl;
-		string interval = "     ";
+		EndLine();
+		std::string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
 		{
-			//Ê×ÏÈµÃµ½ºá±ß³õÊ¼×ø±ê
-			cout << interval;
+			//é¦–å…ˆå¾—åˆ°æ¨ªè¾¹åˆå§‹åæ ‡
+			std::cout << interval;
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
-				//cout << "¡ð";
-				console::Cprintf("+", dot_color);
+				//cout << "â—‹";
+				Cprintf("+", dot_color);
 				if (_board.get(index))
 				{
-					console::Cprintf("---", edge_color);
-					//cout << "©¥";
+					Cprintf("---", edge_color);
+					//cout << "â”";
 				}
 				else
 				{
 					if (action_vec.get(index))
 					{
-						console::Cprintf("---", action_color);
-						//cout << "©¬";
+						Cprintf("---", action_color);
+						//cout << "â”ˆ";
 					}
 					else
 					{
-						cout << "   ";
+						std::cout << "   ";
 					}
 
 				}
 			}
-			console::Cprintf("+\n", dot_color);
-			//cout << "¡ð" << endl;
+			Cprintf("+\n", dot_color);
+			//cout << "â—‹" << endl;
 
-			//È»ºóµÃµ½×Ý±ß×ø±ê
-			cout << interval;
+			//ç„¶åŽå¾—åˆ°çºµè¾¹åæ ‡
+			std::cout << interval;
 			for (Edge index = 34 - y; index < 59 - y; index += 5)
 			{
 				if (_board.get(index))
 				{
-					//cout << "©§";
-					console::Cprintf("|", edge_color);
+					//cout << "â”ƒ";
+					Cprintf("|", edge_color);
 					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
 					{
-						cout << " X ";
+						std::cout << " X ";
 					}
 					else
 					{
-						cout << "   ";
+						std::cout << "   ";
 					}
 				}
 				else
 				{
 					if (action_vec.get(index))
 					{
-						//cout << "©®";
-						console::Cprintf("|", action_color);
+						//cout << "â”Š";
+						Cprintf("|", action_color);
 					}
 					else
 					{
-						cout << " ";
+						std::cout << " ";
 					}
-					cout << "   ";
+					std::cout << "   ";
 				}
 			}
 
 			if (_board.get(59 - y))
 			{
-				//cout << "©§" << endl;
-				console::Cprintf("|\n", edge_color);
+				//cout << "â”ƒ" << endl;
+				Cprintf("|\n", edge_color);
 			}
 			else
 			{
 				if (action_vec.get(59 - y))
 				{
-					//cout << "©®" << endl;
-					console::Cprintf("|\n", action_color);
+					//cout << "â”Š" << endl;
+					Cprintf("|\n", action_color);
 				}
 				else
 				{
-					cout << " " << endl;
+					std::cout << " " << std::endl;
 				}
 			}
 		}
 
-		//´òÓ¡×îÏÂÃæµÄÒ»¸ö±ß
-		cout << interval;
+		//æ‰“å°æœ€ä¸‹é¢çš„ä¸€ä¸ªè¾¹
+		std::cout << interval;
 		for (Edge index = 25; index < 30; index++)
 		{
-			//cout << "¡ð";
-			console::Cprintf("+", dot_color);
+			//cout << "â—‹";
+			Cprintf("+", dot_color);
 			if (_board.get(index))
 			{
-				//cout << "©¥";
-				console::Cprintf("---", edge_color);
+				//cout << "â”";
+				Cprintf("---", edge_color);
 			}
 			else
 			{
 				if (action_vec.get(index))
 				{
-					//cout << "©¬";
-					console::Cprintf("---", action_color);
+					//cout << "â”ˆ";
+					Cprintf("---", action_color);
 				}
 				else
 				{
-					cout << "   ";
+					std::cout << "   ";
 				}
 			}
 		}
-		//cout << "¡ð" << endl;
-		console::Cprintf("+\n\n", dot_color);
+		//cout << "â—‹" << endl;
+		Cprintf("+", dot_color);
+		EndLine<2>();
 	}
 
 	void State::EdgeVisualization() const
 	{
-		const console::ConsoleColor edge_color = console::YELLOW;
-		const console::ConsoleColor action_color = console::RED;
-		const console::ConsoleColor dot_color = console::GRAY;
-		const console::ConsoleColor box_color = console::BLUE;
+		using namespace gadt::console;
+		const ConsoleColor edge_color = COLOR_YELLOW;
+		const ConsoleColor action_color = COLOR_RED;
+		const ConsoleColor dot_color = COLOR_GRAY;
+		const ConsoleColor box_color = COLOR_BLUE;
 
-		cout << endl;
-		string interval = "     ";
+		EndLine();
+		std::string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
 		{
 			//horizon edges, first grid.
-			cout << interval;
+			std::cout << interval;
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
-				//cout << "¡ð";
-				console::Cprintf("+", dot_color);
+				//cout << "â—‹";
+				Cprintf("+", dot_color);
 				if (_board.get(index))
 				{
-					console::Cprintf("---", edge_color);
-					//cout << "©¥";
+					Cprintf("---", edge_color);
+					//cout << "â”";
 				}
 				else
 				{
-					cout << "   ";
+					std::cout << "   ";
 				}
 			}
-			console::Cprintf("+" + interval, dot_color);
-			//cout << "¡ð" << endl;
+			Cprintf("+" + interval, dot_color);
+			//cout << "â—‹" << endl;
 
 			//horizon edges, second grid.
 			for (Edge index = y * 5; index < (y * 5) + 5; index++)
 			{
-				//cout << "¡ð";
-				console::Cprintf("+ ", dot_color);
+				//cout << "â—‹";
+				Cprintf("+ ", dot_color);
 				if (_board.get(index))
 				{
-					console::Cprintf("--", edge_color);
-					//cout << "©¥";
+					Cprintf("--", edge_color);
+					//cout << "â”";
 				}
 				else
 				{
 					if (index > 9)
 					{
-						cout << (size_t)index;
+						std::cout << (size_t)index;
 					}
 					else
 					{
-						cout << 0 << (size_t)index;
+						std::cout << 0 << (size_t)index;
 					}
 				}
 			}
-			console::Cprintf("+ \n", dot_color);
+			Cprintf("+ \n", dot_color);
 
 			//vertical edges, first grid.
-			cout << interval;
+			std::cout << interval;
 			for (Edge index = 34 - y; index < 59 - y; index += 5)
 			{
 				if (_board.get(index))
 				{
-					//cout << "©§";
-					console::Cprintf("|", edge_color);
+					//cout << "â”ƒ";
+					Cprintf("|", edge_color);
 					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
 					{
-						console::Cprintf(" X ", box_color);
+						Cprintf(" X ", box_color);
 					}
 					else
 					{
-						cout << "   ";
+						std::cout << "   ";
 					}
 				}
 				else
 				{
-					cout << "    ";
+					std::cout << "    ";
 				}
 			}
 			if (_board.get(59 - y))
 			{
-				//cout << "©§" << endl;
-				console::Cprintf("|" + interval, edge_color);
+				//cout << "â”ƒ" << endl;
+				Cprintf("|" + interval, edge_color);
 			}
 			else
 			{
-				cout << " " + interval;
+				std::cout << " " + interval;
 			}
 
 			//vertical edges, second grid.
@@ -224,88 +224,89 @@ namespace dots_and_boxes
 			{
 				if (_board.get(index))
 				{
-					//cout << "©§";
-					console::Cprintf("| ", edge_color);
+					//cout << "â”ƒ";
+					Cprintf("| ", edge_color);
 					Edge upper_right_hor_edge = state::LeftToUpperEdge(index);
 					Edge lower_right_hor_edge = upper_right_hor_edge + 5;
 					Edge right_vec_edge = index + 5;
 					if (_board.get(upper_right_hor_edge) && _board.get(lower_right_hor_edge) && _board.get(right_vec_edge))
 					{
-						console::Cprintf("X ", box_color);
+						Cprintf("X ", box_color);
 					}
 					else
 					{
-						cout << "  ";
+						std::cout << "  ";
 					}
 				}
 				else
 				{
 					if (index > 9)
 					{
-						cout << (size_t)index;
+						std::cout << (size_t)index;
 					}
 					else
 					{
-						cout << 0 << (size_t)index;
+						std::cout << 0 << (size_t)index;
 					}
-					cout << "  ";
+					std::cout << "  ";
 				}
 			}
 
 			if (_board.get(59 - y))
 			{
-				//cout << "©§" << endl;
-				console::Cprintf("|\n", edge_color);
+				//cout << "â”ƒ" << endl;
+				Cprintf("|\n", edge_color);
 			}
 			else
 			{
-				cout << 59 - y << endl;
+				std::cout << 59 - y << std::endl;
 			}
 		}
 
 		//print lower horizon edges, first grid.
-		cout << interval;
+		std::cout << interval;
 		for (Edge index = 25; index < 30; index++)
 		{
-			//cout << "¡ð";
-			console::Cprintf("+", dot_color);
+			//cout << "â—‹";
+			Cprintf("+", dot_color);
 			if (_board.get(index))
 			{
-				//cout << "©¥";
-				console::Cprintf("---", edge_color);
+				//cout << "â”";
+				Cprintf("---", edge_color);
 			}
 			else
 			{
-				cout << "   ";
+				std::cout << "   ";
 			}
 		}
-		//cout << "¡ð" << endl;
-		console::Cprintf("+" + interval, dot_color);
+		//cout << "â—‹" << endl;
+		Cprintf("+" + interval, dot_color);
 
 		//print lower horizon edges, second grid.
 		for (Edge index = 25; index < 30; index++)
 		{
-			//cout << "¡ð";
-			console::Cprintf("+ ", dot_color);
+			//cout << "â—‹";
+			Cprintf("+ ", dot_color);
 			if (_board.get(index))
 			{
-				//cout << "©¥";
-				console::Cprintf("--", edge_color);
+				//cout << "â”";
+				Cprintf("--", edge_color);
 			}
 			else
 			{
-				cout << (size_t)index;
+				std::cout << (size_t)index;
 			}
 		}
-		//cout << "¡ð" << endl;
-		console::Cprintf("+ \n\n", dot_color);
+		//cout << "â—‹" << endl;
+		Cprintf("+", dot_color);
+		EndLine<2>();
 	}
 
 	State State::RandomState(size_t edge_num)
 	{
 		GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, edge_num >= MAX_EDGE, "out of range");
 		Board board;
-		vector<Edge> moves(60);
+		std::vector<Edge> moves(60);
 		for (Edge i = 0; i < edge_num; i++)
 		{
 			for (Edge edge = 0; edge < MAX_EDGE; edge++)

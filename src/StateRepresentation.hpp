@@ -1,4 +1,4 @@
-#include "GameDefine.h"
+﻿#include "GameDefine.h"
 
 #pragma once
 
@@ -316,10 +316,11 @@ namespace dots_and_boxes_solver
 		//Visualization
 		void Visualization() const
 		{
-			const gadt::console::ConsoleColor edge_color = console::YELLOW;
-			const gadt::console::ConsoleColor action_color = console::WHITE;
-			const gadt::console::ConsoleColor dot_color = console::GRAY;
-			const gadt::console::ConsoleColor box_color = console::GRAY;
+			using namespace gadt::console;
+			constexpr ConsoleColor edge_color = COLOR_YELLOW;
+			constexpr ConsoleColor action_color = COLOR_WHITE;
+			constexpr ConsoleColor dot_color = COLOR_GRAY;
+			constexpr ConsoleColor box_color = COLOR_GRAY;
 			const std::string empty_he_str = "   ";
 			const std::string empty_ve_str = " ";
 			const std::string empty_box_str = "   ";
@@ -328,31 +329,32 @@ namespace dots_and_boxes_solver
 			const std::string box_str = " X ";
 			const std::string dot_str = "+";
 			std::string prev_space = "     ";
-			std::cout << std::endl;
+
+			EndLine();
 			DabPos pos;
 
 			//print title.
 			std::cout << prev_space;
-			gadt::console::Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]", console::YELLOW);
+			Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]", COLOR_YELLOW);
 			std::cout << std::endl << prev_space;
-			gadt::console::Cprintf(_is_player_one? "Player: 1":"Player: 2", console::CYAN);
+			Cprintf(_is_player_one? "Player: 1":"Player: 2", COLOR_CYAN);
 			std::cout << std::endl << prev_space;
-			gadt::console::Cprintf("Boxes Margin: " + gadt::ToString(_boxes_margin), console::GREEN);
-			std::cout << std::endl << std::endl;
+			Cprintf("Boxes Margin: " + gadt::ToString(_boxes_margin), COLOR_GREEN);
+			EndLine<2>();
 
 			//print top horizon edges.
 			std::cout << prev_space;
-			gadt::console::Cprintf(dot_str, dot_color);
+			Cprintf(dot_str, dot_color);
 			for (uint8_t x = 0; x < WIDTH; x++)
 			{
 				pos = DabPos(x, 0);
 				if (_board.the_exist(pos))
-					gadt::console::Cprintf(he_str, edge_color);
+					Cprintf(he_str, edge_color);
 				else
-					gadt::console::Cprintf(empty_he_str, edge_color);
-				gadt::console::Cprintf(dot_str, dot_color);
+					Cprintf(empty_he_str, edge_color);
+				Cprintf(dot_str, dot_color);
 			}
-			std::cout << std::endl;
+			EndLine();
 
 			for (uint8_t y = 0; y < HEIGHT; y++)
 			{
@@ -363,38 +365,38 @@ namespace dots_and_boxes_solver
 					pos = DabPos(x, y);
 					//print lve
 					if (_board.lve_exist(pos))
-						gadt::console::Cprintf(ve_str, edge_color);
+						Cprintf(ve_str, edge_color);
 					else
-						gadt::console::Cprintf(empty_ve_str, edge_color);
+						Cprintf(empty_ve_str, edge_color);
 
 					//print box
 					if (_board.rve_exist(pos))
-						gadt::console::Cprintf(box_str, box_color);
+						Cprintf(box_str, box_color);
 					else
-						gadt::console::Cprintf(empty_box_str, box_color);
+						Cprintf(empty_box_str, box_color);
 				}
 				pos = DabPos(WIDTH - 1, y);
 				if (_board.rve_exist(pos))
-					gadt::console::Cprintf(ve_str, edge_color);
+					Cprintf(ve_str, edge_color);
 				else
-					gadt::console::Cprintf(empty_ve_str, edge_color);
-				std::cout << std::endl;
+					Cprintf(empty_ve_str, edge_color);
+				EndLine();
 				
 				//print horizon edges.
 				std::cout << prev_space;
-				gadt::console::Cprintf(dot_str, dot_color);
+				Cprintf(dot_str, dot_color);
 				for (uint8_t x = 0; x < WIDTH; x++)
 				{
 					pos = DabPos(x, y);
 					if (_board.bhe_exist(pos))
-						gadt::console::Cprintf(he_str, edge_color);
+						Cprintf(he_str, edge_color);
 					else
-						gadt::console::Cprintf(empty_he_str, edge_color);
-					gadt::console::Cprintf(dot_str, dot_color);
+						Cprintf(empty_he_str, edge_color);
+					Cprintf(dot_str, dot_color);
 				}
-				std::cout << std::endl;
+				EndLine();
 			}
-			std::cout << std::endl << std::endl;
+			EndLine<2>();
 		}
 
 		const DabBoard<WIDTH, HEIGHT>& board() const
