@@ -21,7 +21,7 @@ namespace dots_and_boxes_solver
 	{
 		using Controller = DbController<WIDTH, HEIGHT>;
 
-		auto db = dab.CreateShellPage<Controller>("db");
+		auto db = dab.CreateShellPage<Controller>("db" + gadt::ToString(WIDTH) + gadt::ToString(HEIGHT));
 
 		//cmd 'info'， prin info of all layers.
 		db->AddFunction("info", "print info of all layers", [](Controller& controller)->void {
@@ -94,6 +94,13 @@ namespace dots_and_boxes_solver
 			}
 			return false;
 		});
+	}
+
+	//generate a game with defined width and height.
+	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT)>::type>
+	void InitGamePage(gadt::shell::GameShell& dab)
+	{
+
 	}
 
 	//init shell

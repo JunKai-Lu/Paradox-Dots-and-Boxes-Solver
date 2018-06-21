@@ -332,7 +332,7 @@ namespace dots_and_boxes
 
 	namespace state
 	{
-		//class box can offer info about one box in a board.
+		//class box contains the information of a box in a board.
 		Box::Box(const Board& board, Edge index) :
 			_index(index),
 			_neighbour_box{ MAX_BOX,MAX_BOX,MAX_BOX,MAX_BOX }
