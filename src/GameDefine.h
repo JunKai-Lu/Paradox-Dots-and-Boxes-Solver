@@ -1,4 +1,4 @@
-#include "../lib/gadt/src/gadtlib.h"
+ï»¿#include "../lib/gadt/src/gadtlib.h"
 #include "../lib/gadt/src/bitboard.hpp"
 #include "../lib/gadt/src/game_shell.h"
 
@@ -37,6 +37,10 @@ namespace dots_and_boxes_solver
 	{
 		return WIDTH * HEIGHT;
 	}
+
+	size_t EdgeCount(size_t width, size_t height);
+
+	size_t BoxCount(size_t width, size_t height);
 }
 
 namespace dots_and_boxes
@@ -167,51 +171,51 @@ namespace dots_and_boxes
 			}
 		};
 
-		//µÃµ½Ä³¸öºá±ß×óÏÂµÄÊú±ßµÄ±àºÅ£¨ÏŞÖÆÎª0~24£©
+		//å¾—åˆ°æŸä¸ªæ¨ªè¾¹å·¦ä¸‹çš„ç«–è¾¹çš„ç¼–å·ï¼ˆé™åˆ¶ä¸º0~24ï¼‰
 		inline Edge UpperToLeftEdge(Edge hor_edge)
 		{
 			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, hor_edge > 24 || hor_edge < 0, "Wrong index");
 			return (34 - (hor_edge / 5)) + 5 * (hor_edge % 5);
 		}
 
-		//µÃµ½Ä³¸öÊú±ßÓÒÉÏµÄºá±ßµÄ±àºÅ£¨ÏŞÖÆÎª30~54£©
+		//å¾—åˆ°æŸä¸ªç«–è¾¹å³ä¸Šçš„æ¨ªè¾¹çš„ç¼–å·ï¼ˆé™åˆ¶ä¸º30~54ï¼‰
 		inline Edge LeftToUpperEdge(Edge vec_edge)
 		{
 			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, vec_edge > 54 || vec_edge < 30, "Wrong index");
 			return (14 - 5 * (vec_edge % 5)) + (vec_edge / 5);
 		}
 
-		//ÅĞ¶ÏÄ³¸ö±ßÊÇ·ñ²»ÊÇ×îÉÏ·½µÄ±ß
+		//åˆ¤æ–­æŸä¸ªè¾¹æ˜¯å¦ä¸æ˜¯æœ€ä¸Šæ–¹çš„è¾¹
 		inline bool IsNotUpperSideHorEdge(Edge index)
 		{
 			return index > 4;
 		}
 
-		//ÅĞ¶ÏÄ³¸ö±ßÊÇ·ñ²»ÊÇ×îÏÂ·½µÄ±ß
+		//åˆ¤æ–­æŸä¸ªè¾¹æ˜¯å¦ä¸æ˜¯æœ€ä¸‹æ–¹çš„è¾¹
 		inline bool IsNotLowerSideHorEdge(Edge index)
 		{
 			return index < 25;
 		}
 
-		//ÅĞ¶ÏÄ³¸ö±ßÊÇ·ñ²»ÊÇ×î×ó·½µÄ±ß
+		//åˆ¤æ–­æŸä¸ªè¾¹æ˜¯å¦ä¸æ˜¯æœ€å·¦æ–¹çš„è¾¹
 		inline bool IsNotLeftSideVecEdge(Edge index)
 		{
 			return index > 34;
 		}
 
-		//ÅĞ¶ÏÄ³¸ö±ßÊÇ·ñ²»ÊÇ×îÓÒ·½µÄ±ß
+		//åˆ¤æ–­æŸä¸ªè¾¹æ˜¯å¦ä¸æ˜¯æœ€å³æ–¹çš„è¾¹
 		inline bool IsNotRightSideVecEdge(Edge index)
 		{
 			return index < 55;
 		}
 
-		//ÅĞ¶ÏÄ³¸ö±ßÊÇ·ñÊÇºá±ß
+		//åˆ¤æ–­æŸä¸ªè¾¹æ˜¯å¦æ˜¯æ¨ªè¾¹
 		inline bool IsHorEdge(Edge index)
 		{
 			return index >= 0 && index < 30;
 		}
 
-		//ÅĞ¶ÏÄ³¸ö±ßÊÇ·ñÊÇÊú±ß
+		//åˆ¤æ–­æŸä¸ªè¾¹æ˜¯å¦æ˜¯ç«–è¾¹
 		inline bool IsVecEdge(Edge index)
 		{
 			return index >= 30 && index < 60;

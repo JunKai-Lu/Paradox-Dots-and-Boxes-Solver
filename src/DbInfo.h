@@ -43,27 +43,6 @@ namespace dots_and_boxes_solver
 
 	private:
 
-		//get folder of root directory
-		std::string GetRootDirectory() const;
-
-		//get folder of layer directory
-		std::string GetLayerDirectory() const;
-
-		//get folder of raw files and ensure its existence.
-		std::string GetRawDirectory() const;
-
-		//get folder of partition files and ensure its existence.
-		std::string GetPartitionDirectory() const;
-
-		//get the path of file by layer index.
-		std::string GetLayerInfoFilePath() const;
-
-		//get the path of raw file.
-		std::string GetRawFilePath(size_t index) const;
-
-		//get the path of partition file.
-		std::string GetPartitionFilePath(size_t index) const;
-
 		//load json file.
 		void LoadLayerInfoFile();
 
@@ -153,6 +132,27 @@ namespace dots_and_boxes_solver
 
 		//print info
 		void PrintInfo() const;
+
+		//get folder of root directory
+		std::string GetRootDirectory() const;
+
+		//get folder of layer directory
+		std::string GetLayerDirectory() const;
+
+		//get folder of raw files and ensure its existence.
+		std::string GetRawDirectory() const;
+
+		//get folder of partition files and ensure its existence.
+		std::string GetPartitionDirectory() const;
+
+		//get the path of file by layer index.
+		std::string GetLayerInfoFilePath() const;
+
+		//get the path of raw file.
+		std::string GetRawFilePath(size_t index) const;
+
+		//get the path of partition file.
+		std::string GetPartitionFilePath(size_t index) const;
 
 		//deconstructor, this class would be save to file before it was destroy.
 		~LayerInfo();

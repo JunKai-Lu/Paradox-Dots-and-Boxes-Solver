@@ -1,5 +1,6 @@
 ﻿#include "DbInfo.h"
 #include "LayerConatiner.hpp"
+#include "RetrospectProcess.h"
 #include "StateRepresentation.hpp"
 
 #pragma once
@@ -26,7 +27,7 @@ namespace dots_and_boxes_solver
 		}
 
 		//get the reference of focus layer.
-		inline LayerPointer& focus_layer()
+		inline const LayerPointer& focus_layer() const
 		{
 			return _focus_layer;
 		}
@@ -55,14 +56,16 @@ namespace dots_and_boxes_solver
 		//run map process for focus layer from previous layer.
 		void RunMapProcess(size_t thread_count) const
 		{
-
+			RetrospectMapper mapper(*focus_layer(), thread_count, RetrospectFuncPackage<WIDTH, HEIGHT>::MapFunc);
+			mapper.Run();
 		}
 
 		//TODO
 		//run reduce process for focus layer.
 		void RunReduceProcess(size_t partition_count) const
 		{
-
+			RetrospectReducer reducer(*focus_layer(), partition_count, RetrospectFuncPackage<WIDTH, HEIGHT>::ReduceFunc);
+			reducer.Run();
 		}
 
 		//clear db.
@@ -92,7 +95,7 @@ namespace dots_and_boxes_solver
 		}
 
 		//clear db of partition files
-		void ClearPartFile() const
+		void ClearPartFiles() const
 		{
 			gadt::filesystem::remove_directory(focus_layer()->GetPartitionDirectory());
 			focus_layer()->clear_part_files();

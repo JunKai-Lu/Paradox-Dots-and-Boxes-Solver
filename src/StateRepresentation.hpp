@@ -25,8 +25,8 @@ namespace dots_and_boxes_solver
 	{
 	private:
 		//static variables
-		static const size_t _w0 = 0;//first index of horizon edges in the array.
-		static const size_t _h0 = WIDTH * HEIGHT + WIDTH;//first index of vertical edges in the array.
+		static constexpr size_t _w0 = 0;//first index of horizon edges in the array.
+		static constexpr size_t _h0 = WIDTH * HEIGHT + WIDTH;//first index of vertical edges in the array.
 
 	private:
 		BoardType _edges;
@@ -176,11 +176,12 @@ namespace dots_and_boxes_solver
 
 	public:
 		
-		DabBoard()
+		constexpr DabBoard():
+			_edges(0)
 		{
 		}
 
-		DabBoard(BoardValueType bv):
+		constexpr DabBoard(BoardValueType bv):
 			_edges(bv)
 		{
 
@@ -292,21 +293,21 @@ namespace dots_and_boxes_solver
 
 	public:
 
-		DabState():
+		constexpr DabState():
 			_board(),
 			_is_player_one(true),
 			_boxes_margin(0)
 		{
 		}
 
-		DabState(DabBoard<WIDTH, HEIGHT> board, int boxes_margin) :
+		constexpr DabState(DabBoard<WIDTH, HEIGHT> board, int boxes_margin) :
 			_board(board),
 			_is_player_one(true),
 			_boxes_margin(boxes_margin)
 		{
 		}
 
-		DabState(BoardValueType bv, int boxes_margin):
+		constexpr DabState(BoardValueType bv, int boxes_margin):
 			_board(bv),
 			_is_player_one(true),
 			_boxes_margin(boxes_margin)

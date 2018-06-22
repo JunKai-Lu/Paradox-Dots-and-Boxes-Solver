@@ -1,4 +1,4 @@
-#include "GameDefine.h"
+﻿#include "GameDefine.h"
 #include <unordered_map>
 
 
@@ -17,11 +17,7 @@ namespace dots_and_boxes_solver
 
 	public:
 		//constuctor.
-		DabFileLoader(std::string file_name) :
-			_ifs()
-		{
-			_ifs.open(file_name, std::ios::in);
-		}
+		DabFileLoader(std::string file_name);
 
 		//return next item of the file.
 		inline DabStateItem LoadNextItem()
@@ -29,7 +25,7 @@ namespace dots_and_boxes_solver
 			BoardValueType bv;
 			int mv;
 			_ifs >> bv >> mv;
-			return { bv,mv };
+			return { bv, (MarginType)mv };
 		}
 
 		//return true if it is eof.
@@ -48,21 +44,19 @@ namespace dots_and_boxes_solver
 
 	public:
 		//constuctor.
-		DabFileWriter(std::string file_name) :
-			_ofs()
-		{
-			_ofs.open(file_name, std::ios::out);
-		}
+		DabFileWriter(std::string file_path);
 
 		//save item into the end of the file.
-		inline void SaveItem(DabStateItem item)
+		inline void SaveItem(const DabStateItem& item)
 		{
+			//int8_t must be convert to int due to the output mode of ios in char type.
 			_ofs << item.first << " " << (int)item.second << std::endl;
 		}
 
 		//save item into the end of the file.
 		inline void SaveItem(BoardValueType board, MarginType margin)
 		{
+			//int8_t must be convert to int due to the output mode of ios in char type.
 			_ofs << board << " " << (int)margin << std::endl;
 		}
 	};
