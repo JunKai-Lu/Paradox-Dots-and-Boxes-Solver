@@ -1,4 +1,4 @@
-﻿#include "RetrospectProcess.h"
+#include "RetrospectMapper.h"
 
 namespace dots_and_boxes_solver
 {
@@ -12,7 +12,7 @@ namespace dots_and_boxes_solver
 			LayerInfo prev_layer(_layer.width(), _layer.height(), _layer.layer() + 1);
 			for (auto index : prev_layer.part_files())
 			{
-				std::string path = prev_layer.GetPartitionFilePath(index);
+				std::string path = prev_layer.GetPartitionFilePath(index, prev_layer.part_files().size());
 				if (gadt::filesystem::exist_file(path))
 					file_path_vec.push_back(path);
 			}
@@ -48,7 +48,7 @@ namespace dots_and_boxes_solver
 			{
 				if (!gadt::console::GetUserConfirm("all the existing raw files would be clear, continue?"))
 				{
-					gadt::console::ShowMessage("Operation canceled!");
+					gadt::console::PrintMessage("Operation canceled!");
 					return;
 				}
 				//divede files into multi part.
@@ -61,17 +61,20 @@ namespace dots_and_boxes_solver
 				std::vector<std::thread> threads;
 				for (size_t i = 0; i < _thread_count; i++)
 					threads.push_back(std::thread([&](FileList files, size_t* count, size_t index)->void {
-					SingleMapProcess(files, count, index); 
+					SingleMapProcess(files, count, index);
 				}, file_lists[i], &item_counts[i], i));
 				for (size_t i = 0; i < threads.size(); i++)
 					threads[i].join();
+				for (size_t i = 0; i < _thread_count; i++)
+					_layer.add_raw_file(i);
+				_layer.SaveToFile();
 				PrintResult(tp.time_since_created(), file_lists, item_counts);
 			}
 		}
 	}
 
 	//constructor.
-	RetrospectMapper::RetrospectMapper(const LayerInfo & layer, size_t thread_count, RetrospectMapFunc MapFunc):
+	RetrospectMapper::RetrospectMapper(LayerInfo & layer, size_t thread_count, RetrospectMapFunc MapFunc) :
 		_layer(layer),
 		_thread_count(thread_count),
 		_MapFunc(MapFunc)
@@ -84,18 +87,19 @@ namespace dots_and_boxes_solver
 		using namespace gadt::console;
 		Table tb(2, 3);
 		tb.set_cell_in_column(0, {
-				{ "Game", COLOR_GRAY, TABLE_ALIGN_MIDDLE },
-				{ "Layer", COLOR_GRAY, TABLE_ALIGN_MIDDLE },
-				{ "Thread", COLOR_GRAY, TABLE_ALIGN_MIDDLE }
+			{ "Game", ConsoleColor::Gray, TableAlign::Middle },
+			{ "Layer",ConsoleColor::Gray, TableAlign::Middle },
+			{ "Thread", ConsoleColor::Gray, TableAlign::Middle }
 			});
 		tb.set_cell_in_column(1, {
-			{ gadt::ToString(_layer.width()) + "-" + gadt::ToString(_layer.height()), TABLE_ALIGN_MIDDLE },
-			{ gadt::ToString(_layer.layer()), TABLE_ALIGN_MIDDLE },
-			{ _thread_count, TABLE_ALIGN_MIDDLE }
+			{ gadt::ToString(_layer.width()) + "-" + gadt::ToString(_layer.height()), TableAlign::Middle },
+			{ gadt::ToString(_layer.layer()), TableAlign::Middle },
+			{ _thread_count, TableAlign::Middle }
 			});
 		tb.Print();
 	}
 
+	//print result
 	void RetrospectMapper::PrintResult(double time, std::vector<FileList>& file_lists, std::vector<size_t>& item_counts) const
 	{
 		using namespace gadt::console;
@@ -107,54 +111,27 @@ namespace dots_and_boxes_solver
 			item_count += item_counts[i];
 		}
 		Table tb(3, _thread_count + 2);
-		tb.enable_title({ "time = " + gadt::ToString(time), COLOR_GRAY, TABLE_ALIGN_MIDDLE });
+		tb.enable_title({ "time = " + gadt::ToString(time), ConsoleColor::Gray, TableAlign::Middle });
 		tb.set_width({ 2, 4, 6 });
 		tb.set_cell_in_row(0, {
-				{ "Index", COLOR_GRAY, TABLE_ALIGN_MIDDLE },
-				{ "Source", COLOR_GRAY, TABLE_ALIGN_MIDDLE },
-				{ "Item Count", COLOR_GRAY, TABLE_ALIGN_MIDDLE }
+			{ "Index", ConsoleColor::Gray, TableAlign::Middle },
+			{ "Source", ConsoleColor::Gray, TableAlign::Middle },
+			{ "Item Count", ConsoleColor::Gray, TableAlign::Middle }
 			});
 		tb.set_cell_in_row(_thread_count + 1, {
-				{ "Total", COLOR_GRAY, TABLE_ALIGN_MIDDLE },
-				{ source_count, COLOR_GRAY, TABLE_ALIGN_MIDDLE },
-				{ item_count, COLOR_GRAY, TABLE_ALIGN_MIDDLE }
+			{ "Total", ConsoleColor::Gray, TableAlign::Middle },
+			{ source_count, ConsoleColor::Gray, TableAlign::Middle },
+			{ item_count, ConsoleColor::Gray, TableAlign::Middle }
 			});
 		for (size_t i = 0; i < _thread_count; i++)
 		{
 			tb.set_cell_in_row(i + 1,
 				{
-					{ "Thread " + gadt::ToString(i), TABLE_ALIGN_MIDDLE },
-					{ file_lists[i].size() } ,
-					{ item_counts[i] }
+					{ "Thread " + gadt::ToString(i), TableAlign::Middle },
+				{ file_lists[i].size() } ,
+				{ item_counts[i] }
 				});
 		}
 		tb.Print();
-	}
-
-	//get raw file list from current layer info.
-	RetrospectReducer::FileList RetrospectReducer::GetFileList() const
-	{
-		std::vector<std::string> file_path_vec;
-		for (auto index : _layer.raw_files())
-		{
-			std::string path = _layer.GetRawFilePath(index);
-			if (gadt::filesystem::exist_file(path))
-				file_path_vec.push_back(path);
-		}
-		return file_path_vec;
-	}
-
-	//constructor.
-	RetrospectReducer::RetrospectReducer(const LayerInfo & layer, size_t segment_count, RetrospectReduceFunc ReduceFunc):
-		_layer(layer),
-		_segment_count(segment_count),
-		_ReduceFunc(ReduceFunc),
-		_FilterFunc([](BoardValueType)->bool {return true; })
-	{
-	}
-
-	//run reducer.
-	void RetrospectReducer::Run() const
-	{
 	}
 }

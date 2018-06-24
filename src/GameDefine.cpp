@@ -10,11 +10,10 @@ namespace dots_and_boxes
 	void State::Visualization(ActionVec action_vec) const
 	{
 		using namespace gadt::console;
-		const ConsoleColor edge_color = COLOR_YELLOW;
-		const ConsoleColor action_color = COLOR_WHITE;
-		const ConsoleColor dot_color = COLOR_GRAY;
-
-		EndLine();
+		const ConsoleColor edge_color = ConsoleColor::Yellow;
+		const ConsoleColor action_color = ConsoleColor::White;
+		const ConsoleColor dot_color = ConsoleColor::Gray;
+		PrintEndLine();
 		std::string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
 		{
@@ -126,18 +125,18 @@ namespace dots_and_boxes
 		}
 		//cout << "○" << endl;
 		Cprintf("+", dot_color);
-		EndLine<2>();
+		PrintEndLine<2>();
 	}
 
 	void State::EdgeVisualization() const
 	{
 		using namespace gadt::console;
-		const ConsoleColor edge_color = COLOR_YELLOW;
-		const ConsoleColor action_color = COLOR_RED;
-		const ConsoleColor dot_color = COLOR_GRAY;
-		const ConsoleColor box_color = COLOR_BLUE;
+		const ConsoleColor edge_color = ConsoleColor::Yellow;
+		const ConsoleColor action_color = ConsoleColor::Red;
+		const ConsoleColor dot_color = ConsoleColor::Gray;
+		const ConsoleColor box_color = ConsoleColor::Blue;
 
-		EndLine();
+		PrintEndLine();
 		std::string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
 		{
@@ -299,12 +298,12 @@ namespace dots_and_boxes
 		}
 		//cout << "○" << endl;
 		Cprintf("+", dot_color);
-		EndLine<2>();
+		PrintEndLine<2>();
 	}
 
 	State State::RandomState(size_t edge_num)
 	{
-		GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, edge_num >= MAX_EDGE, "out of range");
+		GADT_WARNING_IF(g_DAB_DEFINE_WARNING, edge_num >= MAX_EDGE, "out of range");
 		Board board;
 		std::vector<Edge> moves(60);
 		for (Edge i = 0; i < edge_num; i++)
@@ -1025,7 +1024,7 @@ namespace dots_and_boxes
 		//return true if a edge is the upper edge of a box that is the first box of a dead chain.
 		bool IsUpperEdgeOfFirstBoxOfDeadChain(const Board& board, Edge edge)
 		{
-			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, edge > 25, "wrong edge");
+			GADT_WARNING_IF(g_DAB_DEFINE_WARNING, edge > 25, "wrong edge");
 
 			Edge fir_box_lower_edge = edge + 5;
 			Edge fir_box_left_edge = state::UpperToLeftEdge(edge);

@@ -2,8 +2,6 @@
 
 namespace dots_and_boxes_solver
 {
-	
-
 	//load json file.
 	void LayerInfo::LoadLayerInfoFile()
 	{
@@ -71,21 +69,31 @@ namespace dots_and_boxes_solver
 		Table tb(3, 3);
 		tb.set_width({ 3, 5, 12 });
 		std::string title = "Game: " + gadt::ToString(_width) + " x " + gadt::ToString(_height) + " , layer = " + gadt::ToString(_layer);
-		tb.enable_title({ title, COLOR_GRAY, TABLE_ALIGN_MIDDLE });
-		tb.set_cell_in_column(0, { { "Type"}, {"Raw"}, {"Part"} });
-		tb.set_cell_in_row(0, { { "Type" }, { "STATE" }, { "FILES" } });
-		std::stringstream raw_files_ss("[ ");
-		std::stringstream part_files_ss("[ ");
+		tb.enable_title({ title, ConsoleColor::Gray, TableAlign::Middle });
+		tb.set_cell_in_column(0, { 
+			{ "Type", ConsoleColor::Gray, TableAlign::Middle}, 
+			{ "Raw", ConsoleColor::Gray, TableAlign::Middle },
+			{ "Part", ConsoleColor::Gray, TableAlign::Middle }
+			});
+		tb.set_cell_in_row(0, { 
+			{ "Type", ConsoleColor::Gray, TableAlign::Middle },
+			{ "STATE", ConsoleColor::Gray, TableAlign::Middle },
+			{ "FILES", ConsoleColor::Gray, TableAlign::Middle }
+			});
+		std::stringstream raw_files_ss;
+		std::stringstream part_files_ss;
+		raw_files_ss << "[";
+		part_files_ss << "[";
 		for (auto value : _raw_files)
 			raw_files_ss << value << ", ";
 		for (auto value : _part_files)
 			part_files_ss << value << ", ";
 		raw_files_ss << "]";
 		part_files_ss << "]";
-		tb.set_cell({ gadt::ToString(_raw_files.size()) + " files" }, 1, 1);
-		tb.set_cell({ gadt::ToString(_part_files.size()) + " files" }, 2, 1);
-		tb.set_cell({ raw_files_ss.str() }, 1, 2);
-		tb.set_cell({ part_files_ss.str() }, 2, 2);
+		tb.set_cell({ gadt::ToString(_raw_files.size()) + " files", TableAlign::Middle }, 1, 1);
+		tb.set_cell({ gadt::ToString(_part_files.size()) + " files", TableAlign::Middle }, 2, 1);
+		tb.set_cell({ raw_files_ss.str(), TableAlign::Middle }, 1, 2);
+		tb.set_cell({ part_files_ss.str(), TableAlign::Middle }, 2, 2);
 		tb.Print();
 	}
 
@@ -142,9 +150,9 @@ namespace dots_and_boxes_solver
 	}
 
 	//get the path of partition file.
-	std::string LayerInfo::GetPartitionFilePath(size_t index) const
+	std::string LayerInfo::GetPartitionFilePath(size_t index, size_t partition_count) const
 	{
-		std::string path = GetRawDirectory() + index_to_part_file_name(index);
+		std::string path = GetRawDirectory() + index_to_part_file_name(index, partition_count);
 		return path;
 	}
 

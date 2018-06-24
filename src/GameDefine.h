@@ -174,14 +174,14 @@ namespace dots_and_boxes
 		//得到某个横边左下的竖边的编号（限制为0~24）
 		inline Edge UpperToLeftEdge(Edge hor_edge)
 		{
-			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, hor_edge > 24 || hor_edge < 0, "Wrong index");
+			GADT_WARNING_IF(g_DAB_DEFINE_WARNING, hor_edge > 24 || hor_edge < 0, "Wrong index");
 			return (34 - (hor_edge / 5)) + 5 * (hor_edge % 5);
 		}
 
 		//得到某个竖边右上的横边的编号（限制为30~54）
 		inline Edge LeftToUpperEdge(Edge vec_edge)
 		{
-			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, vec_edge > 54 || vec_edge < 30, "Wrong index");
+			GADT_WARNING_IF(g_DAB_DEFINE_WARNING, vec_edge > 54 || vec_edge < 30, "Wrong index");
 			return (14 - 5 * (vec_edge % 5)) + (vec_edge / 5);
 		}
 
@@ -224,7 +224,7 @@ namespace dots_and_boxes
 		//Get the edge num of the box below a horizon edge.
 		inline size_t GetLowerBoxEdgeNum(const Board& board, Edge hor_edge)
 		{
-			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, hor_edge > 24, "Wrong index");
+			GADT_WARNING_IF(g_DAB_DEFINE_WARNING, hor_edge > 24, "Wrong index");
 			Edge lower_left_edge = UpperToLeftEdge(hor_edge);
 			return board.get(hor_edge) + board.get(lower_left_edge) + board.get(lower_left_edge + 5) + board.get(hor_edge + 5);
 		}

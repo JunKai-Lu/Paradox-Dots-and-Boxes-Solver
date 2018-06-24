@@ -167,7 +167,7 @@ namespace dots_and_boxes
 						return i;
 					}
 				}
-				gadt::console::ShowError("chain list is full!");
+				gadt::console::PrintError("chain list is full!");
 				return 0;
 			}
 

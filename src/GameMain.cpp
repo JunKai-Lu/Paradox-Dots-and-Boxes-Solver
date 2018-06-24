@@ -4,15 +4,20 @@
 #include "StateRepresentation.hpp"
 #include "LayerConatiner.hpp"
 #include "DbController.hpp"
+#include "RetrospectMapper.h"
+#include "RetrospectReducer.h"
 
 namespace dots_and_boxes_solver
 {
 	//test codes.
 	void DabTest()
 	{
-		DabState<6, 4> dab64;
-		dab64.BeFull();
-		dab64.Visualization();
+		DabState<5, 5> dab55;
+		dab55.BeFull();
+		for (EdgeIndex edge = 0; edge < EdgeCount<5,5>(); edge++)
+		{
+			std::cout << dab55.board().count_of_boxes_that_owns_edge(edge);
+		}
 	}
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
@@ -41,8 +46,9 @@ namespace dots_and_boxes_solver
 
 		//cmd 'reduce'
 		db->AddFunction("reduce", "start 'reduce' operation in current layer", [](Controller& controller)->void {
-			controller.RunReduceProcess(0);
-			std::cout << "TODO!!!!" << std::endl;
+			size_t thread_count = gadt::console::GetInput<size_t>("Input thread count >>");
+			size_t partition_count = gadt::console::GetInput<size_t>("Input partition count >>");
+			controller.RunReduceProcess(thread_count, partition_count);
 		});
 
 		//cmd 'checkout', allow user to change the layer they control
@@ -69,31 +75,31 @@ namespace dots_and_boxes_solver
 					if (params[0] == "all")
 					{
 						controller.ClearDB();
-						gadt::console::ShowMessage("Clear DB Success!");
+						gadt::console::PrintMessage("Clear DB Success!");
 						return true;
 					}
 					else if (params[0] == "layer")
 					{
 						controller.ClearLayer();
-						gadt::console::ShowMessage("Clear Layer Files Success!");
+						gadt::console::PrintMessage("Clear Layer Files Success!");
 						return true;
 					}
 					else if (params[0] == "raw")
 					{
 						controller.ClearRawFiles();
-						gadt::console::ShowMessage("Clear Raw Files Success!");
+						gadt::console::PrintMessage("Clear Raw Files Success!");
 						return true;
 					}
 					else if (params[0] == "partition")
 					{
 						controller.ClearPartFiles();
-						gadt::console::ShowMessage("Clear Partition Files Success!");
+						gadt::console::PrintMessage("Clear Partition Files Success!");
 						return true;
 					}
 				}
 				else
 				{
-					gadt::console::ShowMessage("Operation Canceled.");
+					gadt::console::PrintMessage("Operation Canceled.");
 					return true;
 				}
 			}
@@ -114,10 +120,10 @@ namespace dots_and_boxes_solver
 		gadt::shell::GameShell dab("Dots-And-Boxes");
 		dab.SetDefaultInfoFunc([]() {
 			using namespace gadt::console;
-			Cprintf("=============================================\n", COLOR_GRAY);
-			Cprintf("    PARADOX Dots and Boxes\n", COLOR_BLUE);
-			Cprintf("    Copyright @ Junkai-Lu 2018\n", COLOR_BLUE);
-			Cprintf("=============================================\n\n", COLOR_GRAY);
+			Cprintf("=============================================\n", ConsoleColor::Gray);
+			Cprintf("    PARADOX Dots and Boxes\n", ConsoleColor::Blue);
+			Cprintf("    Copyright @ Junkai-Lu 2018\n", ConsoleColor::Blue);
+			Cprintf("=============================================\n\n", ConsoleColor::Gray);
 		});
 		auto* root = dab.CreateShellPage("root");
 		auto* db = dab.CreateShellPage("db");

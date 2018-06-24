@@ -116,9 +116,9 @@ namespace dots_and_boxes_solver
 		}
 
 		//get part file name by index.
-		inline std::string index_to_part_file_name(size_t index) const
+		inline std::string index_to_part_file_name(size_t index, size_t partition_count) const
 		{
-			return DAB_DB_PARTITION_PREFIX + gadt::ToString(index) + DAB_DB_PARTITION_SUFFIX;
+			return DAB_DB_PARTITION_PREFIX + gadt::ToString(index) + "_" + gadt::ToString(partition_count) + DAB_DB_PARTITION_SUFFIX;
 		}
 
 
@@ -152,7 +152,7 @@ namespace dots_and_boxes_solver
 		std::string GetRawFilePath(size_t index) const;
 
 		//get the path of partition file.
-		std::string GetPartitionFilePath(size_t index) const;
+		std::string GetPartitionFilePath(size_t index, size_t partition_count) const;
 
 		//deconstructor, this class would be save to file before it was destroy.
 		~LayerInfo();

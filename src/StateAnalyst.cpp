@@ -25,7 +25,7 @@ namespace dots_and_boxes
 		{
 			ActionVec temp;
 			Edge fir = state::GetFirstFreeEdgeInDeadBox(board);
-			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, fir == MAX_EDGE, "no dead box exist");
+			GADT_WARNING_IF(g_DAB_DEFINE_WARNING, fir == MAX_EDGE, "no dead box exist");
 			temp.set(fir);
 			return temp;
 		}
@@ -317,9 +317,9 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "wrong state in box " + gadt::ToString(checking_box_index));
+					GADT_WARNING_IF(g_DAB_DEFINE_WARNING, true, "wrong state in box " + gadt::ToString(checking_box_index));
 				}
-				GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, count >= MAX_BOX, "infinite loop");
+				GADT_WARNING_IF(g_DAB_DEFINE_WARNING, count >= MAX_BOX, "infinite loop");
 			}
 		}
 
@@ -351,7 +351,7 @@ namespace dots_and_boxes
 						{
 							if (_boxes[checking_box_index].own_edge(i) != ignoring_edge_index && !_board.get(_boxes[checking_box_index].own_edge(i)))
 							{
-								GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, !_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
+								GADT_WARNING_IF(g_DAB_DEFINE_WARNING, !_boxes[checking_box_index].IsNotEmptyNeighbour(i), "empty box in circle");
 								ignoring_edge_index = _boxes[checking_box_index].own_edge(i);
 								checking_box_index = _boxes[checking_box_index].neighbour_box(i);
 								break;
@@ -361,9 +361,9 @@ namespace dots_and_boxes
 				}
 				else
 				{
-					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "wrong state in box " + gadt::ToString(checking_box_index));
+					GADT_WARNING_IF(g_DAB_DEFINE_WARNING, true, "wrong state in box " + gadt::ToString(checking_box_index));
 				}
-				GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, count >= MAX_BOX, "infinite loop");
+				GADT_WARNING_IF(g_DAB_DEFINE_WARNING, count >= MAX_BOX, "infinite loop");
 			}
 		}
 
@@ -440,10 +440,10 @@ namespace dots_and_boxes
 
 					}
 
-					GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "no find neighbour box that belong to same chain.");
+					GADT_WARNING_IF(g_DAB_DEFINE_WARNING, true, "no find neighbour box that belong to same chain.");
 				}
 			}
-			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, true, "no find box belong to chain " + gadt::ToString(chain_index));
+			GADT_WARNING_IF(g_DAB_DEFINE_WARNING, true, "no find box belong to chain " + gadt::ToString(chain_index));
 			return MAX_EDGE;
 		}
 
@@ -458,7 +458,7 @@ namespace dots_and_boxes
 					temp.set(GetFirstEdgeOfChain(i));
 				}
 			}
-			GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, temp.none(), "no any action exist in this board");
+			GADT_WARNING_IF(g_DAB_DEFINE_WARNING, temp.none(), "no any action exist in this board");
 			return temp;
 		}
 
@@ -470,7 +470,7 @@ namespace dots_and_boxes
 			{
 				if (i % 5 == 0)
 				{
-					EndLine();
+					PrintEndLine();
 				}
 				if (_boxes[i].NoBelongingChain())
 				{
@@ -489,7 +489,7 @@ namespace dots_and_boxes
 				}
 
 			}
-			EndLine<2>();
+			PrintEndLine<2>();
 			for (size_t i = 0; i < MAX_CHAIN; i++)
 			{
 				if (_chains[i].type() != chain_type::UNDEFINED)
@@ -499,7 +499,7 @@ namespace dots_and_boxes
 					Cprintf(ss.str(), ConsoleColor(i + 1));
 				}
 			}
-			EndLine<2>();
+			PrintEndLine<2>();
 		}
 	}
 
@@ -561,7 +561,7 @@ namespace dots_and_boxes
 	//Get random action in action analyst.
 	Edge ActionAnalyst::RandomAction()
 	{
-		GADT_CHECK_WARNING(g_DAB_DEFINE_WARNING, _result.none(), "no any action is legal.");
+		GADT_WARNING_IF(g_DAB_DEFINE_WARNING, _result.none(), "no any action is legal.");
 		Edge actions[MAX_EDGE];
 		size_t c_index = 0;
 		for (Edge edge = 0; edge < MAX_EDGE; edge++)
@@ -580,12 +580,12 @@ namespace dots_and_boxes
 	void ActionAnalyst::Visualization(Edge tag_edge) const
 	{
 		using namespace gadt::console;
-		constexpr ConsoleColor edge_color = COLOR_YELLOW;
-		constexpr ConsoleColor action_color = COLOR_GRAY;
-		constexpr ConsoleColor dot_color = COLOR_WHITE;
-		constexpr ConsoleColor box_color = COLOR_WHITE;
-		constexpr ConsoleColor tag_color = COLOR_GREEN;
-		EndLine();
+		constexpr ConsoleColor edge_color = ConsoleColor::Yellow;
+		constexpr ConsoleColor action_color = ConsoleColor::Gray;
+		constexpr ConsoleColor dot_color = ConsoleColor::White;
+		constexpr ConsoleColor box_color = ConsoleColor::White;
+		constexpr ConsoleColor tag_color = ConsoleColor::Green;
+		PrintEndLine();
 		std::string interval = "     ";
 		for (Edge y = 0; y < GAME_SIZE; y++)
 		{
@@ -816,7 +816,7 @@ namespace dots_and_boxes
 		}
 		//cout << "○" << endl;
 		Cprintf("+", dot_color);
-		EndLine<2>();
+		PrintEndLine<2>();
 	}
 
 	//TODO Retro Analyst

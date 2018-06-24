@@ -47,17 +47,23 @@ namespace dots_and_boxes_solver
 		DabFileWriter(std::string file_path);
 
 		//save item into the end of the file.
-		inline void SaveItem(const DabStateItem& item)
+		inline void save_item(const DabStateItem& item)
 		{
 			//int8_t must be convert to int due to the output mode of ios in char type.
 			_ofs << item.first << " " << (int)item.second << std::endl;
 		}
 
 		//save item into the end of the file.
-		inline void SaveItem(BoardValueType board, MarginType margin)
+		inline void save_item(BoardValueType board, MarginType margin)
 		{
 			//int8_t must be convert to int due to the output mode of ios in char type.
 			_ofs << board << " " << (int)margin << std::endl;
+		}
+
+		//write string to file.
+		inline void write(std::string str)
+		{
+			_ofs << str;
 		}
 	};
 
@@ -76,20 +82,30 @@ namespace dots_and_boxes_solver
 		}
 
 		//update if the margin in item is larger than the existing margin in table.
-		void UpdateIfLarger(DabStateItem item)
+		bool UpdateIfLarger(DabStateItem item)
 		{
 			if (_table.count(item.first) != 0)//exist
+			{
 				if (_table[item.first] <= item.second)//if larger.
+				{
 					_table[item.first] = item.second;//update
+					return true;
+				}
+			}
 			else//not exist
+			{
 				_table[item.first] = item.second;//save it.
+				return true;
+			}
+			return false;
 		}
 
 		//output this table to file.
-		void OutputToFile(DabFileWriter& writer)
+		size_t OutputToFile(DabFileWriter& writer)
 		{
 			for (auto item : _table)
-				writer.SaveItem(item);
+				writer.save_item(item);
+			return _table.size();
 		}
 	};
 

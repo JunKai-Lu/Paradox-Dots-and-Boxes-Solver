@@ -16,9 +16,10 @@ namespace dots_and_boxes_solver
 	* all the index of horizon edges were ordered by left to right, then up to down.
 	* all the index of vertical edges were ordered by up to down, then left to right.
 	* the index of horizon edges is in the front of the indexs of vertical edges.  
+	* all the inndex of boxes were orderd by left to right, then up to down, which is same with the index of its top horizon edge(the).
 	*/
 
-	using DabPos = gadt::BasicUnsignedCoordinate<uint8_t>;
+	using DabPos = gadt::BasicUPoint<uint8_t>;
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
 	class DabBoard
@@ -105,14 +106,14 @@ namespace dots_and_boxes_solver
 		//get the position of 'edge'.
 		inline DabPos get_the_pos(EdgeIndex edge) const
 		{
-			GADT_CHECK_WARNING(DAB_WARNING, !is_he(edge), " is not he");
-			return { edge % width , edge / width };
+			GADT_WARNING_IF(DAB_WARNING, !is_he(edge), " is not he");
+			return { edge % WIDTH , edge / WIDTH };
 		}
 
 		//get the position of 'edge'.
 		inline DabPos get_lve_pos(EdgeIndex edge) const
 		{
-			GADT_CHECK_WARNING(DAB_WARNING, !is_ve(edge), " is not ve");
+			GADT_WARNING_IF(DAB_WARNING, !is_ve(edge), " is not ve");
 			return { (edge - _h0) / HEIGHT , (edge - _h0) % HEIGHT };
 		}
 
@@ -133,28 +134,28 @@ namespace dots_and_boxes_solver
 		//the -> bhe of a box.
 		inline EdgeIndex the_to_bhe(EdgeIndex edge) const
 		{
-			GADT_CHECK_WARNING(DAB_WARNING, !is_the(edge), "is not the");
+			GADT_WARNING_IF(DAB_WARNING, !is_the(edge), "is not the");
 			return edge + WIDTH;
 		}
 
 		//bhe -> the of a box.
 		inline EdgeIndex bhe_to_the(EdgeIndex edge) const
 		{
-			GADT_CHECK_WARNING(DAB_WARNING, !is_bhe(edge), "is not bhe");
+			GADT_WARNING_IF(DAB_WARNING, !is_bhe(edge), "is not bhe");
 			return edge - WIDTH;
 		}
 
 		//lve -> rve of a box.
 		inline EdgeIndex lve_to_rve(EdgeIndex edge) const
 		{
-			GADT_CHECK_WARNING(DAB_WARNING, !is_lve(edge), "is not lve");
+			GADT_WARNING_IF(DAB_WARNING, !is_lve(edge), "is not lve");
 			return edge + HEIGHT;
 		}
 
 		//rve -> lve of a box.
 		inline EdgeIndex rve_to_lve(EdgeIndex edge) const
 		{
-			GADT_CHECK_WARNING(DAB_WARNING, !is_rve(edge), "is not rve");
+			GADT_WARNING_IF(DAB_WARNING, !is_rve(edge), "is not rve");
 			return edge - HEIGHT;
 		}
 
@@ -220,14 +221,14 @@ namespace dots_and_boxes_solver
 		//return true if the edge exist.
 		inline bool edge_exist(size_t index) const
 		{
-			GADT_CHECK_WARNING(DAB_WARNING, !is_edge_index(index), "is not the index of edge");
+			GADT_WARNING_IF(DAB_WARNING, !is_edge_index(index), "is not the index of edge");
 			return _edges[index];
 		}
 
 		//return true if the box had been captured.
 		inline bool box_exist(size_t index) const
 		{
-			GADT_CHECK_WARNING(DAB_WARNING, !is_box_index(index), "it is not box index");
+			GADT_WARNING_IF(DAB_WARNING, !is_box_index(index), "it is not box index");
 			return the_of_box_exist(index) && bhe_of_box_exist(index) && lve_of_box_exist(index) && rve_of_box_exist(index);
 		}
 
@@ -241,10 +242,64 @@ namespace dots_and_boxes_solver
 				(size_t) rve_of_box_exist(index);
 		}
 
+		//get the count of boxes that owns this edge, which means this edge is a part of the box(es), the result may be { 0, 1, 2}.
+		inline size_t count_of_boxes_that_owns_edge(EdgeIndex edge) const
+		{
+			size_t count = 0;
+			if (edge_exist(edge))
+			{
+				if (is_he(edge))
+				{
+					if (is_the(edge))
+					{
+						EdgeIndex lve = the_to_lve(edge);
+						EdgeIndex rve = lve_to_rve(lve);
+						EdgeIndex bhe = the_to_bhe(edge);
+						if (edge_exist(lve) && edge_exist(rve) && edge_exist(bhe))
+							count += 1;
+					}
+					if (is_bhe(edge))
+					{
+						EdgeIndex the = bhe_to_the(edge);
+						EdgeIndex lve = the_to_lve(the);
+						EdgeIndex rve = lve_to_rve(lve);
+						if (edge_exist(lve) && edge_exist(rve) && edge_exist(the))
+							count += 1;
+					}
+				}
+				else if (is_ve(edge))
+				{
+					if (is_lve(edge))
+					{
+						EdgeIndex rve = lve_to_rve(edge);
+						EdgeIndex the = lve_to_the(edge);
+						EdgeIndex bhe = the_to_bhe(the);
+						if (edge_exist(the) && edge_exist(bhe) && edge_exist(rve))
+							count += 1;
+					}
+					if (is_rve(edge))
+					{
+						EdgeIndex lve = rve_to_lve(edge);
+						EdgeIndex the = lve_to_the(lve);
+						EdgeIndex bhe = the_to_bhe(the);
+						if (edge_exist(the) && edge_exist(bhe) && edge_exist(lve))
+							count += 1;
+					}
+				}
+			}
+			return count;
+		}
+
 		//set edge.
 		inline void set_edge(size_t index)
 		{
 			_edges.set(index);
+		}
+
+		//reset a edge to empty
+		inline void reset_edge(size_t index)
+		{
+			_edges.reset(index);
 		}
 
 		//return true if the edge of box exist.
@@ -281,12 +336,19 @@ namespace dots_and_boxes_solver
 			for (size_t i = 0; i < num_of_edges(); i++)
 				set_edge(i);
 		}
+
+		//reset all the edges.
+		inline void reset_all_edges()
+		{
+			_edges = 0;
+		}
 	};
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
 	class DabState
 	{
 	private:
+
 		DabBoard<WIDTH, HEIGHT> _board;
 		bool _is_player_one;
 		int _boxes_margin;
@@ -318,10 +380,10 @@ namespace dots_and_boxes_solver
 		void Visualization() const
 		{
 			using namespace gadt::console;
-			constexpr ConsoleColor edge_color = COLOR_YELLOW;
-			constexpr ConsoleColor action_color = COLOR_WHITE;
-			constexpr ConsoleColor dot_color = COLOR_GRAY;
-			constexpr ConsoleColor box_color = COLOR_GRAY;
+			constexpr ConsoleColor edge_color = ConsoleColor::Yellow;
+			constexpr ConsoleColor action_color = ConsoleColor::White;
+			constexpr ConsoleColor dot_color = ConsoleColor::Gray;
+			constexpr ConsoleColor box_color = ConsoleColor::Gray;
 			const std::string empty_he_str = "   ";
 			const std::string empty_ve_str = " ";
 			const std::string empty_box_str = "   ";
@@ -331,17 +393,17 @@ namespace dots_and_boxes_solver
 			const std::string dot_str = "+";
 			std::string prev_space = "     ";
 
-			EndLine();
+			PrintEndLine();
 			DabPos pos;
 
 			//print title.
 			std::cout << prev_space;
-			Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]", COLOR_YELLOW);
+			Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]", ConsoleColor::Yellow);
 			std::cout << std::endl << prev_space;
-			Cprintf(_is_player_one? "Player: 1":"Player: 2", COLOR_CYAN);
+			Cprintf(_is_player_one? "Player: 1":"Player: 2", ConsoleColor::Cyan);
 			std::cout << std::endl << prev_space;
-			Cprintf("Boxes Margin: " + gadt::ToString(_boxes_margin), COLOR_GREEN);
-			EndLine<2>();
+			Cprintf("Boxes Margin: " + gadt::ToString(_boxes_margin), ConsoleColor::Green);
+			PrintEndLine<2>();
 
 			//print top horizon edges.
 			std::cout << prev_space;
@@ -355,7 +417,7 @@ namespace dots_and_boxes_solver
 					Cprintf(empty_he_str, edge_color);
 				Cprintf(dot_str, dot_color);
 			}
-			EndLine();
+			PrintEndLine();
 
 			for (uint8_t y = 0; y < HEIGHT; y++)
 			{
@@ -381,7 +443,7 @@ namespace dots_and_boxes_solver
 					Cprintf(ve_str, edge_color);
 				else
 					Cprintf(empty_ve_str, edge_color);
-				EndLine();
+				PrintEndLine();
 				
 				//print horizon edges.
 				std::cout << prev_space;
@@ -395,9 +457,9 @@ namespace dots_and_boxes_solver
 						Cprintf(empty_he_str, edge_color);
 					Cprintf(dot_str, dot_color);
 				}
-				EndLine();
+				PrintEndLine();
 			}
-			EndLine<2>();
+			PrintEndLine<2>();
 		}
 
 		const DabBoard<WIDTH, HEIGHT>& board() const

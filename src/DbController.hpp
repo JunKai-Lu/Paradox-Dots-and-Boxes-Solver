@@ -1,6 +1,5 @@
 ﻿#include "DbInfo.h"
 #include "LayerConatiner.hpp"
-#include "RetrospectProcess.h"
 #include "StateRepresentation.hpp"
 
 #pragma once
@@ -52,7 +51,6 @@ namespace dots_and_boxes_solver
 			focus_layer()->PrintInfo();
 		}
 
-		//TODO
 		//run map process for focus layer from previous layer.
 		void RunMapProcess(size_t thread_count) const
 		{
@@ -60,11 +58,10 @@ namespace dots_and_boxes_solver
 			mapper.Run();
 		}
 
-		//TODO
 		//run reduce process for focus layer.
-		void RunReduceProcess(size_t partition_count) const
+		void RunReduceProcess(size_t thread_count, size_t segment_count) const
 		{
-			RetrospectReducer reducer(*focus_layer(), partition_count, RetrospectFuncPackage<WIDTH, HEIGHT>::ReduceFunc);
+			RetrospectReducer reducer(*focus_layer(), thread_count, segment_count, RetrospectFuncPackage<WIDTH, HEIGHT>::ReduceFunc);
 			reducer.Run();
 		}
 
