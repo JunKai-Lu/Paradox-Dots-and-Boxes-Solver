@@ -14,11 +14,17 @@ namespace dots_and_boxes_solver
 			gadt::log::JsonLoader loader;
 			size_t width = loader.JsonToUInt(json[DAB_DB_JSON_WIDTH_KEY]);
 			size_t height = loader.JsonToUInt(json[DAB_DB_JSON_HEIGHT_KEY]);
-			size_t layer = loader.JsonToUInt(json[DAB_DB_JSON_LAYER_KEY]);
-			if (width == _width && height == _height && layer == _layer)
+			size_t index = loader.JsonToUInt(json[DAB_DB_JSON_LAYER_KEY]);
+			if (width == _width && height == _height && index == _index)
 			{
-				_raw_files = loader.JsonToUIntVector(json[DAB_DB_JSON_RAW_FILES_KEY]);
-				_part_files = loader.JsonToUIntVector(json[DAB_DB_JSON_PART_FILES_KEY]);
+				auto temp_raw_files = loader.JsonToUIntVector(json[DAB_DB_JSON_RAW_FILES_KEY]);
+				auto temp_part_files = loader.JsonToUIntVector(json[DAB_DB_JSON_PART_FILES_KEY]);
+				for (auto raw_index : temp_raw_files)
+					if (gadt::filesystem::exist_file(GetRawFilePath(raw_index)))
+						_raw_files.push_back(raw_index);
+				for (auto part_index : temp_part_files)
+					if (gadt::filesystem::exist_file(GetPartitionFilePath(part_index, temp_part_files.size())))
+						_part_files.push_back(part_index);
 				if (loader.no_error())
 					_is_init = true;
 			}
@@ -31,11 +37,11 @@ namespace dots_and_boxes_solver
 	}
 
 	//load layer info from file path.
-	LayerInfo::LayerInfo(size_t width, size_t height, size_t layer):
+	LayerInfo::LayerInfo(size_t width, size_t height, size_t index):
 		_is_init(false),
 		_width(width),
 		_height(height),
-		_layer(layer),
+		_index(index),
 		_raw_files(),
 		_part_files()
 	{
@@ -53,9 +59,9 @@ namespace dots_and_boxes_solver
 		for (auto value : _part_files)
 			part_files_json.push_back(json11::Json((int)value));
 		json11::Json info_json = json11::Json::object{
-			{ DAB_DB_JSON_WIDTH_KEY, (int)_width },
-			{ DAB_DB_JSON_HEIGHT_KEY, (int)_height },
-			{ DAB_DB_JSON_LAYER_KEY, (int)_layer },
+			{ DAB_DB_JSON_WIDTH_KEY, (int)width() },
+			{ DAB_DB_JSON_HEIGHT_KEY, (int)height() },
+			{ DAB_DB_JSON_LAYER_KEY, (int)index() },
 			{ DAB_DB_JSON_RAW_FILES_KEY, raw_files_json },
 			{ DAB_DB_JSON_PART_FILES_KEY, part_files_json }
 		};
@@ -68,7 +74,7 @@ namespace dots_and_boxes_solver
 		using namespace gadt::console;
 		Table tb(3, 3);
 		tb.set_width({ 3, 5, 12 });
-		std::string title = "Game: " + gadt::ToString(_width) + " x " + gadt::ToString(_height) + " , layer = " + gadt::ToString(_layer);
+		std::string title = "Game: " + gadt::ToString(_width) + " x " + gadt::ToString(_height) + " , layer = " + gadt::ToString(index());
 		tb.enable_title({ title, ConsoleColor::Gray, TableAlign::Middle });
 		tb.set_cell_in_column(0, { 
 			{ "Type", ConsoleColor::Gray, TableAlign::Middle}, 
@@ -111,7 +117,7 @@ namespace dots_and_boxes_solver
 	//get folder of root directory
 	std::string LayerInfo::GetLayerDirectory() const
 	{
-		std::string path = GetRootDirectory() + gadt::ToString(_layer) + "/";
+		std::string path = GetRootDirectory() + gadt::ToString(index()) + "/";
 		if (!gadt::filesystem::exist_directory(path))
 			gadt::filesystem::create_directory(path);
 		return path;
@@ -152,7 +158,7 @@ namespace dots_and_boxes_solver
 	//get the path of partition file.
 	std::string LayerInfo::GetPartitionFilePath(size_t index, size_t partition_count) const
 	{
-		std::string path = GetRawDirectory() + index_to_part_file_name(index, partition_count);
+		std::string path = GetPartitionDirectory() + index_to_part_file_name(index, partition_count);
 		return path;
 	}
 

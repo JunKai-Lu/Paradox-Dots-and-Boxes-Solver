@@ -1,6 +1,6 @@
 ﻿#include "DbInfo.h"
 #include "LayerConatiner.hpp"
-#include "StateRepresentation.hpp"
+#include "StateDefine.hpp"
 
 #pragma once
 
@@ -25,7 +25,8 @@ namespace dots_and_boxes_solver
 		{
 			DabBoard<WIDTH, HEIGHT> board(item.first);
 			std::stringstream buffer;
-			for (size_t i = 0; i < EdgeCount<WIDTH, HEIGHT>(); i++)
+			size_t item_count = 0;
+			for (EdgeIndex i = 0; i < EdgeCount<WIDTH, HEIGHT>(); i++)
 			{
 				if (board.edge_exist(i))//we can remove this edge.
 				{
@@ -36,11 +37,13 @@ namespace dots_and_boxes_solver
 					if (box_count = 0)
 						new_margin = -new_margin;//m' = -m
 					else
-						new_margin = margin + box_count;
+						new_margin += box_count;
 					buffer << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
+					item_count++;
 				}
 			}
 			writer.write(buffer.str());
+			return item_count;
 		}
 
 		//sort all generated items and get their highest margin.

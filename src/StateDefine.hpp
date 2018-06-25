@@ -26,8 +26,20 @@ namespace dots_and_boxes_solver
 	{
 	private:
 		//static variables
-		static constexpr size_t _w0 = 0;//first index of horizon edges in the array.
-		static constexpr size_t _h0 = WIDTH * HEIGHT + WIDTH;//first index of vertical edges in the array.
+		static constexpr size_t _EDGE_COUNT = EdgeCount<WIDTH, HEIGHT>();	//count of edges.
+		static constexpr size_t _BOX_COUNT = BoxCount<WIDTH, HEIGHT>();		//count of boxes.
+
+		static constexpr size_t _H0 = 0;						//first index of horizon edges in the array.
+		static constexpr size_t _V0 = WIDTH * HEIGHT + WIDTH;	//first index of vertical edges in the array.
+
+		static constexpr size_t _LTB_HE = _H0;					//index of outside horizon edge of left top box;
+		static constexpr size_t _LTB_VE = _V0;					//index of outside vertical edge of left top box;
+		static constexpr size_t _RTB_HE = _H0 + WIDTH - 1;		//index of outside horizon edge of right top box;
+		static constexpr size_t _RTB_VE = _EDGE_COUNT - HEIGHT;	//index of outside vertical edge of right top box;
+		static constexpr size_t _LBB_HE = _V0 - WIDTH;			//index of outside horizon edge of left bottom box;
+		static constexpr size_t _LBB_VE = _V0 + HEIGHT - 1;		//index of outside vertical edge of left bottom box;
+		static constexpr size_t _RBB_HE = _V0 -1;				//index of outside horizon edge of right bottom box;
+		static constexpr size_t _RBB_VE = _EDGE_COUNT - 1;		//index of outside vertical edge of right bottom box;
 
 	private:
 		BoardType _edges;
@@ -38,122 +50,122 @@ namespace dots_and_boxes_solver
 		*/
 
 		//return true if the 'edge' is the index of a edge.
-		inline bool is_edge_index(size_t index) const
+		inline constexpr bool is_edge_index(size_t index) const
 		{
 			return index >= 0 && index < num_of_edges();
 		}
 
 		//return true if the 'edge' is he.
-		inline bool is_he(EdgeIndex edge) const
+		inline constexpr bool is_he(EdgeIndex edge) const
 		{
-			return edge >= 0 && edge < _h0;
+			return edge >= 0 && edge < _V0;
 		}
 
 		//return true if the 'edge' is ve.
-		inline bool is_ve(EdgeIndex edge) const
+		inline constexpr bool is_ve(EdgeIndex edge) const
 		{
-			return edge >= _h0 && edge < num_of_edges();
+			return edge >= _V0 && edge < num_of_edges();
 		}
 
 		//return true if the 'edge' is the.
-		inline bool is_the(EdgeIndex edge) const
+		inline constexpr bool is_the(EdgeIndex edge) const
 		{
-			return edge >= 0 && edge < (_h0 - WIDTH);
+			return edge >= 0 && edge < (_V0 - WIDTH);
 		}
 
 		//return true if the 'edge' is bhe.
-		inline bool is_bhe(EdgeIndex edge) const
+		inline constexpr bool is_bhe(EdgeIndex edge) const
 		{
-			return edge >= WIDTH  && edge < _h0;
+			return edge >= WIDTH  && edge < _V0;
 		}
 
 		//return true if the 'edge' is lve.
-		inline bool is_lve(EdgeIndex edge) const
+		inline constexpr bool is_lve(EdgeIndex edge) const
 		{
-			return edge >= _h0 && edge < (num_of_edges() - HEIGHT);
+			return edge >= _V0 && edge < (num_of_edges() - HEIGHT);
 		}
 
 		//return true if the 'edge' is ve.
-		inline bool is_rve(EdgeIndex edge) const
+		inline constexpr bool is_rve(EdgeIndex edge) const
 		{
-			return edge >= (_h0 + HEIGHT) && edge < num_of_edges();
+			return edge >= (_V0 + HEIGHT) && edge < num_of_edges();
 		}
 
 		//get the index by width and height
-		inline EdgeIndex get_the(DabPos pos) const
+		inline constexpr EdgeIndex get_the(DabPos pos) const
 		{ 
 			return (pos.y * WIDTH) + pos.x;
 		}
 
 		//get lve index by width and height
-		inline EdgeIndex get_lve(DabPos pos) const
+		inline constexpr EdgeIndex get_lve(DabPos pos) const
 		{
-			return _h0 + (HEIGHT * pos.x) + pos.y;
+			return _V0 + (HEIGHT * pos.x) + pos.y;
 		}
 		
 		//get bhe index by width and height
-		inline EdgeIndex get_bhe(DabPos pos) const
+		inline constexpr EdgeIndex get_bhe(DabPos pos) const
 		{
 			return (pos.y * WIDTH) + pos.x + WIDTH;
 		}
 
 		//get rve index by width and height
-		inline EdgeIndex get_rve(DabPos pos) const
+		inline constexpr EdgeIndex get_rve(DabPos pos) const
 		{
-			return _h0 + (HEIGHT * pos.x) + pos.y + HEIGHT;
+			return _V0 + (HEIGHT * pos.x) + pos.y + HEIGHT;
 		}
 
 		//get the position of 'edge'.
-		inline DabPos get_the_pos(EdgeIndex edge) const
+		inline constexpr DabPos get_the_pos(EdgeIndex edge) const
 		{
 			GADT_WARNING_IF(DAB_WARNING, !is_he(edge), " is not he");
 			return { edge % WIDTH , edge / WIDTH };
 		}
 
 		//get the position of 'edge'.
-		inline DabPos get_lve_pos(EdgeIndex edge) const
+		inline constexpr DabPos get_lve_pos(EdgeIndex edge) const
 		{
 			GADT_WARNING_IF(DAB_WARNING, !is_ve(edge), " is not ve");
-			return { (edge - _h0) / HEIGHT , (edge - _h0) % HEIGHT };
+			return { (edge - _V0) / HEIGHT , (edge - _V0) % HEIGHT };
 		}
 
 		//lve -> the of a box.
-		inline EdgeIndex lve_to_the(EdgeIndex edge) const
+		inline constexpr EdgeIndex lve_to_the(EdgeIndex edge) const
 		{
 			DabPos pos = get_lve_pos(edge);
 			return get_the(pos);
 		}
 
 		//the -> lve of a box. 
-		inline EdgeIndex the_to_lve(EdgeIndex edge) const
+		inline constexpr EdgeIndex the_to_lve(EdgeIndex edge) const
 		{
 			DabPos pos = get_the_pos(edge);
 			return get_lve(pos);
 		}
 
 		//the -> bhe of a box.
-		inline EdgeIndex the_to_bhe(EdgeIndex edge) const
+		inline constexpr EdgeIndex the_to_bhe(EdgeIndex edge) const
 		{
 			GADT_WARNING_IF(DAB_WARNING, !is_the(edge), "is not the");
 			return edge + WIDTH;
 		}
 
 		//bhe -> the of a box.
-		inline EdgeIndex bhe_to_the(EdgeIndex edge) const
+		inline constexpr EdgeIndex bhe_to_the(EdgeIndex edge) const
 		{
 			GADT_WARNING_IF(DAB_WARNING, !is_bhe(edge), "is not bhe");
 			return edge - WIDTH;
 		}
 
 		//lve -> rve of a box.
-		inline EdgeIndex lve_to_rve(EdgeIndex edge) const
+		inline constexpr EdgeIndex lve_to_rve(EdgeIndex edge) const
 		{
 			GADT_WARNING_IF(DAB_WARNING, !is_lve(edge), "is not lve");
 			return edge + HEIGHT;
 		}
 
 		//rve -> lve of a box.
-		inline EdgeIndex rve_to_lve(EdgeIndex edge) const
+		inline constexpr EdgeIndex rve_to_lve(EdgeIndex edge) const
 		{
 			GADT_WARNING_IF(DAB_WARNING, !is_rve(edge), "is not rve");
 			return edge - HEIGHT;
@@ -164,44 +176,46 @@ namespace dots_and_boxes_solver
 		*/
 
 		//return true if the 'index' is the index of boxes.
-		inline bool is_box_index(size_t index) const
+		inline constexpr bool is_box_index(size_t index) const
 		{
 			return index >= 0 && index < num_of_boxes();
 		}
 
 		//get the position of the box by index.
-		inline DabPos get_box_pos(size_t index) const
+		inline constexpr DabPos get_box_pos(size_t index) const
 		{
 			return get_the_pos(index);
 		}
 
 	public:
 		
-		constexpr DabBoard():
+		//default constructor.
+		constexpr inline DabBoard():
 			_edges(0)
 		{
 		}
 
-		constexpr DabBoard(BoardValueType bv):
+		//construct by value.
+		constexpr inline DabBoard(BoardValueType bv):
 			_edges(bv)
 		{
 
 		}
 
 		//to int
-		inline BoardValueType to_ullong() const
+		inline constexpr BoardValueType to_ullong() const
 		{
 			return _edges.to_ullong();
 		}
 
 		//get height
-		inline size_t height() const 
+		inline constexpr size_t height() const 
 		{
 			return HEIGHT;
 		}
 
 		//get width
-		inline size_t width() const
+		inline constexpr size_t width() const
 		{
 			return WIDTH;
 		}
@@ -291,13 +305,13 @@ namespace dots_and_boxes_solver
 		}
 
 		//set edge.
-		inline void set_edge(size_t index)
+		inline void set_edge(EdgeIndex index)
 		{
 			_edges.set(index);
 		}
 
 		//reset a edge to empty
-		inline void reset_edge(size_t index)
+		inline void reset_edge(EdgeIndex index)
 		{
 			_edges.reset(index);
 		}
@@ -333,7 +347,7 @@ namespace dots_and_boxes_solver
 		//fill in all the edges.
 		inline void set_all_edges()
 		{
-			for (size_t i = 0; i < num_of_edges(); i++)
+			for (EdgeIndex i = 0; i < num_of_edges(); i++)
 				set_edge(i);
 		}
 
@@ -341,6 +355,37 @@ namespace dots_and_boxes_solver
 		inline void reset_all_edges()
 		{
 			_edges = 0;
+		}
+
+		//minimize corner if possible, which may make the value smaller. 
+		void ChangeCorner()
+		{
+			if (_edges[_LTB_VE] == true && _edges[_LTB_HE] = false)
+			{
+				_edges.set(_LTB_HE);
+				_edges.reset(_LTB_VE);
+			}
+			if (_edges[_RTB_VE] == true && _edges[_RTB_HE] = false)
+			{
+				_edges.set(_RTB_HE);
+				_edges.reset(_RTB_VE);
+			}
+			if (_edges[_LBB_VE] == true && _edges[_LBB_HE] = false)
+			{
+				_edges.set(_LBB_HE);
+				_edges.reset(_LBB_VE);
+			}
+			if (_edges[_RBB_VE] == true && _edges[_RBB_HE] = false)
+			{
+				_edges.set(_RBB_HE);
+				_edges.reset(_RBB_VE);
+			}
+		}
+
+		void Rotate()
+		{
+			BoardType new_edges;
+
 		}
 	};
 
@@ -350,18 +395,40 @@ namespace dots_and_boxes_solver
 	private:
 
 		DabBoard<WIDTH, HEIGHT> _board;
-		bool _is_player_one;
+		bool _is_fir_player;
 		int _boxes_margin;
 
 	public:
 
+		//get the board.
+		const DabBoard<WIDTH, HEIGHT>& board() const
+		{
+			return _board;
+		}
+
+		//return true if the next move player is first player.
+		bool is_fir_player() const
+		{
+			return _is_fir_player;
+		}
+
+		//return the value that how many boxes that boxes captured by first player more than boxes that captured by second player.
+		int boxes_margin() const
+		{
+			return _boxes_margin;
+		}
+
+	public:
+
+		//default constructor
 		constexpr DabState():
 			_board(),
-			_is_player_one(true),
+			_is_fir_player(true),
 			_boxes_margin(0)
 		{
 		}
 
+		//create specified state.
 		constexpr DabState(DabBoard<WIDTH, HEIGHT> board, int boxes_margin) :
 			_board(board),
 			_is_player_one(true),
@@ -369,6 +436,7 @@ namespace dots_and_boxes_solver
 		{
 		}
 
+		//create specified state.
 		constexpr DabState(BoardValueType bv, int boxes_margin):
 			_board(bv),
 			_is_player_one(true),
@@ -462,16 +530,12 @@ namespace dots_and_boxes_solver
 			PrintEndLine<2>();
 		}
 
-		const DabBoard<WIDTH, HEIGHT>& board() const
-		{
-			return _board;
-		}
-
+		//set the state to full
 		void BeFull()
 		{
 			_board.set_all_edges();
 		}
-
+ 
 	};
 
 	template<size_t WIDTH, size_t HEIGHT>

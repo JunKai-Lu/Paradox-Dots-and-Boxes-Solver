@@ -1,7 +1,7 @@
 ﻿#include "GameDefine.h"
 #include "StateAnalyst.h"
 #include "Solver.h"
-#include "StateRepresentation.hpp"
+#include "StateDefine.hpp"
 #include "LayerConatiner.hpp"
 #include "DbController.hpp"
 #include "RetrospectMapper.h"
@@ -40,6 +40,11 @@ namespace dots_and_boxes_solver
 
 		//cmd 'map'
 		db->AddFunction("map", "start 'map' operation in current layer", [](Controller& controller)->void {
+			if (controller.focus_layer_index() == EdgeCount<WIDTH, HEIGHT>())
+			{
+				gadt::console::PrintError("illegal layer index");
+				return;
+			}
 			size_t thread_count = gadt::console::GetInput<size_t>("Input thread count >>");
 			controller.RunMapProcess(thread_count);
 		});
@@ -62,7 +67,20 @@ namespace dots_and_boxes_solver
 					return true;
 				}
 			}
+			gadt::console::PrintError("unexceted parameters");
 			return false;
+		});
+
+		db->AddFunction("next", "switch to next layer", [](Controller& controller)->void {
+			size_t layer = controller.focus_layer_index();
+			if (layer > 0 && layer <= EdgeCount<WIDTH, HEIGHT>())
+			{
+				controller.checkout(layer - 1);
+			}
+			else
+			{
+				gadt::console::PrintError("unexceted layer index.");
+			}
 		});
 
 		//cmd 'clear', clear db/

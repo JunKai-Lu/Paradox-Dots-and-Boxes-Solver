@@ -20,12 +20,12 @@ namespace dots_and_boxes_solver
 	constexpr char* DAB_DB_PARTITION_PATH = "partition/";
 	constexpr char* DAB_DB_LAYER_INFO_NAME = "layer.json";
 	constexpr char* DAB_DB_RAW_PREFIX = "Raw_";
-	constexpr char* DAB_DB_RAW_SUFFIX = ".DabRawLayer";
+	constexpr char* DAB_DB_RAW_SUFFIX = ".DabRawFile";
 	constexpr char* DAB_DB_PARTITION_PREFIX = "Part_";
-	constexpr char* DAB_DB_PARTITION_SUFFIX = ".DabLayerPartition";
+	constexpr char* DAB_DB_PARTITION_SUFFIX = ".DabPartitionFile";
 	constexpr char* DAB_DB_JSON_WIDTH_KEY = "width";
 	constexpr char* DAB_DB_JSON_HEIGHT_KEY = "height";
-	constexpr char* DAB_DB_JSON_LAYER_KEY = "layer";
+	constexpr char* DAB_DB_JSON_LAYER_KEY = "index";
 	constexpr char* DAB_DB_JSON_RAW_FILES_KEY = "raw_files";
 	constexpr char* DAB_DB_JSON_PART_FILES_KEY = "partition_files";
 
@@ -36,7 +36,7 @@ namespace dots_and_boxes_solver
 		bool _is_init;
 		const size_t _width;
 		const size_t _height;
-		const size_t _layer;
+		const size_t _index;
 
 		std::vector<size_t> _raw_files;
 		std::vector<size_t> _part_files;
@@ -58,9 +58,9 @@ namespace dots_and_boxes_solver
 			return _height;
 		}
 
-		inline size_t layer() const
+		inline size_t index() const
 		{
-			return _layer;
+			return _index;
 		}
 
 		inline const std::vector<size_t>& raw_files() const
@@ -97,18 +97,6 @@ namespace dots_and_boxes_solver
 			_part_files.push_back(index);
 		}
 
-		//claer all the raw files.
-		inline void clear_raw_files()
-		{
-			_raw_files.clear();
-		}
-
-		//claer all the raw files.
-		inline void clear_part_files()
-		{
-			_part_files.clear();
-		}
-
 		//get raw file name by index.
 		inline std::string index_to_raw_file_name(size_t index) const
 		{
@@ -118,20 +106,42 @@ namespace dots_and_boxes_solver
 		//get part file name by index.
 		inline std::string index_to_part_file_name(size_t index, size_t partition_count) const
 		{
-			return DAB_DB_PARTITION_PREFIX + gadt::ToString(index) + "_" + gadt::ToString(partition_count) + DAB_DB_PARTITION_SUFFIX;
+			return DAB_DB_PARTITION_PREFIX + gadt::ToString(index + 1) + "_" + gadt::ToString(partition_count) + DAB_DB_PARTITION_SUFFIX;
 		}
 
 
 	public:
 
 		//load layer info from file path.
-		LayerInfo(size_t width, size_t height, size_t layer);
+		LayerInfo(size_t width, size_t height, size_t index);
 
 		//save to file.
 		void SaveToFile() const;
 
 		//print info
 		void PrintInfo() const;
+
+		//claer all the raw files.
+		bool ClearRawFiles()
+		{
+			std::string dir = GetRawDirectory();
+			for (auto value : _raw_files)
+				gadt::filesystem::remove_file(GetRawFilePath(value));
+			gadt::filesystem::remove_directory(dir);
+			_raw_files.clear();
+			return gadt::filesystem::exist_directory(dir);
+		}
+
+		//claer all the raw files.
+		bool ClearPartFiles()
+		{
+			auto dir = GetPartitionDirectory();
+			for (auto value : _part_files)
+				gadt::filesystem::remove_file(GetPartitionFilePath(value, _part_files.size()));
+			gadt::filesystem::remove_directory(dir);
+			_part_files.clear();
+			return gadt::filesystem::exist_directory(dir);
+		}
 
 		//get folder of root directory
 		std::string GetRootDirectory() const;

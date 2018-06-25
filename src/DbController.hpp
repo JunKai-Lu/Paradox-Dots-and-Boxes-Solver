@@ -1,6 +1,6 @@
 ﻿#include "DbInfo.h"
 #include "LayerConatiner.hpp"
-#include "StateRepresentation.hpp"
+#include "StateDefine.hpp"
 
 #pragma once
 
@@ -16,13 +16,33 @@ namespace dots_and_boxes_solver
 	private:
 
 		LayerPointer _focus_layer;
-	
+
 	public:
 
 		//default constructor.
 		DbController() :
 			_focus_layer(new LayerInfo(WIDTH, HEIGHT, EdgeCount<WIDTH, HEIGHT>()))
 		{
+			if (_focus_layer->exist_raw_file() == false)
+			{
+				std::string path = _focus_layer->GetRawFilePath(0);
+				DabFileWriter writer(path);
+				DabState<WIDTH, HEIGHT> end_state;
+				end_state.BeFull();
+				writer.save_item(end_state.board().to_ullong(), 0);
+				_focus_layer->add_raw_file(0);
+				_focus_layer->SaveToFile();
+			}
+			if (_focus_layer->exist_partition_file() == false)
+			{
+				std::string path = _focus_layer->GetPartitionFilePath(0,1);
+				DabFileWriter writer(path);
+				DabState<WIDTH, HEIGHT> end_state;
+				end_state.BeFull();
+				writer.save_item(end_state.board().to_ullong(), 0);
+				_focus_layer->add_part_file(0);
+				_focus_layer->SaveToFile();
+			}
 		}
 
 		//get the reference of focus layer.
@@ -34,7 +54,7 @@ namespace dots_and_boxes_solver
 		//get current layer.
 		inline size_t focus_layer_index() const
 		{
-			return _focus_layer->layer();
+			return _focus_layer->index();
 		}
 
 		//check out to another layer.
@@ -69,8 +89,8 @@ namespace dots_and_boxes_solver
 		void ClearDB() const
 		{
 			gadt::filesystem::remove_directory(focus_layer()->GetRootDirectory());
-			focus_layer()->clear_raw_files();
-			focus_layer()->clear_part_files();
+			focus_layer()->ClearRawFiles();
+			focus_layer()->ClearPartFiles();
 			focus_layer()->SaveToFile();//recreate focus layer.
 		}
 
@@ -78,24 +98,22 @@ namespace dots_and_boxes_solver
 		void ClearLayer() const
 		{
 			gadt::filesystem::remove_directory(focus_layer()->GetLayerDirectory());
-			focus_layer()->clear_raw_files();
-			focus_layer()->clear_part_files();
+			focus_layer()->ClearPartFiles();
+			focus_layer()->ClearRawFiles();
 			focus_layer()->SaveToFile();//recreate focus layer.
 		}
 
 		//clear db of raw files
 		void ClearRawFiles() const
 		{
-			gadt::filesystem::remove_directory(focus_layer()->GetRawDirectory());
-			focus_layer()->clear_raw_files();
+			focus_layer()->ClearRawFiles();
 			focus_layer()->SaveToFile();//recreate focus layer.
 		}
 
 		//clear db of partition files
 		void ClearPartFiles() const
 		{
-			gadt::filesystem::remove_directory(focus_layer()->GetPartitionDirectory());
-			focus_layer()->clear_part_files();
+			focus_layer()->ClearPartFiles();
 			focus_layer()->SaveToFile();//recreate focus layer.
 		}
 	};
