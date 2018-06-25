@@ -175,10 +175,16 @@ namespace dots_and_boxes_solver
 		* box operation
 		*/
 
-		//return true if the 'index' is the index of boxes.
+		//return true if the 'index' is the index of a box.
 		inline constexpr bool is_box_index(size_t index) const
 		{
 			return index >= 0 && index < num_of_boxes();
+		}
+
+		//return true if the 'pos' is the point of a box.
+		inline constexpr bool is_box_pos(DabPos pos) const
+		{
+			return pos.x < WIDTH && pos.y < HEIGHT;
 		}
 
 		//get the position of the box by index.
@@ -193,6 +199,13 @@ namespace dots_and_boxes_solver
 		constexpr inline DabBoard():
 			_edges(0)
 		{
+		}
+
+		//construct by value.
+		constexpr inline DabBoard(BoardType b):
+			_edges(b)
+		{
+
 		}
 
 		//construct by value.
@@ -240,20 +253,20 @@ namespace dots_and_boxes_solver
 		}
 
 		//return true if the box had been captured.
-		inline bool box_exist(size_t index) const
+		inline bool box_exist(DabPos pos) const
 		{
-			GADT_WARNING_IF(DAB_WARNING, !is_box_index(index), "it is not box index");
-			return the_of_box_exist(index) && bhe_of_box_exist(index) && lve_of_box_exist(index) && rve_of_box_exist(index);
+			GADT_WARNING_IF(DAB_WARNING, !is_box_pos(pos), "it is not box index");
+			return box_edges_count(pos) == 4;
 		}
 
 		//return the number of exist that had exist for a box.
-		inline size_t box_edges_count(size_t index) const
+		inline size_t box_edges_count(DabPos pos) const
 		{
 			return 
-				(size_t) the_of_box_exist(index) +
-				(size_t) bhe_of_box_exist(index) +
-				(size_t) lve_of_box_exist(index) +
-				(size_t) rve_of_box_exist(index);
+				(size_t) the_exist(pos) +
+				(size_t) bhe_exist(pos) +
+				(size_t) lve_exist(pos) +
+				(size_t) rve_exist(pos);
 		}
 
 		//get the count of boxes that owns this edge, which means this edge is a part of the box(es), the result may be { 0, 1, 2}.
@@ -360,32 +373,117 @@ namespace dots_and_boxes_solver
 		//minimize corner if possible, which may make the value smaller. 
 		void ChangeCorner()
 		{
-			if (_edges[_LTB_VE] == true && _edges[_LTB_HE] = false)
+			if (_edges[_LTB_VE] == true && _edges[_LTB_HE] == false)
 			{
 				_edges.set(_LTB_HE);
 				_edges.reset(_LTB_VE);
 			}
-			if (_edges[_RTB_VE] == true && _edges[_RTB_HE] = false)
+			if (_edges[_RTB_VE] == true && _edges[_RTB_HE] == false)
 			{
 				_edges.set(_RTB_HE);
 				_edges.reset(_RTB_VE);
 			}
-			if (_edges[_LBB_VE] == true && _edges[_LBB_HE] = false)
+			if (_edges[_LBB_VE] == true && _edges[_LBB_HE] == false)
 			{
 				_edges.set(_LBB_HE);
 				_edges.reset(_LBB_VE);
 			}
-			if (_edges[_RBB_VE] == true && _edges[_RBB_HE] = false)
+			if (_edges[_RBB_VE] == true && _edges[_RBB_HE] == false)
 			{
 				_edges.set(_RBB_HE);
 				_edges.reset(_RBB_VE);
 			}
 		}
 
-		void Rotate()
+		//rotate the board with a 180 angle.
+		DabBoard Rotate() const
 		{
 			BoardType new_edges;
+			for (size_t i = _H0; i < _V0; i++)
+				if (_edges[_V0 - 1 - i] == true)
+					new_edges.set(i);
+			for (size_t i = _V0; i < _EDGE_COUNT; i++)
+				if (_edges[(_EDGE_COUNT - 1) - (i - _V0)] == true)
+					new_edges.set(i);
+			return DabBoard(new_edges);
+		}
 
+		//reverse the board(left-right)
+		DabBoard Reverse() const
+		{
+			BoardValueType temp = 0;
+			BoardValueType source = _edges.to_ullong();
+
+			//assemble the part of vectical edges
+			for (size_t ve_column = 0; ve_column < WIDTH + 1; ve_column++)
+			{
+				BoardValueType feature = (UINT64_MAX >> (64 - HEIGHT));//the value would be 0x1F if HEIGHT = 5
+				size_t v = (_V0 - HEIGHT + (ve_column * HEIGHT));
+				BoardValueType part = (source >> (_V0 + (ve_column * HEIGHT))) & feature;
+				temp = (temp << HEIGHT) | part;
+			}
+
+			//assemble the part of horizon edges.
+			for (size_t he_row = 0; he_row < HEIGHT + 1; he_row++)
+			{
+				size_t he_begin = (_V0 - WIDTH) - (he_row * WIDTH);//begin of each he row, from bottom to top.
+				for (size_t he_index = 0; he_index < WIDTH; he_index++)
+				{
+					temp = temp << 1;
+					if (_edges.get(he_begin + he_index) == true)
+						temp = temp | 0x1;
+				}
+			}
+			return DabBoard(temp);
+		}
+
+		//diagonally reverse the board
+		DabBoard DiagonalReverse() const
+		{
+			constexpr bool is_square = (WIDTH == HEIGHT) ? true : false;
+			if (is_square)
+			{
+				BoardValueType temp = 0;
+				for (size_t i = 0; i < _EDGE_COUNT; i++)
+				{
+					temp = temp << 1;
+					if (_edges[i] == true)
+						temp |= 0x1;
+				}
+				return DabBoard(temp);
+			}
+			return *this;
+		}
+
+		//get the minimal format of this board by rotate/reverse and change corner.
+		DabBoard ToMinimalFormat() const
+		{
+			//4 form for all board: prototype, rotate, reverse, rotate + reverse
+			//4 additional form for square board: diagonally reverse all above 4 form.
+			constexpr bool is_square = (WIDTH == HEIGHT) ? true : false;
+			constexpr size_t count = is_square ? 8 : 4;
+
+			DabBoard boards[count];
+			boards[0] = *this;//prototype
+			boards[1] = this->Rotate();
+			boards[2] = this->Reverse();
+			boards[3] = boards[1].Reverse();
+			if (is_square)
+			{
+				boards[4] = boards[0].DiagonalReverse();
+				boards[5] = boards[1].DiagonalReverse();
+				boards[6] = boards[2].DiagonalReverse();
+				boards[7] = boards[3].DiagonalReverse();
+			}
+			boards[0].ChangeCorner();
+			DabBoard minimal = boards[0];
+			for (size_t i = 1; i < count; i++)
+			{
+				boards[i].ChangeCorner();
+				if (boards[i]._edges.to_ullong() < minimal._edges.to_ullong())
+					minimal = boards[i];
+			}
+			return minimal;
 		}
 	};
 
@@ -431,7 +529,7 @@ namespace dots_and_boxes_solver
 		//create specified state.
 		constexpr DabState(DabBoard<WIDTH, HEIGHT> board, int boxes_margin) :
 			_board(board),
-			_is_player_one(true),
+			_is_fir_player(true),
 			_boxes_margin(boxes_margin)
 		{
 		}
@@ -468,7 +566,7 @@ namespace dots_and_boxes_solver
 			std::cout << prev_space;
 			Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]", ConsoleColor::Yellow);
 			std::cout << std::endl << prev_space;
-			Cprintf(_is_player_one? "Player: 1":"Player: 2", ConsoleColor::Cyan);
+			Cprintf(_is_fir_player? "Player: 1":"Player: 2", ConsoleColor::Cyan);
 			std::cout << std::endl << prev_space;
 			Cprintf("Boxes Margin: " + gadt::ToString(_boxes_margin), ConsoleColor::Green);
 			PrintEndLine<2>();
@@ -501,7 +599,7 @@ namespace dots_and_boxes_solver
 						Cprintf(empty_ve_str, edge_color);
 
 					//print box
-					if (_board.rve_exist(pos))
+					if (_board.box_exist(pos))
 						Cprintf(box_str, box_color);
 					else
 						Cprintf(empty_box_str, box_color);
@@ -536,6 +634,20 @@ namespace dots_and_boxes_solver
 			_board.set_all_edges();
 		}
  
+		//set random edge.
+		void SetRandomEdge()
+		{
+			gadt::bitboard::ValueVector<EdgeCount<WIDTH, HEIGHT>()> moves;
+			for (EdgeIndex i = 0; i < EdgeCount<WIDTH, HEIGHT>(); i++)
+				if (!_board.edge_exist(i))
+					moves.push(i);
+			if (moves.length() > 0)
+			{
+				size_t edge = moves.draw_value();
+				_board.set_edge((EdgeIndex)edge);
+			}
+		}
+
 	};
 
 	template<size_t WIDTH, size_t HEIGHT>

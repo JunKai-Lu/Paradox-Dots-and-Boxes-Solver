@@ -13,11 +13,16 @@ namespace dots_and_boxes_solver
 	void DabTest()
 	{
 		DabState<5, 5> dab55;
-		dab55.BeFull();
-		for (EdgeIndex edge = 0; edge < EdgeCount<5,5>(); edge++)
+		
+		for (EdgeIndex edge = 0; edge < EdgeCount<5,5>()/2; edge++)
 		{
-			std::cout << dab55.board().count_of_boxes_that_owns_edge(edge);
+			dab55.SetRandomEdge();
 		}
+		dab55.Visualization();
+		auto dr = DabState<5,5>(dab55.board().DiagonalReverse(), 0);
+		dr.Visualization();
+		//auto rotate = DabState<5, 5>(dab55.board().Rotate(),0);
+		//rotate.Visualization();
 	}
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
