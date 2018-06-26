@@ -42,6 +42,7 @@ namespace dots_and_boxes_solver
 		static constexpr size_t _RBB_VE = _EDGE_COUNT - 1;		//index of outside vertical edge of right bottom box;
 
 	private:
+
 		BoardType _edges;
 
 	private:
@@ -188,7 +189,7 @@ namespace dots_and_boxes_solver
 		}
 
 		//get the position of the box by index.
-		inline constexpr DabPos get_box_pos(size_t index) const
+		inline constexpr DabPos get_box_pos(EdgeIndex index) const
 		{
 			return get_the_pos(index);
 		}
@@ -485,6 +486,405 @@ namespace dots_and_boxes_solver
 			}
 			return minimal;
 		}
+
+		//return ture if the two box are neighbour
+		bool IsNeighbourBox(DabPos a, DabPos b) const
+		{
+			if (a.x == b.x)//same column
+				if (a.y - b.y == 1 || b.y - a.y == 1)
+					return true;
+			if (a.y == b.y)//same row
+				if (a.x - b.x == 1 || b.x - a.x == 1)
+					return true;
+			return false;
+		}
+
+		//judge whether a edge is a free-edge, which means the fillup of it would not cause a dead-chain. 
+		bool IsFreeEdge(EdgeIndex edge) const
+		{
+			if (is_he(edge))
+			{
+				if (_edges.get(edge) == false)
+				{ 
+					bool affect_upper_box = false;
+					bool affect_lower_box = false;
+					//check the box below the edge.
+					if (is_the(edge))
+					{
+						EdgeIndex fir_box_bhe = the_to_bhe(edge);
+						EdgeIndex fir_box_lve = the_to_lve(edge);
+						EdgeIndex fir_box_rve = lve_to_rve(fir_box_lve);
+						size_t fir_box_edge_num = (size_t)_edges.get(fir_box_bhe) + (size_t)_edges.get(fir_box_lve) + (size_t)_edges.get(fir_box_rve);
+						if (fir_box_edge_num == 2)
+						{
+							//check the lower box.
+							if (_edges.get(fir_box_bhe) == false)
+							{
+								if (is_the(fir_box_bhe))
+								{
+									EdgeIndex sec_box_the = fir_box_bhe;
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									EdgeIndex sec_box_lve = the_to_lve(sec_box_the);
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									if ((size_t)_edges.get(sec_box_lve) + (size_t)_edges.get(sec_box_rve) + (size_t)_edges.get(sec_box_bhe) == 2)
+									{
+										affect_lower_box = true;
+									}
+								}
+							}
+							//check the right box.
+							else if (_edges.get(fir_box_lve) == false)
+							{
+								if (is_rve(fir_box_lve))
+								{
+									EdgeIndex sec_box_rve = fir_box_lve;
+									EdgeIndex sec_box_lve = rve_to_lve(sec_box_rve);
+									EdgeIndex sec_box_the = lve_to_the(sec_box_lve);
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									if ((size_t)_edges.get(sec_box_the) + (size_t)_edges.get(sec_box_bhe) + _edges.get(sec_box_lve) == 2)
+									{
+										affect_lower_box = true;
+									}
+								}
+							}
+							//check the left box.
+							else if (_edges.get(fir_box_rve) == false)
+							{
+								if (is_lve(fir_box_rve))
+								{
+									EdgeIndex sec_box_lve = fir_box_rve;
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									EdgeIndex sec_box_the = lve_to_the(sec_box_lve);
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									if ((size_t)_edges.get(sec_box_the) + (size_t)_edges.get(sec_box_bhe) + _edges.get(sec_box_rve) == 2)
+									{
+										affect_lower_box = true;
+									}
+								}
+							}
+						}
+						else if (fir_box_edge_num == 3)
+						{
+							//dead box.
+							return false;
+						}
+					}
+
+					//check the box above the edge
+					if (is_bhe(edge))
+					{
+						EdgeIndex fir_box_bhe = edge;
+						EdgeIndex fir_box_the = bhe_to_the(fir_box_bhe);
+						EdgeIndex fir_box_lve = the_to_lve(fir_box_the);
+						EdgeIndex fir_box_rve = lve_to_rve(fir_box_lve);
+						size_t fir_box_edge_num = (size_t)_edges.get(fir_box_the) + (size_t)_edges.get(fir_box_lve) + (size_t)_edges.get(fir_box_rve);
+						if (fir_box_edge_num == 2)
+						{
+							//check upper box.
+							if (_edges.get(fir_box_the) == false)
+							{
+								if (is_bhe(fir_box_the))
+								{
+									EdgeIndex sec_box_bhe = fir_box_the;
+									EdgeIndex sec_box_the = bhe_to_the(sec_box_bhe);
+									EdgeIndex sec_box_lve = the_to_lve(sec_box_the);
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									if ((size_t)_edges.get(sec_box_lve) + (size_t)_edges.get(sec_box_rve) + (size_t)_edges.get(sec_box_the) == 2)
+									{
+										affect_upper_box = true;
+									}
+								}
+							}
+							//check left box.
+							else if (_edges.get(fir_box_lve) == false)
+							{
+								if (is_rve(fir_box_lve))
+								{
+									EdgeIndex sec_box_rve = fir_box_lve;
+									EdgeIndex sec_box_lve = rve_to_lve(sec_box_rve);
+									EdgeIndex sec_box_the = lve_to_the(sec_box_lve);
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									if ((size_t)_edges.get(sec_box_the) + (size_t)_edges.get(sec_box_bhe) + (size_t)_edges.get(sec_box_lve) == 2)
+									{
+										affect_upper_box = true;
+									}
+								}
+							}
+							//check right box.
+							else if (_edges.get(fir_box_rve) == false)
+							{
+								if (is_lve(fir_box_rve))
+								{
+									EdgeIndex sec_box_lve = fir_box_rve;
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									EdgeIndex sec_box_the = lve_to_the(sec_box_lve);
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									if ((size_t)_edges.get(sec_box_the) + (size_t)_edges.get(sec_box_bhe) + (size_t)_edges.get(sec_box_rve) == 2)
+									{
+										affect_upper_box = true;
+									}
+								}
+							}
+						}
+						else if (fir_box_edge_num == 3)
+						{
+							//dead box.
+							return false;
+						}
+					}
+
+					if (affect_upper_box || affect_lower_box)
+						return false;
+					return true;
+				}
+			}
+			else if (is_ve(edge))
+			{
+				if (_edges.get(edge) == false)
+				{
+					//check the box on the left of the edge.
+					bool affect_left_box = false;
+					bool affect_right_box = false;
+
+					//check the box on the left of the edge.
+					if (is_rve(edge))
+					{
+						EdgeIndex fir_box_rve = edge;
+						EdgeIndex fir_box_lve = rve_to_lve(fir_box_rve);
+						EdgeIndex fir_box_the = lve_to_the(fir_box_lve);
+						EdgeIndex fir_box_bhe = the_to_bhe(fir_box_the);
+						size_t fir_box_edge_num = (size_t)_edges.get(fir_box_bhe) + (size_t)_edges.get(fir_box_the) + (size_t)_edges.get(fir_box_lve);
+						if (fir_box_edge_num == 2)
+						{
+							//check the left box.
+							if (_edges.get(fir_box_lve) == false)
+							{
+								if (is_rve(fir_box_lve))
+								{
+									EdgeIndex sec_box_rve = fir_box_lve;
+									EdgeIndex sec_box_lve = rve_to_lve(sec_box_rve);
+									EdgeIndex sec_box_the = lve_to_the(sec_box_lve);
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									if ((size_t)_edges.get(sec_box_the) + (size_t)_edges.get(sec_box_bhe) + (size_t)_edges.get(sec_box_lve) == 2)
+									{
+										affect_left_box = true;
+									}
+								}
+							}
+							//check the upper box.
+							else if (_edges.get(fir_box_the) == false)
+							{
+								if (is_bhe(fir_box_the))
+								{
+									EdgeIndex sec_box_bhe = fir_box_the;
+									EdgeIndex sec_box_the = bhe_to_the(sec_box_bhe);
+									EdgeIndex sec_box_lve = the_to_lve(sec_box_the);
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									if ((size_t)_edges.get(sec_box_the) + (size_t)_edges.get(sec_box_lve) + (size_t)_edges.get(sec_box_rve) == 2)
+									{
+										affect_left_box = true;
+									}
+								}
+							}
+							//check the lower box.
+							else if (_edges.get(fir_box_bhe) == false)
+							{
+								if (is_the(fir_box_bhe))
+								{
+									EdgeIndex sec_box_the = fir_box_bhe;
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									EdgeIndex sec_box_lve = the_to_lve(sec_box_the);
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									if ((size_t)_edges.get(sec_box_bhe) + (size_t)_edges.get(sec_box_lve) + (size_t)_edges.get(sec_box_rve) == 2)
+									{
+										affect_left_box = true;
+									}
+								}
+							}
+						}
+						else if (fir_box_edge_num == 3)
+						{
+							//dead box.
+							return false;
+						}
+					}
+
+					//check the box on the right of the edge.
+					if (is_lve(edge))
+					{
+						EdgeIndex fir_box_lve = edge;
+						EdgeIndex fir_box_rve = lve_to_rve(fir_box_lve);
+						EdgeIndex fir_box_the = lve_to_the(fir_box_lve);
+						EdgeIndex fir_box_bhe = the_to_bhe(fir_box_the);
+						size_t fir_box_edge_num = (size_t)_edges.get(fir_box_bhe) + (size_t)_edges.get(fir_box_the) + (size_t)_edges.get(fir_box_rve);
+						if (fir_box_edge_num == 2)
+						{
+							//check the right box.
+							if (_edges.get(fir_box_rve) == false)
+							{
+								if (is_lve(fir_box_rve))
+								{
+									EdgeIndex sec_box_lve = fir_box_rve;
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									EdgeIndex sec_box_the = lve_to_the(sec_box_lve);
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									if ((size_t)_edges.get(sec_box_rve) + (size_t)_edges.get(sec_box_the) + (size_t)_edges.get(sec_box_bhe) == 2)
+									{
+										affect_right_box = true;
+									}
+								}
+							}
+							//check the upper box.
+							else if (_edges.get(fir_box_the) == false)
+							{
+								if (is_bhe(fir_box_the))
+								{
+									EdgeIndex sec_box_bhe = fir_box_the;
+									EdgeIndex sec_box_the = bhe_to_the(sec_box_bhe);
+									EdgeIndex sec_box_lve = the_to_lve(sec_box_the);
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									if ((size_t)_edges.get(sec_box_the) + (size_t)_edges.get(sec_box_lve) + (size_t)_edges.get(sec_box_rve) == 2)
+									{
+										affect_right_box = true;
+									}
+								}
+							}
+							//check the lower box.
+							else if (_edges.get(fir_box_bhe) == false)
+							{
+								if (is_the(fir_box_bhe))
+								{
+									EdgeIndex sec_box_the = fir_box_bhe;
+									EdgeIndex sec_box_bhe = the_to_bhe(sec_box_the);
+									EdgeIndex sec_box_lve = the_to_lve(sec_box_the);
+									EdgeIndex sec_box_rve = lve_to_rve(sec_box_lve);
+									if ((size_t)_edges.get(sec_box_bhe) + (size_t)_edges.get(sec_box_lve) + (size_t)_edges.get(sec_box_rve) == 2)
+									{
+										affect_right_box = true;
+									}
+								}
+							}
+						}
+						else if (fir_box_edge_num == 3)
+						{
+							//dead box.
+							return false;
+						}
+					}
+
+					if (affect_left_box || affect_right_box)
+						return false;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		//return true if there is any free-edge exist.
+		bool ExistFreeEdge() const
+		{
+			for (EdgeIndex edge = 0; edge < _EDGE_COUNT; edge++)
+			{
+				if (IsFreeEdge(edge))
+					return true;
+			}
+			return false;
+		}
+
+		//get not reasonable state
+		bool IsReasonable() const
+		{
+			size_t dead_box = 0;
+			size_t dead_chain = 0;
+			EdgeIndex fir_dead_box_the = _EDGE_COUNT;
+			for (EdgeIndex fir_box_the = 0; fir_box_the < _BOX_COUNT; fir_box_the++)
+			{
+				EdgeIndex fir_box_bhe = the_to_bhe(fir_box_the);
+				EdgeIndex fir_box_lve = the_to_lve(fir_box_the);
+				EdgeIndex fir_box_rve = lve_to_rve(fir_box_lve);
+				if ((size_t)_edges.get(fir_box_the) + (size_t)_edges.get(fir_box_bhe) + (size_t)_edges.get(fir_box_lve) + (size_t)_edges.get(fir_box_rve) == 3)
+				{
+					size_t sec_box_edge_count = 0;
+
+					//check upper box.
+					if (_edges.get(fir_box_the) == false)
+					{
+						if (is_bhe(fir_box_the))
+						{
+							DabPos box_pos = get_box_pos(fir_box_the);
+							sec_box_edge_count = box_edges_count(box_pos - DabPos{ 0,1 });
+						}
+					}
+					//check lower box
+					else if (_edges.get(fir_box_bhe) == false)
+					{
+						if (is_the(fir_box_bhe))
+						{
+							DabPos box_pos = get_box_pos(fir_box_the);
+							sec_box_edge_count = box_edges_count(box_pos + DabPos{ 0, 1 });
+						}
+							
+					}
+					//check left box.
+					else if (_edges.get(fir_box_lve) == false)
+					{
+						if (is_rve(fir_box_lve))
+						{
+							DabPos box_pos = get_box_pos(fir_box_the);
+							sec_box_edge_count = box_edges_count(box_pos - DabPos{ 1, 0 });
+						}
+					}
+					//check right box.
+					else if (_edges.get(fir_box_rve) == false)
+					{
+						if (is_lve(fir_box_rve))
+						{
+							DabPos box_pos = get_box_pos(fir_box_the);
+							sec_box_edge_count = box_edges_count(box_pos + DabPos{ 1, 0 });
+						}
+					}
+
+					if (sec_box_edge_count == 2)//is dead chain
+					{
+						dead_chain++;
+						if (dead_chain > 2)
+							return false;
+					}
+					else//is dead box.
+					{
+						dead_box++;
+						if (dead_box == 1)
+						{
+							fir_dead_box_the = fir_box_the;
+						}
+						else if (dead_box == 2)
+						{
+							//if those two dead box is not neighbour ,this is a unreasonable state.
+							if (IsNeighbourBox(get_box_pos(fir_box_the), get_box_pos(fir_dead_box_the)) == false)
+								return false;
+						}
+						else
+						{
+							return false;
+						}
+					}
+				}
+			}
+
+			//if dead chain and dead box coexist, this is a unreasonable state.
+			if (dead_chain > 0 && dead_box > 0)
+			{
+				return false;
+			}
+
+			//if any dead chain exist, it must be a rear state, which means there is no free-edge exist in this state.
+			if (dead_chain > 0 && ExistFreeEdge())
+			{
+				return false;
+			}
+
+			return true;
+		}
 	};
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
@@ -564,11 +964,12 @@ namespace dots_and_boxes_solver
 
 			//print title.
 			std::cout << prev_space;
-			Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]", ConsoleColor::Yellow);
-			std::cout << std::endl << prev_space;
-			Cprintf(_is_fir_player? "Player: 1":"Player: 2", ConsoleColor::Cyan);
-			std::cout << std::endl << prev_space;
-			Cprintf("Boxes Margin: " + gadt::ToString(_boxes_margin), ConsoleColor::Green);
+			Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]  ", ConsoleColor::Yellow);
+			//std::cout << std::endl << prev_space;
+			Cprintf(_is_fir_player? "P0":"P1", ConsoleColor::Cyan);
+			//std::cout << std::endl << prev_space;
+			Cprintf("  Margin: " + gadt::ToString(_boxes_margin), ConsoleColor::Green);
+			Cprintf(std::string("  Reasonable: ") + (board().IsReasonable() ? "Y" : "N"), ConsoleColor::Brown);
 			PrintEndLine<2>();
 
 			//print top horizon edges.

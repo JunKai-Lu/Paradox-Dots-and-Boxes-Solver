@@ -49,8 +49,13 @@ namespace dots_and_boxes_solver
 		//sort all generated items and get their highest margin.
 		static bool ReduceFunc(const DabStateItem & item, LayerTable & layer_table)
 		{
-			DabStateItem min_item = { DabBoard<WIDTH,HEIGHT>(item.first).ToMinimalFormat().to_ullong() ,item.second };
-			return layer_table.UpdateIfLarger(min_item);
+			DabBoard<WIDTH, HEIGHT> board(item.first);
+			if (board.IsReasonable())
+			{
+				DabStateItem min_item = { board.ToMinimalFormat().to_ullong() ,item.second };
+				return layer_table.UpdateIfLarger(min_item);
+			}
+			return false;
 		}
 
 		static bool FilterFunc(BoardValueType)

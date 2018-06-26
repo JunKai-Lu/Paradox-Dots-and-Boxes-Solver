@@ -76,6 +76,7 @@ namespace dots_and_boxes_solver
 			return false;
 		});
 
+		//cmd 'next', checkout to next layer.
 		db->AddFunction("next", "switch to next layer", [](Controller& controller)->void {
 			size_t layer = controller.focus_layer_index();
 			if (layer > 0 && layer <= EdgeCount<WIDTH, HEIGHT>())
@@ -88,8 +89,26 @@ namespace dots_and_boxes_solver
 			}
 		});
 
+		db->AddFunction("print", "print items in file.", [](Controller& controller, const gadt::shell::ParamsList& params)->bool {
+			if (params.size() == 2)
+			{
+				size_t index = gadt::ToSizeT(params[1]);
+				if (params[0] == "raw")
+				{
+					controller.PrintRaw(index);
+					return true;
+				}
+				else if (params[0] == "part")
+				{
+					controller.PrintPartition(index);
+					return true;
+				}
+			}
+			return false;
+		});
+
 		//cmd 'clear', clear db/
-		db->AddFunction("clear", "clear game db", [](Controller& controller, const gadt::shell::ParamsList& params)->bool {
+		db->AddFunction("cleardb", "clear game db", [](Controller& controller, const gadt::shell::ParamsList& params)->bool {
 			if (params.size() == 1)
 			{
 				std::string str = gadt::console::GetInput("Please reinput target database to confirm your operation >>");
@@ -113,7 +132,7 @@ namespace dots_and_boxes_solver
 						gadt::console::PrintMessage("Clear Raw Files Success!");
 						return true;
 					}
-					else if (params[0] == "partition")
+					else if (params[0] == "part")
 					{
 						controller.ClearPartFiles();
 						gadt::console::PrintMessage("Clear Partition Files Success!");

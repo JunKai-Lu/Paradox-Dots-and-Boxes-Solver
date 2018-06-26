@@ -774,7 +774,6 @@ namespace dots_and_boxes
 			{
 				return false;
 			}
-
 			return true;
 		}
 

@@ -85,6 +85,60 @@ namespace dots_and_boxes_solver
 			reducer.Run();
 		}
 
+		//print items in raw file.
+		void PrintRaw(size_t index) const
+		{
+			std::string path = focus_layer()->GetRawFilePath(index);
+			if (gadt::filesystem::exist_file(path) == false)
+			{
+				gadt::console::PrintError("raw file not found!");
+				return;
+			}
+			DabFileLoader loader(path);
+			for (size_t count = 0;; count++)
+			{
+				auto item = loader.LoadNextItem();
+				if (loader.is_eof())
+				{
+					gadt::console::PrintMessage("EOF, item count = " + gadt::ToString(count));
+					return;
+				}
+				DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Visualization();
+				if (!gadt::console::GetUserConfirm("continue?"))
+				{
+					gadt::console::PrintMessage("print completed, item count = " + gadt::ToString(count));
+					return;
+				}
+			}
+		}
+
+		//print items in partition file.
+		void PrintPartition(size_t index) const
+		{
+			std::string path = focus_layer()->GetPartitionFilePath(index, focus_layer()->part_files().size());
+			if (gadt::filesystem::exist_file(path) == false)
+			{
+				gadt::console::PrintError("partition file not found!");
+				return;
+			}
+			DabFileLoader loader(path);
+			for (size_t count = 0;; count ++)
+			{
+				auto item = loader.LoadNextItem();
+				if (loader.is_eof())
+				{
+					gadt::console::PrintMessage("EOF, item count = " + gadt::ToString(count));
+					return;
+				}
+				DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Visualization();
+				if (!gadt::console::GetUserConfirm("continue?"))
+				{
+					gadt::console::PrintMessage("print completed, item count = " + gadt::ToString(count));
+					return;
+				}
+			}
+		}
+
 		//clear db.
 		void ClearDB() const
 		{
