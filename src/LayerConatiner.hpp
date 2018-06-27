@@ -1,7 +1,6 @@
 ﻿#include "GameDefine.h"
 #include <unordered_map>
 
-
 #pragma once
 
 namespace dots_and_boxes_solver
@@ -104,7 +103,7 @@ namespace dots_and_boxes_solver
 		size_t OutputToFile(DabFileWriter& writer)
 		{
 			for (auto item : _table)
-				writer.save_item(item);
+				writer.save_item(item.first, item.second);
 			return _table.size();
 		}
 	};

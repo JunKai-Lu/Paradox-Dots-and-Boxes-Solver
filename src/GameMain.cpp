@@ -44,21 +44,47 @@ namespace dots_and_boxes_solver
 		});
 
 		//cmd 'map'
-		db->AddFunction("map", "start 'map' operation in current layer", [](Controller& controller)->void {
+		db->AddFunction("map", "start 'map' operation in current layer", [](Controller& controller, const gadt::shell::ParamsList& params)->bool {
+			size_t thread_count = 1;
 			if (controller.focus_layer_index() == EdgeCount<WIDTH, HEIGHT>())
 			{
 				gadt::console::PrintError("illegal layer index");
-				return;
+				return false;
 			}
-			size_t thread_count = gadt::console::GetInput<size_t>("Input thread count >>");
+			if (params.size() == 0)
+				thread_count = gadt::console::GetInput<size_t>("Input thread count >>");
+			else if (params.size() == 1)
+			{
+				thread_count = gadt::ToSizeT(params[0]);
+				if (thread_count == 0 || thread_count > 8)
+					return false;
+			}
+			else
+				return false;
 			controller.RunMapProcess(thread_count);
+			return true;
 		});
 
 		//cmd 'reduce'
-		db->AddFunction("reduce", "start 'reduce' operation in current layer", [](Controller& controller)->void {
-			size_t thread_count = gadt::console::GetInput<size_t>("Input thread count >>");
-			size_t partition_count = gadt::console::GetInput<size_t>("Input partition count >>");
+		db->AddFunction("reduce", "start 'reduce' operation in current layer", [](Controller& controller, const gadt::shell::ParamsList& params)->bool {
+			size_t thread_count = 1;
+			size_t partition_count = 1;
+			if (params.size() == 0)
+			{
+				thread_count = gadt::console::GetInput<size_t>("Input thread count >>");
+				partition_count = gadt::console::GetInput<size_t>("Input partition count >>");
+			}
+			else if (params.size() == 2)
+			{
+				thread_count = gadt::ToSizeT(params[0]);
+				partition_count = gadt::ToSizeT(params[1]);
+				if (thread_count == 0 || thread_count > 8)
+					return false;
+				if (partition_count == 0 || partition_count > RETROSPCECT_MAX_PARTITION_COUNT)
+					return false;
+			}
 			controller.RunReduceProcess(thread_count, partition_count);
+			return true;
 		});
 
 		//cmd 'checkout', allow user to change the layer they control

@@ -35,14 +35,17 @@ namespace dots_and_boxes_solver
 					MarginType box_count = static_cast<MarginType>(board.count_of_boxes_that_owns_edge(i));
 					DabBoard<WIDTH, HEIGHT> new_board = board;
 					new_board.reset_edge(i);
-					MarginType new_margin = item.second;
-					if (box_count == 0)
-						new_margin = -new_margin;//m' = -m
-					else
-						new_margin += box_count;
-					//buffer << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
-					cache << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
-					item_count++;
+					if (new_board.IsReasonable())
+					{
+						MarginType new_margin = item.second;
+						if (box_count == 0)
+							new_margin = -new_margin;//m' = -m
+						else
+							new_margin += box_count;
+						//buffer << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
+						cache << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
+						item_count++;
+					}
 				}
 			}
 			//writer.write(buffer.str());

@@ -166,7 +166,7 @@ namespace dots_and_boxes_solver
 
 		//print setting.
 		PrintSetting(feature_lists);
-		if (gadt::console::GetUserConfirm("Do you confirm that running reducer under this setting?"))
+		if (true)//gadt::console::GetUserConfirm("Do you confirm that running reducer under this setting?"))
 		{
 			if (_layer.exist_partition_file())
 			{

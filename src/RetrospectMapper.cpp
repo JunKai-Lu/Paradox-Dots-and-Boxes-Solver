@@ -90,7 +90,7 @@ namespace dots_and_boxes_solver
 		auto file_lists = AssignFileLists(index_lists);
 		std::vector<size_t> item_counts(_thread_count, 0);
 		PrintSetting(index_lists);
-		if (gadt::console::GetUserConfirm("Do you confirm that running mapper under this setting?"))
+		if (true)//gadt::console::GetUserConfirm("Do you confirm that running mapper under this setting?"))
 		{
 			//clear db if need.
 			if (_layer.exist_raw_file())
