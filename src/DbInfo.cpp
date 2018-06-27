@@ -73,7 +73,7 @@ namespace dots_and_boxes_solver
 	{
 		using namespace gadt::console;
 		Table tb(3, 3);
-		tb.set_width({ 3, 5, 12 });
+		tb.set_width({ 4, 13, 13 });
 		std::string title = "Game: " + gadt::ToString(_width) + " x " + gadt::ToString(_height) + " , layer = " + gadt::ToString(index());
 		tb.enable_title({ title, ConsoleColor::Gray, TableAlign::Middle });
 		tb.set_cell_in_column(0, { 
@@ -88,14 +88,14 @@ namespace dots_and_boxes_solver
 			});
 		std::stringstream raw_files_ss;
 		std::stringstream part_files_ss;
-		raw_files_ss << "[";
-		part_files_ss << "[";
-		for (auto value : _raw_files)
-			raw_files_ss << value << ", ";
-		for (auto value : _part_files)
-			part_files_ss << value << ", ";
-		raw_files_ss << "]";
-		part_files_ss << "]";
+		raw_files_ss << "[ ";
+		part_files_ss << "[ ";
+		for (size_t n = 0; n < _raw_files.size(); n++)
+			raw_files_ss << _raw_files[n] << (n + 1 == _raw_files.size() ? "" : ", ");
+		for (size_t n = 0; n < _part_files.size(); n++)
+			part_files_ss << _part_files[n] << (n + 1 == _part_files.size() ? "" : ", ");
+		raw_files_ss << " ]";
+		part_files_ss << " ]";
 		tb.set_cell({ gadt::ToString(_raw_files.size()) + " files", TableAlign::Middle }, 1, 1);
 		tb.set_cell({ gadt::ToString(_part_files.size()) + " files", TableAlign::Middle }, 2, 1);
 		tb.set_cell({ raw_files_ss.str(), TableAlign::Middle }, 1, 2);

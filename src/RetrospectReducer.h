@@ -10,6 +10,7 @@ namespace dots_and_boxes_solver
 	private:
 
 		using FileList = std::vector<std::string>;
+		using ItemVector = std::vector<DabStateItem>;
 		using FeatureList = std::vector<size_t>;
 		using CountList = std::vector<size_t>;
 
@@ -23,23 +24,29 @@ namespace dots_and_boxes_solver
 
 	private:
 
+		//assign feature list for each thread.
+		std::vector<FeatureList> AssignFeatureList(size_t feature_count, size_t list_count) const;
+
 		//get raw file list from current layer info.
 		FileList GetFileList() const;
+
+		//load items into item_vec;
+		void LoadItems(ItemVector& item_vec) const;
 
 		//get group feature.
 		size_t GetGroupFeature(const DabStateItem& item) const;
 
 		//print setting
-		void PrintSetting() const;
+		void PrintSetting(const std::vector<FeatureList>& feature_list) const;
 
 		//print result
-		void PrintResult(double time, std::vector<FeatureList>& feature_list, std::vector<CountList>& count_list) const;
+		void PrintResult(double time, const std::vector<FeatureList>& feature_list, const std::vector<CountList>& count_list) const;
 
 		//handle file and use it to update layer. all the items in the file would be save to the table if possible.
 		void FileToLayer(std::string file, size_t feature, LayerTable& layer_table) const;
 
 		//each single reduce process would scan all the files and get the highest margin of items whose feature was included in the feature list.
-		void SingleReduceProcess(FeatureList* feature_list, CountList* count_list, size_t thread_index) const;
+		void SingleReduceProcess(const FeatureList* feature_list, const ItemVector* item_vec, CountList* count_list, size_t thread_index) const;
 
 	public:
 

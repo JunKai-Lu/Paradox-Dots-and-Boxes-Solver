@@ -23,26 +23,7 @@ namespace dots_and_boxes_solver
 		DbController() :
 			_focus_layer(new LayerInfo(WIDTH, HEIGHT, EdgeCount<WIDTH, HEIGHT>()))
 		{
-			if (_focus_layer->exist_raw_file() == false)
-			{
-				std::string path = _focus_layer->GetRawFilePath(0);
-				DabFileWriter writer(path);
-				DabState<WIDTH, HEIGHT> end_state;
-				end_state.BeFull();
-				writer.save_item(end_state.board().to_ullong(), 0);
-				_focus_layer->add_raw_file(0);
-				_focus_layer->SaveToFile();
-			}
-			if (_focus_layer->exist_partition_file() == false)
-			{
-				std::string path = _focus_layer->GetPartitionFilePath(0,1);
-				DabFileWriter writer(path);
-				DabState<WIDTH, HEIGHT> end_state;
-				end_state.BeFull();
-				writer.save_item(end_state.board().to_ullong(), 0);
-				_focus_layer->add_part_file(0);
-				_focus_layer->SaveToFile();
-			}
+			CreateOriginLayer();
 		}
 
 		//get the reference of focus layer.
@@ -61,9 +42,37 @@ namespace dots_and_boxes_solver
 		inline void checkout(size_t layer)
 		{
 			_focus_layer = LayerPointer(new LayerInfo(WIDTH, HEIGHT, layer));
+			CreateOriginLayer();
 		}
 
 	public:
+
+		void CreateOriginLayer() const
+		{
+			if (_focus_layer->index() == EdgeCount<WIDTH, HEIGHT>())
+			{
+				if (_focus_layer->exist_raw_file() == false)
+				{
+					std::string path = _focus_layer->GetRawFilePath(0);
+					DabFileWriter writer(path);
+					DabState<WIDTH, HEIGHT> end_state;
+					end_state.BeFull();
+					writer.save_item(end_state.board().to_ullong(), 0);
+					_focus_layer->add_raw_file(0);
+					_focus_layer->SaveToFile();
+				}
+				if (_focus_layer->exist_partition_file() == false)
+				{
+					std::string path = _focus_layer->GetPartitionFilePath(0, 1);
+					DabFileWriter writer(path);
+					DabState<WIDTH, HEIGHT> end_state;
+					end_state.BeFull();
+					writer.save_item(end_state.board().to_ullong(), 0);
+					_focus_layer->add_part_file(0);
+					_focus_layer->SaveToFile();
+				}
+			}
+		}
 
 		//print info of all existing layers in this db. 
 		void PrintInfo() const
@@ -140,21 +149,30 @@ namespace dots_and_boxes_solver
 		}
 
 		//clear db.
-		void ClearDB() const
+		void ClearDB()
 		{
-			gadt::filesystem::remove_directory(focus_layer()->GetRootDirectory());
-			focus_layer()->ClearRawFiles();
-			focus_layer()->ClearPartFiles();
+			for (size_t i = 0; i <= EdgeCount<WIDTH, HEIGHT>(); i++)
+			{
+				std::string info_path = focus_layer()->GetLayerInfoFilePath();
+				std::string layer_dir = focus_layer()->GetLayerDirectory();
+				checkout(i);
+				gadt::filesystem::remove_file(info_path);
+				gadt::filesystem::remove_directory(layer_dir);
+				ClearLayer();
+			}
+			checkout(EdgeCount<WIDTH, HEIGHT>());
 			focus_layer()->SaveToFile();//recreate focus layer.
 		}
 
 		//claer db of layer.
 		void ClearLayer() const
 		{
-			gadt::filesystem::remove_directory(focus_layer()->GetLayerDirectory());
 			focus_layer()->ClearPartFiles();
 			focus_layer()->ClearRawFiles();
-			focus_layer()->SaveToFile();//recreate focus layer.
+			if (gadt::filesystem::exist_file(focus_layer()->GetLayerInfoFilePath()))
+				gadt::filesystem::remove_file(focus_layer()->GetLayerInfoFilePath());
+			gadt::filesystem::remove_directory(focus_layer()->GetLayerDirectory());
+			CreateOriginLayer();
 		}
 
 		//clear db of raw files

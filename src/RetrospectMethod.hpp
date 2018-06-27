@@ -7,9 +7,11 @@
 namespace dots_and_boxes_solver
 {
 	constexpr char* DB_ITEM_SEPARATOR = " ";
+	constexpr uint8_t RETROSPCECT_MAX_PARTITION_COUNT = 255;
+	constexpr uint8_t RETROSPCECT_MAX_REDUCE_SEGMENT_COUNT = 255;
 
 	//Map function, which need to write all resulted items into a file and return the count. 
-	using RetrospectMapFunc = std::function<size_t(const DabStateItem&, DabFileWriter&)>;
+	using RetrospectMapFunc = std::function<size_t(const DabStateItem&, std::stringstream&)>;
 	
 	//Reduce function, which need to cover/write a item into a table and return true if it cover/write the item.
 	using RetrospectReduceFunc = std::function<bool(const DabStateItem&, LayerTable&)>;
@@ -21,10 +23,10 @@ namespace dots_and_boxes_solver
 	struct RetrospectFuncPackage
 	{
 		//generate items in new layer from item in layer whose edges is more.
-		static size_t MapFunc(const DabStateItem & item, DabFileWriter & writer)
+		static size_t MapFunc(const DabStateItem & item, std::stringstream & cache)
 		{
 			DabBoard<WIDTH, HEIGHT> board(item.first);
-			std::stringstream buffer;
+			//std::stringstream buffer;
 			size_t item_count = 0;
 			for (EdgeIndex i = 0; i < EdgeCount<WIDTH, HEIGHT>(); i++)
 			{
@@ -38,11 +40,12 @@ namespace dots_and_boxes_solver
 						new_margin = -new_margin;//m' = -m
 					else
 						new_margin += box_count;
-					buffer << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
+					//buffer << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
+					cache << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
 					item_count++;
 				}
 			}
-			writer.write(buffer.str());
+			//writer.write(buffer.str());
 			return item_count;
 		}
 

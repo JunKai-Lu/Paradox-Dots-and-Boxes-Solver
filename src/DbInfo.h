@@ -109,6 +109,13 @@ namespace dots_and_boxes_solver
 			return DAB_DB_PARTITION_PREFIX + gadt::ToString(index + 1) + "_" + gadt::ToString(partition_count) + DAB_DB_PARTITION_SUFFIX;
 		}
 
+		//get string of layer info.
+		inline std::string get_layer_str() const
+		{
+			std::stringstream ss;
+			ss << "[" << _width << " x " << _height << "]: L" << _index;
+			return ss.str();
+		}
 
 	public:
 

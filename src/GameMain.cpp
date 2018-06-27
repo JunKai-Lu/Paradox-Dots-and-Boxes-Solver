@@ -39,7 +39,7 @@ namespace dots_and_boxes_solver
 		auto db = dab.CreateShellPage<Controller>("db" + GameFeatureText<WIDTH, HEIGHT>());
 
 		//cmd 'info'， prin info of all layers.
-		db->AddFunction("info", "print info of all layers", [](Controller& controller)->void {
+		db->AddFunction("list", "print info of all layers", [](Controller& controller)->void {
 			controller.PrintInfo();
 		});
 
@@ -89,6 +89,7 @@ namespace dots_and_boxes_solver
 			}
 		});
 
+		//cmd 'print', print states of raw/partitions.
 		db->AddFunction("print", "print items in file.", [](Controller& controller, const gadt::shell::ParamsList& params)->bool {
 			if (params.size() == 2)
 			{

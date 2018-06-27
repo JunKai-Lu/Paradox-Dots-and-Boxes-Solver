@@ -21,6 +21,11 @@ namespace dots_and_boxes_solver
 
 	using DabPos = gadt::BasicUPoint<uint8_t>;
 
+	struct DabMove
+	{
+		EdgeIndex edge;
+	};
+
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
 	class DabBoard
 	{
@@ -194,6 +199,8 @@ namespace dots_and_boxes_solver
 			return get_the_pos(index);
 		}
 
+		
+
 	public:
 		
 		//default constructor.
@@ -244,6 +251,11 @@ namespace dots_and_boxes_solver
 		inline constexpr size_t num_of_boxes() const
 		{
 			return BoxCount<WIDTH, HEIGHT>();
+		}
+
+		inline size_t edge_count() const
+		{
+			return _edges.total();
 		}
 
 		//return true if the edge exist.
@@ -899,19 +911,19 @@ namespace dots_and_boxes_solver
 	public:
 
 		//get the board.
-		const DabBoard<WIDTH, HEIGHT>& board() const
+		inline const DabBoard<WIDTH, HEIGHT>& board() const
 		{
 			return _board;
 		}
 
 		//return true if the next move player is first player.
-		bool is_fir_player() const
+		inline bool is_fir_player() const
 		{
 			return _is_fir_player;
 		}
 
 		//return the value that how many boxes that boxes captured by first player more than boxes that captured by second player.
-		int boxes_margin() const
+		inline int boxes_margin() const
 		{
 			return _boxes_margin;
 		}
@@ -1029,6 +1041,20 @@ namespace dots_and_boxes_solver
 			PrintEndLine<2>();
 		}
 
+		gadt::AgentIndex GetWinner() const
+		{
+			if (board().edge_count() == EdgeCount<WIDTH, HEIGHT>())
+			{
+				if (boxes_margin() > 0)
+					return 0x1;
+				if (boxes_margin() < 0)
+					return 0x2;
+				else
+					return 0x3;
+			}
+			return 0x0;
+		}
+
 		//set the state to full
 		void BeFull()
 		{
@@ -1049,6 +1075,27 @@ namespace dots_and_boxes_solver
 			}
 		}
 
+		//
+		void Update(const DabMove& move)
+		{
+			GADT_WARNING_IF(DAB_WARNING, _board.edge_exist(move.edge), "edge exist!");
+			_board.set_edge(move.edge);
+			int new_box = (int)_board.count_of_boxes_that_owns_edge(move.edge);
+			if (is_fir_player())
+			{
+				if (new_box == 0)
+					_is_fir_player = false;//change player
+				else
+					_boxes_margin += new_box;//change margin.
+			}
+			else
+			{
+				if (new_box == 0)
+					_is_fir_player = true;//change player
+				else
+					_boxes_margin -= new_box;//change margin.
+			}
+		}
 	};
 
 	template<size_t WIDTH, size_t HEIGHT>

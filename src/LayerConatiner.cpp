@@ -9,7 +9,7 @@ namespace dots_and_boxes_solver
 	}
 
 	DabFileLoader::DabFileLoader(std::string file_name) :
-		_ifs()
+		_ifs()//gadt::filesystem::load_file_as_string(file_name))
 	{
 		_ifs.open(file_name, std::ios::in);
 	}

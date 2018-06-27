@@ -1,15 +1,18 @@
-#include "RetrospectMethod.hpp"
+﻿#include "RetrospectMethod.hpp"
 
 #pragma once
 
 namespace dots_and_boxes_solver
 {
+	
 	//from partition files to raw files. 
 	class RetrospectMapper
 	{
 	private:
 
 		using FileList = std::vector<std::string>;
+		using ItemVector = std::vector<DabStateItem>;
+		using IndexList = std::vector<size_t>;
 
 	private:
 
@@ -19,6 +22,12 @@ namespace dots_and_boxes_solver
 
 	private:
 
+		//get file index lists.
+		std::vector<IndexList> AssignFileIndexLists(size_t list_count) const;
+
+		//get file lists
+		std::vector<FileList> AssignFileLists(const std::vector<IndexList>& index_lists) const;
+
 		//get part file list from previous layer info.
 		FileList GetFileList() const;
 
@@ -26,10 +35,10 @@ namespace dots_and_boxes_solver
 		void SingleMapProcess(FileList files, size_t* item_countm, size_t thread_index) const;
 
 		//print setting
-		void PrintSetting() const;
+		void PrintSetting(const std::vector<IndexList> indexs) const;
 
 		//print result
-		void PrintResult(double time, std::vector<FileList>& file_lists, std::vector<size_t>& item_counts) const;
+		void PrintResult(double time, std::vector<IndexList>& index_lists, std::vector<size_t>& item_counts) const;
 
 	public:
 
