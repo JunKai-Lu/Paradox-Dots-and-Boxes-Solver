@@ -98,9 +98,9 @@ namespace dots_and_boxes_solver
 		}
 
 		//get raw file name by index.
-		inline std::string index_to_raw_file_name(size_t index) const
+		inline std::string index_to_raw_file_name(size_t index, size_t raw_file_count) const
 		{
-			return DAB_DB_RAW_PREFIX + gadt::ToString(index) + DAB_DB_RAW_SUFFIX;
+			return DAB_DB_RAW_PREFIX + gadt::ToString(index + 1) + "_" + gadt::ToString(raw_file_count) + DAB_DB_RAW_SUFFIX;
 		}
 
 		//get part file name by index.
@@ -129,26 +129,10 @@ namespace dots_and_boxes_solver
 		void PrintInfo() const;
 
 		//claer all the raw files.
-		bool ClearRawFiles()
-		{
-			std::string dir = GetRawDirectory();
-			for (auto value : _raw_files)
-				gadt::filesystem::remove_file(GetRawFilePath(value));
-			gadt::filesystem::remove_directory(dir);
-			_raw_files.clear();
-			return gadt::filesystem::exist_directory(dir);
-		}
+		bool ClearRawFiles();
 
 		//claer all the raw files.
-		bool ClearPartFiles()
-		{
-			auto dir = GetPartitionDirectory();
-			for (auto value : _part_files)
-				gadt::filesystem::remove_file(GetPartitionFilePath(value, _part_files.size()));
-			gadt::filesystem::remove_directory(dir);
-			_part_files.clear();
-			return gadt::filesystem::exist_directory(dir);
-		}
+		bool ClearPartFiles();
 
 		//get folder of root directory
 		std::string GetRootDirectory() const;
@@ -166,7 +150,7 @@ namespace dots_and_boxes_solver
 		std::string GetLayerInfoFilePath() const;
 
 		//get the path of raw file.
-		std::string GetRawFilePath(size_t index) const;
+		std::string GetRawFilePath(size_t index, size_t raw_file_count) const;
 
 		//get the path of partition file.
 		std::string GetPartitionFilePath(size_t index, size_t partition_count) const;

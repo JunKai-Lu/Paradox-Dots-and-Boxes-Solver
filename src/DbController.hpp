@@ -53,7 +53,7 @@ namespace dots_and_boxes_solver
 			{
 				if (_focus_layer->exist_raw_file() == false)
 				{
-					std::string path = _focus_layer->GetRawFilePath(0);
+					std::string path = _focus_layer->GetRawFilePath(0, 1);
 					DabFileWriter writer(path);
 					DabState<WIDTH, HEIGHT> end_state;
 					end_state.BeFull();
@@ -97,7 +97,7 @@ namespace dots_and_boxes_solver
 		//print items in raw file.
 		void PrintRaw(size_t index) const
 		{
-			std::string path = focus_layer()->GetRawFilePath(index);
+			std::string path = focus_layer()->GetRawFilePath(index, focus_layer()->raw_files().size());
 			if (gadt::filesystem::exist_file(path) == false)
 			{
 				gadt::console::PrintError("raw file not found!");
@@ -151,6 +151,7 @@ namespace dots_and_boxes_solver
 		//clear db.
 		void ClearDB()
 		{
+			checkout(EdgeCount<WIDTH, HEIGHT>());
 			for (size_t i = 0; i <= EdgeCount<WIDTH, HEIGHT>(); i++)
 			{
 				std::string info_path = focus_layer()->GetLayerInfoFilePath();

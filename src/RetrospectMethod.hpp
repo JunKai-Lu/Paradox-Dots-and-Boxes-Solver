@@ -11,7 +11,7 @@ namespace dots_and_boxes_solver
 	constexpr uint8_t RETROSPCECT_MAX_REDUCE_SEGMENT_COUNT = 255;
 
 	//Map function, which need to write all resulted items into a file and return the count. 
-	using RetrospectMapFunc = std::function<size_t(const DabStateItem&, std::stringstream&)>;
+	using RetrospectMapFunc = std::function<size_t(const DabStateItem&, LayerTable&)>;
 	
 	//Reduce function, which need to cover/write a item into a table and return true if it cover/write the item.
 	using RetrospectReduceFunc = std::function<bool(const DabStateItem&, LayerTable&)>;
@@ -23,7 +23,7 @@ namespace dots_and_boxes_solver
 	struct RetrospectFuncPackage
 	{
 		//generate items in new layer from item in layer whose edges is more.
-		static size_t MapFunc(const DabStateItem & item, std::stringstream & cache)
+		static size_t MapFunc(const DabStateItem & item, LayerTable& table)
 		{
 			DabBoard<WIDTH, HEIGHT> board(item.first);
 			//std::stringstream buffer;
@@ -43,7 +43,8 @@ namespace dots_and_boxes_solver
 						else
 							new_margin += box_count;
 						//buffer << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
-						cache << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
+						table.UpdateIfLarger({ new_board.ToMinimalFormat().to_ullong(), new_margin });
+						//cache << new_board.to_ullong() << DB_ITEM_SEPARATOR << (int)new_margin << std::endl;
 						item_count++;
 					}
 				}
@@ -55,13 +56,7 @@ namespace dots_and_boxes_solver
 		//sort all generated items and get their highest margin.
 		static bool ReduceFunc(const DabStateItem & item, LayerTable & layer_table)
 		{
-			DabBoard<WIDTH, HEIGHT> board(item.first);
-			if (board.IsReasonable())
-			{
-				DabStateItem min_item = { board.ToMinimalFormat().to_ullong() ,item.second };
-				return layer_table.UpdateIfLarger(min_item);
-			}
-			return false;
+			return layer_table.UpdateIfLarger(item);
 		}
 
 		static bool FilterFunc(BoardValueType)

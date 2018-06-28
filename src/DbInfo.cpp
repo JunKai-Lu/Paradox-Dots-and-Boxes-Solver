@@ -20,7 +20,7 @@ namespace dots_and_boxes_solver
 				auto temp_raw_files = loader.JsonToUIntVector(json[DAB_DB_JSON_RAW_FILES_KEY]);
 				auto temp_part_files = loader.JsonToUIntVector(json[DAB_DB_JSON_PART_FILES_KEY]);
 				for (auto raw_index : temp_raw_files)
-					if (gadt::filesystem::exist_file(GetRawFilePath(raw_index)))
+					if (gadt::filesystem::exist_file(GetRawFilePath(raw_index, temp_raw_files.size())))
 						_raw_files.push_back(raw_index);
 				for (auto part_index : temp_part_files)
 					if (gadt::filesystem::exist_file(GetPartitionFilePath(part_index, temp_part_files.size())))
@@ -103,6 +103,28 @@ namespace dots_and_boxes_solver
 		tb.Print();
 	}
 
+	//claer all the raw files.
+	bool LayerInfo::ClearRawFiles()
+	{
+		std::string dir = GetRawDirectory();
+		for (auto value : _raw_files)
+			gadt::filesystem::remove_file(GetRawFilePath(value, _raw_files.size()));
+		gadt::filesystem::remove_directory(dir);
+		_raw_files.clear();
+		return gadt::filesystem::exist_directory(dir);
+	}
+
+	//claer all the raw files.
+	bool LayerInfo::ClearPartFiles()
+	{
+		auto dir = GetPartitionDirectory();
+		for (auto value : _part_files)
+			gadt::filesystem::remove_file(GetPartitionFilePath(value, _part_files.size()));
+		gadt::filesystem::remove_directory(dir);
+		_part_files.clear();
+		return gadt::filesystem::exist_directory(dir);
+	}
+
 	//get folder of root directory
 	std::string LayerInfo::GetRootDirectory() const
 	{
@@ -149,9 +171,9 @@ namespace dots_and_boxes_solver
 	}
 
 	//get the path of raw file.
-	std::string LayerInfo::GetRawFilePath(size_t index) const
+	std::string LayerInfo::GetRawFilePath(size_t index, size_t raw_file_count) const
 	{
-		std::string path = GetRawDirectory() + index_to_raw_file_name(index);
+		std::string path = GetRawDirectory() + index_to_raw_file_name(index, raw_file_count);
 		return path;
 	}
 

@@ -21,7 +21,7 @@ namespace dots_and_boxes_solver
 		std::vector<std::string> file_path_vec;
 		for (auto index : _layer.raw_files())
 		{
-			std::string path = _layer.GetRawFilePath(index);
+			std::string path = _layer.GetRawFilePath(index, _layer.raw_files().size());
 			if (gadt::filesystem::exist_file(path))
 				file_path_vec.push_back(path);
 		}

@@ -12,17 +12,22 @@ namespace dots_and_boxes_solver
 	//test codes.
 	void DabTest()
 	{
-		DabState<5, 5> dab55;
-		
-		for (EdgeIndex edge = 0; edge < EdgeCount<5,5>()/2; edge++)
+		DabBoard<5, 5> board;
+		DabFileWriter writer("./temp.dat");
+		for (size_t i = 0; i < 10; i++)
 		{
-			dab55.SetRandomEdge();
+			writer.save_item(board.to_ullong(), -MarginType(i));
 		}
-		dab55.Visualization();
-		auto dr = DabState<5,5>(dab55.board().DiagonalReverse(), 0);
-		dr.Visualization();
-		//auto rotate = DabState<5, 5>(dab55.board().Rotate(),0);
-		//rotate.Visualization();
+		writer.~DabFileWriter();
+		DabFileLoader loader("./temp.dat");
+		for (size_t i = 0;; i++)
+		{
+			DabStateItem item = loader.LoadNextItem();
+			if (loader.is_eof())
+				break;
+			else
+				std::cout << "index "<< i <<" = " << item.first << (int)item.second << std::endl;
+		}
 	}
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
@@ -60,7 +65,9 @@ namespace dots_and_boxes_solver
 					return false;
 			}
 			else
+			{
 				return false;
+			}
 			controller.RunMapProcess(thread_count);
 			return true;
 		});
@@ -83,6 +90,10 @@ namespace dots_and_boxes_solver
 				if (partition_count == 0 || partition_count > RETROSPCECT_MAX_PARTITION_COUNT)
 					return false;
 			}
+			else
+			{
+				return false;
+			}
 			controller.RunReduceProcess(thread_count, partition_count);
 			return true;
 		});
@@ -95,6 +106,7 @@ namespace dots_and_boxes_solver
 				if (layer >= 0 && layer <= EdgeCount<WIDTH, HEIGHT>() )
 				{
 					controller.checkout(layer);
+					gadt::console::PrintMessage("checkout to layer " + params[0]);
 					return true;
 				}
 			}
@@ -108,6 +120,7 @@ namespace dots_and_boxes_solver
 			if (layer > 0 && layer <= EdgeCount<WIDTH, HEIGHT>())
 			{
 				controller.checkout(layer - 1);
+				gadt::console::PrintMessage("checkout to layer " + gadt::ToString(layer - 1));
 			}
 			else
 			{
@@ -145,6 +158,7 @@ namespace dots_and_boxes_solver
 					{
 						controller.ClearDB();
 						gadt::console::PrintMessage("Clear DB Success!");
+						gadt::console::PrintMessage("checkout to layer " + gadt::ToString(EdgeCount<WIDTH, HEIGHT>()));
 						return true;
 					}
 					else if (params[0] == "layer")

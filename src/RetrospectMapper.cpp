@@ -19,53 +19,36 @@ namespace dots_and_boxes_solver
 	}
 
 	//get file lists
-	std::vector<RetrospectMapper::FileList> RetrospectMapper::AssignFileLists(const std::vector<RetrospectMapper::IndexList>& index_lists) const
+	std::vector<RetrospectMapper::TaskList> RetrospectMapper::AssignTaskLists(const std::vector<RetrospectMapper::IndexList>& index_lists) const
 	{
-		std::vector<FileList> file_lists;
+		std::vector<TaskList> task_lists;
 		if (_layer.index() < EdgeCount(_layer.width(), _layer.height()))
 		{
 			LayerInfo prev_layer(_layer.width(), _layer.height(), _layer.index() + 1);
 			for (auto index_list : index_lists)
 			{
-				file_lists.push_back(FileList());
+				task_lists.push_back(TaskList());
 				for (auto index : index_list)
 				{
-					std::string path = prev_layer.GetPartitionFilePath(index, prev_layer.part_files().size());
-					if (gadt::filesystem::exist_file(path))
-						file_lists.back().push_back(path);
+					std::string source_path = prev_layer.GetPartitionFilePath(index, prev_layer.part_files().size());
+					std::string target_path = _layer.GetRawFilePath(index, prev_layer.part_files().size());
+					if (gadt::filesystem::exist_file(source_path))
+						task_lists.back().push_back({ index, source_path, target_path });
 				}
 			}
 		}
-		return file_lists;
-	}
-
-	//get part file list from previous layer info.
-	RetrospectMapper::FileList RetrospectMapper::GetFileList() const
-	{
-		std::vector<std::string> file_path_vec;
-		//get previous layer
-		if (_layer.index() < EdgeCount(_layer.width(), _layer.height()))
-		{
-			LayerInfo prev_layer(_layer.width(), _layer.height(), _layer.index() + 1);
-			for (auto index : prev_layer.part_files())
-			{
-				std::string path = prev_layer.GetPartitionFilePath(index, prev_layer.part_files().size());
-				if (gadt::filesystem::exist_file(path))
-					file_path_vec.push_back(path);
-			}
-		}
-		return file_path_vec;
+		return task_lists;
 	}
 
 	//assign raw file name by index.
-	void RetrospectMapper::SingleMapProcess(FileList files, size_t* item_count, size_t thread_index) const
+	void RetrospectMapper::SingleMapProcess(TaskList tasks, size_t* item_count, size_t thread_index) const
 	{
 		//get target file path
-		std::string raw_file_path = get_raw_file_path(thread_index);
-		for (auto file : files)
+		
+		for (auto task : tasks)
 		{
-			std::stringstream cache;
-			DabFileLoader loader(file);
+			LayerTable cache;
+			DabFileLoader loader(task.source_file);
 			for(;;)
 			{
 				DabStateItem item = loader.LoadNextItem();
@@ -74,11 +57,9 @@ namespace dots_and_boxes_solver
 				size_t count = _MapFunc(item, cache);
 				*item_count += count;
 			}
-			//DabFileWriter writer(raw_file_path);
-			//writer.write(cache.str());
-			std::ofstream ofs(raw_file_path, std::ios::app);
-			std::cout << raw_file_path << " had been outputed by thread " << thread_index << std::endl;
-			ofs << cache.str();
+			std::cout << "[" << task.target_file << "] had been created by [ thread " << thread_index << "]" << std::endl;	
+			DabFileWriter writer(task.target_file);
+			cache.OutputToFile(writer);
 		}
 	}
 
@@ -87,7 +68,7 @@ namespace dots_and_boxes_solver
 	{
 		//assign files for each thread.
 		auto index_lists = AssignFileIndexLists(_thread_count);
-		auto file_lists = AssignFileLists(index_lists);
+		auto task_lists = AssignTaskLists(index_lists);
 		std::vector<size_t> item_counts(_thread_count, 0);
 		PrintSetting(index_lists);
 		if (true)//gadt::console::GetUserConfirm("Do you confirm that running mapper under this setting?"))
@@ -111,15 +92,16 @@ namespace dots_and_boxes_solver
 			//run multi thread.
 			std::vector<std::thread> threads;
 			for (size_t i = 0; i < _thread_count; i++)
-				threads.push_back(std::thread([&](FileList files, size_t* count, size_t index)->void {
-				SingleMapProcess(files, count, index);
-			}, file_lists[i], &item_counts[i], i));
+				threads.push_back(std::thread([&](TaskList tasks, size_t* count, size_t index)->void {
+				SingleMapProcess(tasks, count, index);
+			}, task_lists[i], &item_counts[i], i));
 			for (size_t i = 0; i < threads.size(); i++)
 				threads[i].join();
 
 			//save layer json.
-			for (size_t i = 0; i < _thread_count; i++)
-				_layer.add_raw_file(i);
+			for(auto tasks: task_lists)
+				for(auto task: tasks)
+				_layer.add_raw_file(task.index);
 			_layer.SaveToFile();
 
 			//print result.
