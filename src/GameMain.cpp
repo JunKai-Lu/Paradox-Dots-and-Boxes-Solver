@@ -6,28 +6,20 @@
 #include "DbController.hpp"
 #include "RetrospectMapper.h"
 #include "RetrospectReducer.h"
+#include "Minimax.hpp"
 
 namespace dots_and_boxes_solver
 {
 	//test codes.
 	void DabTest()
 	{
-		DabBoard<5, 5> board;
-		DabFileWriter writer("./temp.dat");
-		for (size_t i = 0; i < 10; i++)
+		DabState<5, 5> state;
+		for (size_t i = 0; i < 59; i++)
 		{
-			writer.save_item(board.to_ullong(), -MarginType(i));
+			state.SetRandomEdge();
 		}
-		writer.~DabFileWriter();
-		DabFileLoader loader("./temp.dat");
-		for (size_t i = 0;; i++)
-		{
-			DabStateItem item = loader.LoadNextItem();
-			if (loader.is_eof())
-				break;
-			else
-				std::cout << "index "<< i <<" = " << item.first << (int)item.second << std::endl;
-		}
+		state.Visualization();
+		std::cout << "eval = " << EvalMinimax<5, 5>(state) << std::endl;
 	}
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
