@@ -1,4 +1,4 @@
-#include "GameDefine.h"
+﻿#include "GameDefine.h"
 
 #pragma once
 
@@ -264,7 +264,7 @@ namespace dots_and_boxes
 		Edge RandomAction();
 
 		//visualization
-		void Visualization(Edge tag_edge = MAX_EDGE) const;
+		void Print(Edge tag_edge = MAX_EDGE) const;
 	};
 
 	//class retro analyst offers possible actions of retro analysis.

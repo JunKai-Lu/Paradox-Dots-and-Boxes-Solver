@@ -577,7 +577,7 @@ namespace dots_and_boxes
 	}
 
 	//visualization.
-	void ActionAnalyst::Visualization(Edge tag_edge) const
+	void ActionAnalyst::Print(Edge tag_edge) const
 	{
 		using namespace gadt::console;
 		constexpr ConsoleColor edge_color = ConsoleColor::Yellow;

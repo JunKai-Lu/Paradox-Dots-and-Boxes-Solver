@@ -7,7 +7,7 @@ namespace dots_and_boxes
 	{
 	}
 
-	void State::Visualization(ActionVec action_vec) const
+	void State::Print(ActionVec action_vec) const
 	{
 		using namespace gadt::console;
 		const ConsoleColor edge_color = ConsoleColor::Yellow;
@@ -128,7 +128,7 @@ namespace dots_and_boxes
 		PrintEndLine<2>();
 	}
 
-	void State::EdgeVisualization() const
+	void State::EdgePrint() const
 	{
 		using namespace gadt::console;
 		const ConsoleColor edge_color = ConsoleColor::Yellow;

@@ -11,38 +11,6 @@
 //MACROS
 #define RETURN_STRINGFY(parameter,str) if(parameter == str){return #str;}
 
-namespace dots_and_boxes_solver
-{
-	//CONSTANTS
-	constexpr const bool DAB_WARNING = true;
-	
-	using BoardType = gadt::bitboard::BitBoard64;
-	using BoardValueType = gadt::bitboard::gadt_int64;
-	using EdgeIndex = uint8_t;
-	using MarginType = int8_t;
-
-	constexpr bool IsLegalGameSize(const size_t width, const size_t height)
-	{
-		return width > 0 && height > 0 && width >= height && (2 * width * height + width + height) <= 64;
-	}
-
-	template<size_t WIDTH, size_t HEIGHT>
-	constexpr const size_t EdgeCount()
-	{
-		return 2 * WIDTH * HEIGHT + WIDTH + HEIGHT;
-	}
-
-	template<size_t WIDTH, size_t HEIGHT>
-	constexpr const size_t BoxCount()
-	{
-		return WIDTH * HEIGHT;
-	}
-
-	size_t EdgeCount(size_t width, size_t height);
-
-	size_t BoxCount(size_t width, size_t height);
-}
-
 namespace dots_and_boxes
 {
 	//CONSTANTS
@@ -89,10 +57,10 @@ namespace dots_and_boxes
 		}
 
 		//show state.
-		void Visualization(ActionVec action_vec = ActionVec(0)) const;
+		void Print(ActionVec action_vec = ActionVec(0)) const;
 
 		//TODO
-		void EdgeVisualization() const;
+		void EdgePrint() const;
 
 		//create a random state with appointed edge number.
 		static State RandomState(size_t edge_num);

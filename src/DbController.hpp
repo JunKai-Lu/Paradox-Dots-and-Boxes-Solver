@@ -95,7 +95,7 @@ namespace dots_and_boxes_solver
 		}
 
 		//print items in raw file.
-		void PrintRaw(size_t index) const
+		void PrintRaw(size_t index, bool enable_minimax) const
 		{
 			std::string path = focus_layer()->GetRawFilePath(index, focus_layer()->raw_files().size());
 			if (gadt::filesystem::exist_file(path) == false)
@@ -112,7 +112,12 @@ namespace dots_and_boxes_solver
 					gadt::console::PrintMessage("EOF, item count = " + gadt::ToString(count));
 					return;
 				}
-				DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Visualization();
+				DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Print();
+				if (enable_minimax)
+				{
+					DabState<WIDTH, HEIGHT> state(DabBoard<WIDTH, HEIGHT>(item.first), 0);
+					std::cout << "eval = " << (int)EvalMinimax<WIDTH, HEIGHT>(state) << std::endl;
+				}
 				if (!gadt::console::GetUserConfirm("continue?"))
 				{
 					gadt::console::PrintMessage("print completed, item count = " + gadt::ToString(count));
@@ -122,7 +127,7 @@ namespace dots_and_boxes_solver
 		}
 
 		//print items in partition file.
-		void PrintPartition(size_t index) const
+		void PrintPartition(size_t index, bool enable_minimax) const
 		{
 			std::string path = focus_layer()->GetPartitionFilePath(index, focus_layer()->part_files().size());
 			if (gadt::filesystem::exist_file(path) == false)
@@ -139,7 +144,14 @@ namespace dots_and_boxes_solver
 					gadt::console::PrintMessage("EOF, item count = " + gadt::ToString(count));
 					return;
 				}
-				DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Visualization();
+				DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Print();
+				if (enable_minimax)
+				{
+					DabState<WIDTH, HEIGHT> state(DabBoard<WIDTH, HEIGHT>(item.first), 0);
+					std::cout << "eval = " << (int)EvalMinimax<WIDTH, HEIGHT>(state) << std::endl;
+				}
+				
+
 				if (!gadt::console::GetUserConfirm("continue?"))
 				{
 					gadt::console::PrintMessage("print completed, item count = " + gadt::ToString(count));
