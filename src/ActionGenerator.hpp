@@ -31,27 +31,25 @@ namespace dots_and_boxes_solver
 	{
 	private:
 
-		const DabState<WIDTH, HEIGHT>&	_state;
-		StateType						_state_type;
-		DabActionList					_actions;
+		DabActionList _actions;
 
 	private:
 
-		StateType GetStateType(const DabState<WIDTH, HEIGHT>& state)
+		static StateType GetStateType(const DabBoard<WIDTH, HEIGHT>& board)
 		{
-			if (state.board().edge_count() == EdgeCount<WIDTH, HEIGHT>())
+			if (board.edge_count() == EdgeCount<WIDTH, HEIGHT>())
 			{
 				return StateType::Finish;
 			}
-			if (state.board().ExistDeadBox())
+			if (board.ExistDeadBox())
 			{
 				return StateType::DeadBox;
 			}
-			if (state.board().ExistDeadChain())
+			if (board.ExistDeadChain())
 			{
 				return StateType::DeadChain;
 			}
-			if (state.board().ExistFreeEdge())//front state.
+			if (board.ExistFreeEdge())//front state.
 			{
 				return StateType::Front;
 			}
@@ -59,12 +57,12 @@ namespace dots_and_boxes_solver
 		}
 
 		//Get free actions.
-		static DabActionList MakeFreeActions(const DabState<WIDTH, HEIGHT>& state)
+		static DabActionList MakeFreeActions(const DabBoard<WIDTH, HEIGHT>& board)
 		{
 			DabActionList actions;
 			for (EdgeIndex i = 0; i < EdgeCount<WIDTH, HEIGHT>(); i++)
 			{
-				if (state.board().IsFreeEdge(i))
+				if (board.IsFreeEdge(i))
 				{
 					actions.push_back(DabAction());
 					actions.back().set(i);
@@ -74,149 +72,127 @@ namespace dots_and_boxes_solver
 		}
 
 		//get the actions that appointed the edge can take the fir dead box.
-		static void MakeFirDeadBoxAction(const DabState<WIDTH, HEIGHT>& state)
+		static DabActionList MakeDeadBoxAction(const DabBoard<WIDTH, HEIGHT>& board)
 		{
-			DabActionList actions;
-			EdgeIndex fir = state.board().GetFirstFreeEdgeInDeadBox();
+			
+			EdgeIndex fir = board.GetFirstFreeEdgeInDeadBox();
 			GADT_WARNING_IF(DAB_WARNING, (fir == EdgeCount<WIDTH, HEIGHT>()), "no dead box exist");
-			actions.push_back(DabAction{ fir });
+			auto temp_board = board;
+			temp_board.set_edge(fir);
+			DabActionList actions = MakeAction(temp_board);
+			if (actions.size() == 0)//finish state
+			{
+				actions.push_back(DabAction{ fir });
+			}
+			else
+			{
+				for (auto& action : actions)
+					action.set(fir);
+			}
 			return actions;
 		}
 
-		static void MakeChainActions(const DabState<WIDTH, HEIGHT>& state)
+		static DabActionList MakeChainActions(const DabBoard<WIDTH, HEIGHT>& board)
 		{
-			ChainAnalyst<WIDTH, HEIGHT> ca(state.board());
+			ChainAnalyst<WIDTH, HEIGHT> ca(board);
 			return ca.GetResult();
 		}
 
 		//get the possible actions for dead chain.
-		static void MakeDeadChainAction(const DabState<WIDTH, HEIGHT>& state)
+		static DabActionList MakeDeadChainAction(const DabBoard<WIDTH, HEIGHT>& board)
 		{
-			DabBoard<WIDTH, HEIGHT> temp_board = _state.board();
-			EdgeIndex fir = _state.board().GetFirstFreeEdgeInDeadChain();
-			_actions.push_back({ fir });
-			temp_board.set_edge(fir);
-			if (!temp_board.ExistDeadChain())
+			DabBoard<WIDTH, HEIGHT> temp_board = board;
+			DabAction prev_action;
+			DabAction sacrifice_action;
+			for (;;)
 			{
-				//find next edge.
-				if (temp_board.is_he(fir))
+				EdgeIndex fir = temp_board.GetFirstFreeEdgeInDeadChain();
+				temp_board.set_edge(fir);
+				if (!temp_board.ExistDeadChain())
 				{
-					//horizon edge.
-					if (temp_board.is_bhe(fir))
-					{
-						//check upper box.
-						DabBox<WIDTH, HEIGHT> box(temp_board, fir - WIDTH);
-						if (box.type() == DabBoxType::DEAD_BOX)
-						{
-							for (size_t i = 0; i < 4; i++)
-							{
-								if (!temp_board.edge_exist(box.own_edge(i)))
-								{
-									_actions.push_back({ box.own_edge(i) });
-									return;
-								}
-							}
-						}
-					}
-					if (temp_board.is_the(fir))
-					{
-						//check lower box.
-						DabBox<WIDTH, HEIGHT> box(temp_board, fir);
-						if (box.type() == DabBoxType::DEAD_BOX)
-						{
-							for (size_t i = 0; i < 4; i++)
-							{
-								if (!temp_board.edge_exist(box.own_edge(i)))
-								{
-									_actions.push_back({ box.own_edge(i) });
-									return;
-								}
-							}
-						}
-					}
+					EdgeIndex sec = temp_board.GetFirstFreeEdgeInDeadBox();
+					prev_action.set(sec);
+					sacrifice_action = prev_action;
+					prev_action.set(fir);
+					temp_board.set_edge(sec);
+					break;
 				}
-				else if(temp_board.is_ve(fir))
+				else
 				{
-					//vecitical edge.
-					if (temp_board.is_lve(fir))
-					{
-						//check right box.
-						DabBox<WIDTH, HEIGHT> box(temp_board, temp_board.lve_to_the(fir));
-						if (box.type() == DabBoxType::DEAD_BOX)
-						{
-							for (size_t i = 0; i < 4; i++)
-							{
-								if (!temp_board.edge_exist(box.own_edge(i)))
-								{
-									_actions.push_back({ box.own_edge(i) });
-									return;
-								}
-							}
-						}
-
-					}
-					if (temp_board.is_rve(fir))
-					{
-						//check left box.
-						DabBox<WIDTH, HEIGHT> box(temp_board, temp_board.lve_to_the(temp_board.rve_to_lve(fir)));
-						if (box.type() == DabBoxType::DEAD_BOX)
-						{
-							for (size_t i = 0; i < 4; i++)
-							{
-								if (!temp_board.edge_exist(box.own_edge(i)))
-								{
-									_actions.push_back({ box.own_edge(i) });
-									return;
-								}
-							}
-						}
-					}
+					prev_action.set(fir);
 				}
 			}
+			
+			//actions.push_back(DabAction{ fir });
+			DabActionList actions = MakeAction(temp_board);
+			if (actions.size() == 0)//finish state
+			{
+				actions.push_back(prev_action);
+			}
+			else
+			{
+				for (auto& action : actions)
+					action |= prev_action;
+			}
+			actions.push_back(sacrifice_action);
+			return actions;
 		}
 
 		//make all actions according to the type of state.
-		void MakeAction()
+		static DabActionList MakeAction(const DabBoard<WIDTH, HEIGHT>& board)
 		{
-			if (_state_type == StateType::DeadBox)
+			StateType state_type = GetStateType(board);
+			if (state_type == StateType::DeadBox)
 			{
-				MakeFirDeadBoxAction();
+				return MakeDeadBoxAction(board);
 			}
-			else if (_state_type == StateType::Front)
+			else if (state_type == StateType::Front)
 			{
-				MakeFreeActions();
+				return MakeFreeActions(board);
 			}
-			else if (_state_type == StateType::Rear)
+			else if (state_type == StateType::Rear)
 			{
-				MakeChainActions();
+				return MakeChainActions(board);
 			}
-			else if (_state_type == StateType::DeadChain)
+			else if (state_type == StateType::DeadChain)
 			{
-				MakeDeadChainAction();;
+				return MakeDeadChainAction(board);;
 			}
+			return DabActionList();
+		}
+
+		void FileterActions(const DabBoard<WIDTH, HEIGHT>& board)
+		{
+			std::set<BoardValueType> existing_state;
+			DabActionList actions;
+			for (auto action : _actions)
+			{
+				DabBoard<WIDTH, HEIGHT> temp_board = board;
+				temp_board.TakeActions(action);
+				temp_board = temp_board.ToMinimalFormat();
+				if (existing_state.count(temp_board.to_ullong()) == 0)
+				{
+					existing_state.insert(temp_board.to_ullong());
+					actions.push_back(action);
+				}
+			}
+			_actions = actions;
 		}
 
 	public:
 
-		DabActionGenerator(const DabState<WIDTH, HEIGHT> state):
-			_state(state),
-			_state_type(GetStateType(state)),
-			_actions()
+		DabActionGenerator(const DabState<WIDTH, HEIGHT>& state):
+			_actions(MakeAction(state.board()))
 		{
-			MakeAction();
+			//FileterActions(state.board());
 		}
 
-		inline StateType state_type() const
-		{
-			return _state_type;
-		}
-
-		inline std::vector<DabMove> actions() const
+		inline DabActionList actions() const
 		{
 			return _actions;
 		}
 
-		inline DabMove random_action() const
+		inline DabAction random_action() const
 		{
 			return gadt::func::GetRandomElement(_actions);
 		}

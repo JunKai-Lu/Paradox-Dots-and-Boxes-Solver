@@ -13,6 +13,13 @@ namespace dots_and_boxes_solver
 		bool _is_fir_player;
 		int _boxes_margin;
 
+	private:
+
+		void change_player()
+		{
+			_is_fir_player = !_is_fir_player;
+		}
+
 	public:
 
 		//get the board.
@@ -65,7 +72,7 @@ namespace dots_and_boxes_solver
 		}
 
 		//Print
-		void Print(DabActionSet actions = DabActionSet()) const
+		void Print(DabAction actions = DabAction()) const
 		{
 			using namespace gadt::console;
 			constexpr ConsoleColor EDGE_COLOR = ConsoleColor::White;
@@ -162,16 +169,6 @@ namespace dots_and_boxes_solver
 			PrintEndLine<2>();
 		}
 
-		void Print(std::vector<DabMove> moves) const
-		{
-			DabActionSet actions;
-			for (auto m : moves)
-			{
-				actions.set(m.edge);
-			}
-			this->Print(actions);
-		}
-
 		gadt::AgentIndex GetWinner() const
 		{
 			if (board().edge_count() == EdgeCount<WIDTH, HEIGHT>())
@@ -207,27 +204,16 @@ namespace dots_and_boxes_solver
 		}
 
 		//
-		void Update(const DabMove& move)
+		void Update(const DabAction& action)
 		{
-			GADT_WARNING_IF(DAB_WARNING, _board.edge_exist(move.edge), "edge exist!");
-			_board.set_edge(move.edge);
-			int new_box = (int)_board.count_of_boxes_that_owns_edge(move.edge);
+			size_t prev_box_count = _board.ExistingBoxCount();
+			_board.TakeActions(action);
+			auto margin = MarginType(_board.ExistingBoxCount() - prev_box_count);
 			if (is_fir_player())
-			{
-				if (new_box == 0)
-					_is_fir_player = false;//change player
-				else
-					_boxes_margin += new_box;//change margin.
-			}
+				_boxes_margin += margin;
 			else
-			{
-				if (new_box == 0)
-					_is_fir_player = true;//change player
-				else
-					_boxes_margin -= new_box;//change margin.
-			}
+				_boxes_margin -= margin;
+			change_player();
 		}
-
-		
 	};
 }

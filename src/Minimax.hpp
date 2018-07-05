@@ -13,7 +13,7 @@ namespace dots_and_boxes_solver
 		using pointer = DabMinimaxNode*;
 		using reference = DabMinimaxNode&;
 		using Node = DabMinimaxNode;
-		using ActionList = std::vector<DabMove>;
+		using ActionList = DabActionList;
 		using FuncPackage = DabGameFuncPackage<WIDTH, HEIGHT>;
 
 	private:
@@ -48,7 +48,7 @@ namespace dots_and_boxes_solver
 			return _action_list.size();
 		}
 
-		inline const DabMove& action(size_t index) const
+		inline const DabAction& action(size_t index) const
 		{
 			return _action_list[index];
 		}
@@ -120,9 +120,7 @@ namespace dots_and_boxes_solver
 				State child_state = node.state();
 				FuncPackage::UpdateState(child_state, node.action_list()[i]);
 				Node child(child_state, node.depth() - 1);
-				MarginType child_value = NegamaxEvaluateStates<ALPHABETA_ENABLED>(child, -beta, -alpha, leaf_node_count);
-				if (child.state().is_fir_player() != node.state().is_fir_player())
-					child_value = -child_value;
+				MarginType child_value = -NegamaxEvaluateStates<ALPHABETA_ENABLED>(child, -beta, -alpha, leaf_node_count);
 				if (ALPHABETA_ENABLED && child_value >= beta)
 					return beta;//prune!
 				if (child_value >= best_value) { best_value = child_value; }
@@ -132,7 +130,7 @@ namespace dots_and_boxes_solver
 
 		//start a negamax search.
 		template<bool ALPHABETA_ENABLED>
-		std::pair<DabMove, MarginType> StartNegamaxIteration(const State& state)
+		std::pair<DabAction, MarginType> StartNegamaxIteration(const State& state)
 		{
 			Node root(state, _max_depth);
 			std::vector<MarginType> eval_set(root.action_list().size(), MarginType());
@@ -147,11 +145,7 @@ namespace dots_and_boxes_solver
 				FuncPackage::UpdateState(child_state, root.action_list()[i]);
 				Node child(child_state, root.depth() - 1);
 				MarginType child_beta = (ALPHABETA_ENABLED ? -best_value : (INT8_MAX -1 ));
-				eval_set[i] = NegamaxEvaluateStates<ALPHABETA_ENABLED>(child, (INT8_MIN + 1), child_beta, leaf_node_count);
-
-				if (child.state().is_fir_player() != state.is_fir_player())
-					eval_set[i] = -eval_set[i];
-
+				eval_set[i] = -NegamaxEvaluateStates<ALPHABETA_ENABLED>(child, (INT8_MIN + 1), child_beta, leaf_node_count);
 				if (eval_set[i] > best_value)
 				{
 					best_action_index = i;
@@ -170,20 +164,20 @@ namespace dots_and_boxes_solver
 		}
 
 		//excute nega minimax search
-		DabMove RunNegamax(const State& state)
+		DabAction RunNegamax(const State& state)
 		{
 			return StartNegamaxIteration<false>(state).first;
 		}
 
 		//excute alpha-beta search.
-		DabMove RunAlphabeta(const State& state)
+		DabAction RunAlphabeta(const State& state)
 		{
 			return StartNegamaxIteration<true>(state).first;
 		}
 
 		MarginType GetEvalValue(const State& state)
 		{
-			return StartNegamaxIteration<false>(state).second;
+			return StartNegamaxIteration<true>(state).second;
 		}
 	};
 

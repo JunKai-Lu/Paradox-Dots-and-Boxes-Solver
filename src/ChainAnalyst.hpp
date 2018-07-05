@@ -111,7 +111,7 @@ namespace dots_and_boxes_solver
 			//register chain start from free box inside the grid.
 			for (EdgeIndex i = 0; i < _BOX_COUNT; i++)
 			{
-				if (_boxes[i].type() == DabBoxType::FREE_BOX && _boxes[i].no_belonging_chain())
+				if ((_boxes[i].type() == DabBoxType::FREE_BOX || _boxes[i].type() == DabBoxType::EMPTY_BOX) && _boxes[i].no_belonging_chain())
 				{
 					for (EdgeIndex edge_i = 0; edge_i < 4; edge_i ++)
 					{
@@ -127,7 +127,7 @@ namespace dots_and_boxes_solver
 			}
 
 			//register chain from chain box in the brim of grid.
-			for (size_t i = 0; i < 5; i++)//upper boxes.
+			for (size_t i = 0; i < WIDTH; i++)//upper boxes.
 			{
 				if (_boxes[i].type() == DabBoxType::CHAIN_BOX && _boxes[i].no_belonging_chain() && !_board.edge_exist(_boxes[i].the()))
 				{
@@ -135,7 +135,7 @@ namespace dots_and_boxes_solver
 				}
 			}
 
-			for (size_t i = 0; i < 25; i += 5)//left boxes.
+			for (size_t i = 0; i < WIDTH * HEIGHT; i += WIDTH)//left boxes.
 			{
 				if (_boxes[i].type() == DabBoxType::CHAIN_BOX && _boxes[i].no_belonging_chain() && !_board.edge_exist(_boxes[i].lve()))
 				{
@@ -143,7 +143,7 @@ namespace dots_and_boxes_solver
 				}
 			}
 
-			for (size_t i = 20; i < 25; i++)//lower boxes.
+			for (size_t i = (WIDTH * HEIGHT) - WIDTH; i < WIDTH * HEIGHT; i++)//lower boxes.
 			{
 				if (_boxes[i].type() == DabBoxType::CHAIN_BOX && _boxes[i].no_belonging_chain() && !_board.edge_exist(_boxes[i].bhe()))
 				{
@@ -151,7 +151,7 @@ namespace dots_and_boxes_solver
 				}
 			}
 
-			for (size_t i = 4; i < 25; i += 5)//right boxes.
+			for (size_t i = WIDTH - 1; i < WIDTH * HEIGHT; i += WIDTH)//right boxes.
 			{
 				if (_boxes[i].type() == DabBoxType::CHAIN_BOX && _boxes[i].no_belonging_chain() && !_board.edge_exist(_boxes[i].rve()))
 				{
@@ -256,28 +256,36 @@ namespace dots_and_boxes_solver
 						}
 					}
 				}
-				else if (_boxes[checking_box_index].type() == DabBoxType::FREE_BOX)//to the end of chain.
+				else if (_boxes[checking_box_index].type() == DabBoxType::FREE_BOX || _boxes[checking_box_index].type() == DabBoxType::EMPTY_BOX)//to the end of chain.
 				{
 					if (checking_box_index == start_box)//an open circle.
 					{
-						AddBoxToChain(checking_box_index, new_chain);
-						_chains[new_chain].set_type(ChainType::OPEN_CIRCLE);
-						for (size_t i = 0; i < 4; i++)
+						if (_boxes[checking_box_index].no_belonging_chain())
 						{
-							if (_boxes[checking_box_index].neighbour_exist(i))
+							AddBoxToChain(checking_box_index, new_chain);
+							_chains[new_chain].set_type(ChainType::OPEN_CIRCLE);
+							for (size_t i = 0; i < 4; i++)
 							{
-								size_t n = _boxes[_boxes[checking_box_index].neighbour_box(i)].belonging_chain();	//chain num of get neibought box 
-								if (n != _BOX_COUNT && n != new_chain)
+								if (_boxes[checking_box_index].neighbour_exist(i))
 								{
-									if (_chains[n].type() == ChainType::CHAIN)
+									size_t n = _boxes[_boxes[checking_box_index].neighbour_box(i)].belonging_chain();	//chain num of get neibought box 
+									if (n != _BOX_COUNT && n != new_chain)
 									{
-										_chains[n].set_type(ChainType::OPEN_CHAIN);
-										break;
+										if (_chains[n].type() == ChainType::CHAIN)
+										{
+											_chains[n].set_type(ChainType::OPEN_CHAIN);
+											break;
+										}
 									}
 								}
 							}
+							return;
 						}
-						return;
+						else
+						{
+							_chains[new_chain].set_type(ChainType::OPEN_CHAIN);
+							return;
+						}
 					}
 					else//normal chain
 					{
@@ -420,7 +428,7 @@ namespace dots_and_boxes_solver
 				{
 					for (size_t n = 0; n < 4; n++)
 					{
-						if (_boxes[i].neighbour_exist(n) && _boxes[_boxes[i].neighbour_box(n)].belonging_chain() == chain_index)
+						if (_boxes[i].neighbour_exist(n) && _boxes[_boxes[i].neighbour_box(n)].belonging_chain() == chain_index && _board.edge_exist(_boxes[i].own_edge(n)) == false)
 						{
 							return _boxes[i].own_edge(n);
 						}
@@ -495,7 +503,7 @@ namespace dots_and_boxes_solver
 				{
 					if (_boxes[i].belonging_chain() <= 15)
 					{
-						Cprintf("■ ", colors.get_color(_boxes[i].belonging_chain() + 1));
+						Cprintf("■ ", colors.GetAnyByIndex(_boxes[i].belonging_chain() + 1));
 					}
 					else
 					{
@@ -510,8 +518,8 @@ namespace dots_and_boxes_solver
 				if (_chains[i].type() != ChainType::UNDEFINED)
 				{
 					std::stringstream ss;
-					ss << ">> chain " << i << " type = " << ChainType::ToString(_chains[i].type()) << " box_num = " << _chains[i].boxes_num() << std::endl;
-					Cprintf(ss.str(), ConsoleColor(i + 1));
+					ss << ">> chain " << i << " type = " << static_cast<int>(_chains[i].type()) << " box_num = " << _chains[i].boxes_num() << std::endl;
+					Cprintf(ss.str(), colors.GetAnyByIndex(i + 1));
 				}
 			}
 			PrintEndLine<2>();

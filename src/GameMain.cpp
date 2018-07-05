@@ -8,19 +8,20 @@
 #include "RetrospectReducer.h"
 #include "Minimax.hpp"
 #include "ActionGenerator.hpp"
+#include "Mcts.hpp"
 
 namespace dots_and_boxes_solver
 {
 	//test codes.
 	void DabTest()
 	{
-		DabState<5, 5> state;
-		state.BeFull();
-		auto temp = state.board();
-		temp.reset_edge(0);
-		state = DabState<5, 5>(temp, 0);
-		std::cout << (int)EvalMinimax<5, 5>(state) << std::endl;
-
+		DabState<5, 5> state(DabBoard<5,5>(1140871544087723839), 0);
+		state.Print();
+		DabActionGenerator<5, 5> ag(state);
+		for (auto a : ag.actions())
+			state.Print(a);
+		ChainAnalyst<5,5> ca(state.board());
+		ca.ShowChainInfo();
 	}
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
@@ -191,6 +192,9 @@ namespace dots_and_boxes_solver
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
 	void InitGamePage(gadt::shell::GameShell& dab)
 	{
+		using ActionGenerator = DabActionGenerator<WIDTH, HEIGHT>;
+		constexpr size_t _EDGE_COUNT = EdgeCount<WIDTH, HEIGHT>();
+
 		auto game = dab.CreateShellPage<DabState<WIDTH, HEIGHT>>("game" + GameFeatureText<WIDTH, HEIGHT>());
 
 		auto IsEdgeIndex = [](const gadt::shell::ParamsList& params)->bool {
@@ -200,42 +204,30 @@ namespace dots_and_boxes_solver
 			return false;
 		};
 
-		game->AddFunction("print", "print state/action", [](DabState<WIDTH, HEIGHT>& state, const gadt::shell::ParamsList& params)->bool {
-			if (params.size() == 0)
-			{
-				state.Print();
-				return true;
-			}
-			else if (params.size() == 1)
-			{
-				if (params[0] == "action")
-					state.Print(state.board().GetFreeActionSet());
-			}
-			return false;
+		game->AddFunction("print", "print state/action", [](DabState<WIDTH, HEIGHT>& state)->void {
+			state.Print();
 		});
 
 		game->AddFunction("random", "set one or multi random edge", [](DabState<WIDTH, HEIGHT>& state, const gadt::shell::ParamsList& params)->bool {
 			
 			if (params.size() == 0)
 			{
-				DabActionGenerator<WIDTH, HEIGHT> ag(state);
+				ActionGenerator ag(state);
 				auto action = ag.random_action();
-				DabActionSet as;
-				as.set(action.edge);
 				state.Update(action);
-				state.Print(as);
+				state.Print(action);
 				return true;
 			}
 			else if (params.size() == 1)
 			{
 				auto v = gadt::ToSizeT(params[0]);
-				if (v <= EdgeCount<WIDTH,HEIGHT>())
+				if (v <= EdgeCount<WIDTH, HEIGHT>())
 				{
 					for (size_t i = 0; i < v; i++)
 					{
 						if (state.is_finished())
 							break;
-						DabActionGenerator<WIDTH, HEIGHT> ag(state);
+						ActionGenerator ag(state);
 						state.Update(ag.random_action());
 					}
 					state.Print();
@@ -246,13 +238,28 @@ namespace dots_and_boxes_solver
 		});
 
 		game->AddFunction("set", "set edge", [](DabState<WIDTH, HEIGHT>& state, const gadt::shell::ParamsList& params)->bool {
-			state.Update(DabMove{ gadt::ToUInt8(params[0]) });
-			return true;
-		}, IsEdgeIndex);
+			if (params.size() > 0)
+			{
+				DabAction action;
+				for (auto p : params)
+				{
+					EdgeIndex edge = gadt::ToUInt8(p);
+					if (edge < EdgeCount<WIDTH, HEIGHT>())
+						action.set(edge);
+				}
+				state.Update(action);
+				return true;
+			}
+			return false;
+		});
 
 		game->AddFunction("actions", "get actions of current state", [](DabState<WIDTH, HEIGHT>& state)->void {
-			DabActionGenerator<WIDTH, HEIGHT> ag(state);
-			state.Print(ag.actions());
+			ActionGenerator ag(state);
+			for (size_t i = 0; i < ag.actions().size(); i++)
+			{
+				std::cout << "print action: " << i + 1 << "/" << ag.actions().size() << std::endl;
+				state.Print(ag.actions()[i]);
+			}
 		});
 
 		game->AddFunction("eval", "get evaluation of current state", [](DabState<WIDTH, HEIGHT>& state)->void {
@@ -262,6 +269,16 @@ namespace dots_and_boxes_solver
 				return;
 			}
 			std::cout << "eval = " << (int)EvalMinimax<WIDTH, HEIGHT>(state) << std::endl;
+		});
+
+		game->AddFunction("mcts", "run mcts", [](DabState<WIDTH, HEIGHT>& state)->void {
+			DabAction action = DabMcts<WIDTH, HEIGHT>(state);
+			state.Print(action);
+			std::cout << "action = " << DabGameFuncPackage<WIDTH, HEIGHT>::ActionToString(action) << std::endl;
+			if (gadt::console::GetUserConfirm("take this action?"))
+			{
+				state.Update(action);
+			}
 		});
 	}
 

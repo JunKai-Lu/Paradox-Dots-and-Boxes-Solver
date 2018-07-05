@@ -190,25 +190,7 @@ namespace dots_and_boxes_solver
 
 	public:
 
-		//default constructor.
-		constexpr inline DabBoard() :
-			_edges(0)
-		{
-		}
-
-		//construct by value.
-		constexpr inline DabBoard(BoardType b) :
-			_edges(b)
-		{
-
-		}
-
-		//construct by value.
-		constexpr inline DabBoard(BoardValueType bv) :
-			_edges(bv)
-		{
-
-		}
+		
 
 		//to int
 		inline constexpr BoardValueType to_ullong() const
@@ -392,6 +374,45 @@ namespace dots_and_boxes_solver
 		inline void reset_all_edges()
 		{
 			_edges = 0;
+		}
+
+	public:
+
+		//default constructor.
+		constexpr inline DabBoard() :
+			_edges(0)
+		{
+		}
+
+		//construct by value.
+		constexpr inline DabBoard(BoardType b) :
+			_edges(b)
+		{
+
+		}
+
+		//construct by value.
+		constexpr inline DabBoard(BoardValueType bv) :
+			_edges(bv)
+		{
+
+		}
+
+		size_t ExistingBoxCount() const
+		{
+			size_t count = 0;
+			for (EdgeIndex i = 0; i < _BOX_COUNT; i++)
+			{
+				if (box_edges_count(get_the_pos(i)) == 4)
+					count++;
+			}
+			return count;
+		}
+
+		void TakeActions(const DabAction& action)
+		{
+			GADT_WARNING_IF(DAB_WARNING, (~(_edges)).exist_subset(action) == false, "illegal actions");
+			_edges |= action;
 		}
 
 		//minimize corner if possible, which may make the value smaller. 
@@ -944,18 +965,6 @@ namespace dots_and_boxes_solver
 				}
 			}
 			return false;
-		}
-
-		//get free action set.
-		DabActionSet GetFreeActionSet() const
-		{
-			DabActionSet actions;
-			for (EdgeIndex i = 0; i < EdgeCount<WIDTH, HEIGHT>(); i++)
-			{
-				if (IsFreeEdge(i))
-					actions.set(i);
-			}
-			return actions;
 		}
 
 		//get the free edge of first dead-box. return _EDGE_COUNT if such a edge do not exist.

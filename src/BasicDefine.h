@@ -1,6 +1,8 @@
 ﻿#include "../lib/gadt/src/gadtlib.h"
 #include "../lib/gadt/src/bitboard.hpp"
 #include "../lib/gadt/src/game_shell.h"
+#include "../lib/gadt/src/parallel_mcts.hpp"
+#include "../lib/gadt/src/minimax.hpp"
 
 #pragma once
 
@@ -133,11 +135,5 @@ namespace dots_and_boxes_solver
 			return _own_edge[3];
 		}
 	};
-
-	struct DabMove
-	{
-		EdgeIndex edge;
-	};
-
 }
 
