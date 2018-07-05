@@ -20,6 +20,7 @@ namespace dots_and_boxes_solver
 	*/
 
 	using DabPos = gadt::BasicUPoint<uint8_t>;
+	using DabActionSet = gadt::bitboard::BitBoard64;
 
 	struct DabMove
 	{
@@ -27,6 +28,89 @@ namespace dots_and_boxes_solver
 	};
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
+	class DabBoard;
+
+	enum class DabBoxType: EdgeIndex
+	{
+		FULL_BOX = 4,
+		DEAD_BOX = 3,
+		CHAIN_BOX = 2,
+		FREE_BOX = 1,
+		EMPTY_BOX = 0
+	};
+
+	//'box' is a class that include info about a box in the board.
+	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
+	class DabBox
+	{
+		static constexpr size_t _EDGE_COUNT = EdgeCount<WIDTH, HEIGHT>();	//count of edges.
+
+	protected:
+
+		DabPos		_pos;
+		DabBoxType	_type;
+		EdgeIndex	_own_edge[4];
+		EdgeIndex	_neighbour_box[4];
+
+	public:
+
+		DabBox(const DabBoard<WIDTH, HEIGHT>& board, EdgeIndex index) :
+			_pos(board.get_the_pos(index)),
+			_type(static_cast<DabBoxType>(board.box_edges_count(board.get_the_pos(index)))),
+			_own_edge{ index, board.the_to_lve(index), board.the_to_bhe(index), board.lve_to_rve(board.the_to_lve(index)) },
+			_neighbour_box{ _EDGE_COUNT, _EDGE_COUNT, _EDGE_COUNT, _EDGE_COUNT }
+		{
+
+			//set neighbour boxes.
+			if (board.is_bhe(the()))
+				_neighbour_box[0] = index - WIDTH;
+			if (board.is_rve(lve()))
+				_neighbour_box[1] = index - 1;
+			if (board.is_the(bhe()))
+				_neighbour_box[2] = index + WIDTH;
+			if (board.is_lve(rve()))
+				_neighbour_box[3] = index + 1;
+		}
+
+		inline DabPos pos()
+		{
+			return _pos;
+		}
+		inline DabBoxType type()
+		{
+			return _type;
+		}
+		inline EdgeIndex own_edge(size_t index)
+		{
+			return _own_edge[index];
+		}
+		inline EdgeIndex neighbour_box(size_t index)
+		{
+			return _neighbour_box[index];
+		}
+		inline bool neighbour_exist(size_t index)
+		{
+			return _neighbour_box[index] != _EDGE_COUNT;
+		}
+		inline EdgeIndex the()
+		{
+			return _own_edge[0];
+		}
+		inline EdgeIndex lve()
+		{
+			return _own_edge[1];
+		}
+		inline EdgeIndex bhe()
+		{
+			return _own_edge[2];
+		}
+		inline EdgeIndex rve()
+		{
+			return _own_edge[3];
+		}
+	};
+
+	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type>
 	class DabBoard
 	{
 	private:
@@ -50,7 +134,7 @@ namespace dots_and_boxes_solver
 
 		BoardType _edges;
 
-	private:
+	public:
 		/*
 		* edge operation functions.
 		*/
@@ -95,30 +179,6 @@ namespace dots_and_boxes_solver
 		inline constexpr bool is_rve(EdgeIndex edge) const
 		{
 			return edge >= (_V0 + HEIGHT) && edge < num_of_edges();
-		}
-
-		//get the index by width and height
-		inline constexpr EdgeIndex get_the(DabPos pos) const
-		{ 
-			return (pos.y * WIDTH) + pos.x;
-		}
-
-		//get lve index by width and height
-		inline constexpr EdgeIndex get_lve(DabPos pos) const
-		{
-			return _V0 + (HEIGHT * pos.x) + pos.y;
-		}
-		
-		//get bhe index by width and height
-		inline constexpr EdgeIndex get_bhe(DabPos pos) const
-		{
-			return (pos.y * WIDTH) + pos.x + WIDTH;
-		}
-
-		//get rve index by width and height
-		inline constexpr EdgeIndex get_rve(DabPos pos) const
-		{
-			return _V0 + (HEIGHT * pos.x) + pos.y + HEIGHT;
 		}
 
 		//get the position of 'edge'.
@@ -199,7 +259,25 @@ namespace dots_and_boxes_solver
 			return get_the_pos(index);
 		}
 
-		
+		inline constexpr bool is_top_box(DabPos pos) const
+		{
+			return pos.y == 0;
+		}
+
+		inline constexpr bool is_bottom_box(DabPos pos) const
+		{
+			return pos.y == HEIGHT - 1;
+		}
+
+		inline constexpr bool is_left_box(DabPos pos) const
+		{
+			return pos.x == 0;
+		}
+
+		inline constexpr bool is_right_box(DabPos pos) const
+		{
+			return pos.x == WIDTH - 1;
+		}
 
 	public:
 		
@@ -340,6 +418,30 @@ namespace dots_and_boxes_solver
 		inline void reset_edge(EdgeIndex index)
 		{
 			_edges.reset(index);
+		}
+
+		//get the index by width and height
+		inline constexpr EdgeIndex get_the(DabPos pos) const
+		{
+			return (pos.y * WIDTH) + pos.x;
+		}
+
+		//get lve index by width and height
+		inline constexpr EdgeIndex get_lve(DabPos pos) const
+		{
+			return _V0 + (HEIGHT * pos.x) + pos.y;
+		}
+
+		//get bhe index by width and height
+		inline constexpr EdgeIndex get_bhe(DabPos pos) const
+		{
+			return (pos.y * WIDTH) + pos.x + WIDTH;
+		}
+
+		//get rve index by width and height
+		inline constexpr EdgeIndex get_rve(DabPos pos) const
+		{
+			return _V0 + (HEIGHT * pos.x) + pos.y + HEIGHT;
 		}
 
 		//return true if the edge of box exist.
@@ -792,17 +894,6 @@ namespace dots_and_boxes_solver
 			return false;
 		}
 
-		//return true if there is any free-edge exist.
-		bool ExistFreeEdge() const
-		{
-			for (EdgeIndex edge = 0; edge < _EDGE_COUNT; edge++)
-			{
-				if (IsFreeEdge(edge))
-					return true;
-			}
-			return false;
-		}
-
 		//get not reasonable state
 		bool IsReasonable() const
 		{
@@ -897,6 +988,184 @@ namespace dots_and_boxes_solver
 
 			return true;
 		}
+
+		//return true if a edge is the upper edge of a box that is the first box of a dead chain.
+		bool IsTopHorizonEdgeOfFirstBoxOfDeadChain(EdgeIndex edge)
+		{
+			GADT_WARNING_IF(DAB_WARNING, edge > _BOX_COUNT, "wrong edge index");
+
+			DabPos fir_pos = get_box_pos(edge);
+			if (box_edges_count(fir_pos) == 3)
+			{
+				if (_edges.get(get_the(fir_pos)) == false)
+				{
+					if (is_top_box(fir_pos) == false)
+					{
+						DabPos sec_box = fir_box + DabPos(0, 1);
+						return (box_edges_count(sec_box) == 2);
+					}
+					return false;
+				}
+				else if (_edges.get(get_bhe(fir_pos)) == false)
+				{
+					if (is_bottom_box(fir_pos) == false)
+					{
+						DabPos sec_box = fir_box - DabPos(0, 1);
+						return (box_edges_count(sec_box) == 2);
+					}
+					return false;
+				}
+				else if (_edges.get(get_lve(fir_pos)) == false)
+				{
+					if (is_left_box(fir_pos) == false)
+					{
+						DabPos sec_box = fir_box - DabPos(1, 0);
+						return (box_edges_count(sec_box) == 2);
+					}
+					return false;
+				}
+				else if (_edges.get(get_rve(fir_pos)) == false)
+				{
+					if (is_right_box(fir_pos) == false)
+					{
+						DabPos sec_box = fir_box + DabPos(1, 0);
+						return (box_edges_count(sec_box) == 2);
+					}
+					return false;
+				}
+			}
+			return false;
+		}
+
+		//get free action set.
+		DabActionSet GetFreeActionSet() const
+		{
+			DabActionSet actions;
+			for (EdgeIndex i = 0; i < EdgeCount<WIDTH, HEIGHT>(); i++)
+			{
+				if (IsFreeEdge(i))
+					actions.set(i);
+			}
+			return actions;
+		}
+
+		//get the free edge of first dead-box. return _EDGE_COUNT if such a edge do not exist.
+		EdgeIndex GetFirstFreeEdgeInDeadBox() const
+		{
+			for (EdgeIndex fir_box_i = 0; fir_box_i < _BOX_COUNT; fir_box_i++)
+			{
+				DabBox<WIDTH, HEIGHT> fir_box(*this, fir_box_i);
+				if (fir_box.type() == DabBoxType::DEAD_BOX)
+				{
+					//the second box is not CHAIN-BOX or ( second box is CHAIN-BOX and trd box is DEAD-BOX)
+					for (size_t f = 0; f < 4; f++)
+					{
+						if (!_edges.get(fir_box.own_edge(f)))
+						{
+							//now f is the edge that owned by next box.
+							if (fir_box.neighbour_exist(f))
+							{
+								EdgeIndex fir_sec = fir_box.own_edge(f);
+								DabBox<WIDTH, HEIGHT> sec_box(*this, fir_box.neighbour_box(f));
+								if (sec_box.type() != DabBoxType::CHAIN_BOX)
+								{
+									return fir_sec;
+								}
+								else
+								{
+									//find trd box. return true if its type is dead box.
+									for (size_t s = 0; s < 4; s++)
+									{
+										if (!_edges.get(sec_box.own_edge(s)) && sec_box.own_edge(s) != fir_sec && sec_box.neighbour_exist(s))
+										{
+											DabBox<WIDTH, HEIGHT> trd_box(*this, sec_box.neighbour_box(s));
+											if (trd_box.type() == DabBoxType::DEAD_BOX)
+											{
+												return fir_sec;
+											}
+										}
+									}
+								}
+							}
+							else
+							{
+								//the box is in the border and open to outside.so this is a dead box.
+								return fir_box.own_edge(f);
+							}
+						}
+					}
+				}
+			}
+			return _EDGE_COUNT;
+		}
+
+		//get the first free edge in dead-chain.
+		EdgeIndex GetFirstFreeEdgeInDeadChain() const
+		{
+			//dead-chain means its first box is dead-box and second box is chain-box and trd box is not dead-box. 
+			for (EdgeIndex i = 0; i < _BOX_COUNT; i++)
+			{
+				DabBox<WIDTH, HEIGHT> fir_box(*this, i);
+				if (fir_box.type() == DabBoxType::DEAD_BOX)
+				{
+					for (size_t n = 0; n < 4; n++)
+					{
+						if (!_edges.get(fir_box.own_edge(n)) && fir_box.neighbour_exist(n))
+						{
+							//get the sec box.
+							EdgeIndex edge_bet_fir_and_sec = fir_box.own_edge(n);
+							DabBox<WIDTH, HEIGHT> sec_box(*this, fir_box.neighbour_box(n));
+							if (sec_box.type() == DabBoxType::CHAIN_BOX)
+							{
+								//notice: the next box can not be DEAD-BOX!
+								for (size_t e = 0; e < 4; e++)
+								{
+									if (!_edges.get(sec_box.own_edge(e)) && sec_box.own_edge(e) != edge_bet_fir_and_sec)
+									{
+										if (sec_box.neighbour_exist(e))
+										{
+											DabBox<WIDTH, HEIGHT> trd_box(*this, sec_box.neighbour_box(e));
+											if (trd_box.type() != DabBoxType::DEAD_BOX)
+											{
+												return edge_bet_fir_and_sec;
+											}
+										}
+										else
+										{
+											return edge_bet_fir_and_sec;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			return _EDGE_COUNT;
+		}
+
+		//return true if any dead box exist in this state.
+		bool ExistDeadBox() const
+		{
+			return GetFirstFreeEdgeInDeadBox() != _EDGE_COUNT;
+		}
+
+		//check whether exist dead chain in a board.
+		bool ExistDeadChain() const
+		{
+			return GetFirstFreeEdgeInDeadChain() != _EDGE_COUNT;
+		}
+
+		//return true if there is any free-edge exist.
+		bool ExistFreeEdge() const
+		{
+			for (EdgeIndex edge = 0; edge < _EDGE_COUNT; edge++)
+			{
+				if (IsFreeEdge(edge))
+					return true;
+			}
+			return false;
+		}
 	};
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
@@ -955,86 +1224,109 @@ namespace dots_and_boxes_solver
 		}
 
 		//Visualization
-		void Visualization() const
+		void Visualization(DabActionSet actions = DabActionSet()) const
 		{
 			using namespace gadt::console;
-			constexpr ConsoleColor edge_color = ConsoleColor::Yellow;
-			constexpr ConsoleColor action_color = ConsoleColor::White;
-			constexpr ConsoleColor dot_color = ConsoleColor::Gray;
-			constexpr ConsoleColor box_color = ConsoleColor::Gray;
-			const std::string empty_he_str = "   ";
-			const std::string empty_ve_str = " ";
-			const std::string empty_box_str = "   ";
-			const std::string he_str = "---";
-			const std::string ve_str = "|";
-			const std::string box_str = " X ";
-			const std::string dot_str = "+";
-			std::string prev_space = "     ";
+			constexpr ConsoleColor EDGE_COLOR = ConsoleColor::Yellow;
+			constexpr ConsoleColor ACTION_COLOR = ConsoleColor::Gray;
+			constexpr ConsoleColor DOT_COLOR = ConsoleColor::Yellow;
+			constexpr ConsoleColor BOX_COLOR = ConsoleColor::Gray;
+			constexpr const char* EMPTY_HE_STR = "   ";
+			constexpr const char* EMPTY_VE_STR = " ";
+			constexpr const char* EMPTY_BOX_STR = "   ";
+			constexpr const char* ACTION_HE_STR = "---";
+			constexpr const char* ACTION_VE_STR = "|";
+			constexpr const char* HE_STR = "---";
+			constexpr const char* VE_STR = "|";
+			constexpr const char* BOX_STR = " X ";
+			constexpr const char* DOT_STR = "+";
+			constexpr const char* PREV_SPACE = "     ";
 
 			PrintEndLine();
 			DabPos pos;
 
 			//print title.
-			std::cout << prev_space;
+			std::cout << PREV_SPACE;
 			Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]  ", ConsoleColor::Yellow);
-			//std::cout << std::endl << prev_space;
+			//std::cout << std::endl << PREV_SPACE;
 			Cprintf(_is_fir_player? "P0":"P1", ConsoleColor::Cyan);
-			//std::cout << std::endl << prev_space;
+			//std::cout << std::endl << PREV_SPACE;
 			Cprintf("  Margin: " + gadt::ToString(_boxes_margin), ConsoleColor::Green);
 			Cprintf(std::string("  Reasonable: ") + (board().IsReasonable() ? "Y" : "N"), ConsoleColor::Brown);
 			PrintEndLine<2>();
 
 			//print top horizon edges.
-			std::cout << prev_space;
-			Cprintf(dot_str, dot_color);
+			std::cout << PREV_SPACE;
+			Cprintf(DOT_STR, DOT_COLOR);
 			for (uint8_t x = 0; x < WIDTH; x++)
 			{
 				pos = DabPos(x, 0);
 				if (_board.the_exist(pos))
-					Cprintf(he_str, edge_color);
+					Cprintf(HE_STR, EDGE_COLOR);
 				else
-					Cprintf(empty_he_str, edge_color);
-				Cprintf(dot_str, dot_color);
+				{
+					if (actions[_board.get_the(pos)] == true)
+						Cprintf(ACTION_HE_STR, ACTION_COLOR);
+					else
+						Cprintf(EMPTY_HE_STR, EDGE_COLOR);
+				}
+					
+				Cprintf(DOT_STR, DOT_COLOR);
 			}
 			PrintEndLine();
 
 			for (uint8_t y = 0; y < HEIGHT; y++)
 			{
 				//print vertical edges.
-				std::cout << prev_space;
+				std::cout << PREV_SPACE;
 				for (uint8_t x = 0; x < WIDTH; x++)
 				{
 					pos = DabPos(x, y);
 					//print lve
 					if (_board.lve_exist(pos))
-						Cprintf(ve_str, edge_color);
+						Cprintf(VE_STR, EDGE_COLOR);
 					else
-						Cprintf(empty_ve_str, edge_color);
+					{
+						if (actions[_board.get_lve(pos)] == true)
+							Cprintf(ACTION_VE_STR, ACTION_COLOR);
+						else
+							Cprintf(EMPTY_VE_STR, EDGE_COLOR);
+					}
 
 					//print box
 					if (_board.box_exist(pos))
-						Cprintf(box_str, box_color);
+						Cprintf(BOX_STR, BOX_COLOR);
 					else
-						Cprintf(empty_box_str, box_color);
+						Cprintf(EMPTY_BOX_STR, BOX_COLOR);
 				}
 				pos = DabPos(WIDTH - 1, y);
 				if (_board.rve_exist(pos))
-					Cprintf(ve_str, edge_color);
+					Cprintf(VE_STR, EDGE_COLOR);
 				else
-					Cprintf(empty_ve_str, edge_color);
+				{
+					if (actions[_board.get_rve(pos)] == true)
+						Cprintf(ACTION_VE_STR, ACTION_COLOR);
+					else
+						Cprintf(EMPTY_VE_STR, EDGE_COLOR);
+				}
 				PrintEndLine();
 				
 				//print horizon edges.
-				std::cout << prev_space;
-				Cprintf(dot_str, dot_color);
+				std::cout << PREV_SPACE;
+				Cprintf(DOT_STR, DOT_COLOR);
 				for (uint8_t x = 0; x < WIDTH; x++)
 				{
 					pos = DabPos(x, y);
 					if (_board.bhe_exist(pos))
-						Cprintf(he_str, edge_color);
+						Cprintf(HE_STR, EDGE_COLOR);
 					else
-						Cprintf(empty_he_str, edge_color);
-					Cprintf(dot_str, dot_color);
+					{
+						if (actions[_board.get_bhe(pos)] == true)
+							Cprintf(ACTION_HE_STR, ACTION_COLOR);
+						else
+							Cprintf(EMPTY_HE_STR, EDGE_COLOR);
+					}
+					Cprintf(DOT_STR, DOT_COLOR);
 				}
 				PrintEndLine();
 			}
@@ -1095,6 +1387,12 @@ namespace dots_and_boxes_solver
 				else
 					_boxes_margin -= new_box;//change margin.
 			}
+		}
+
+		std::vector<EdgeIndex> GetFreeEdgeVec() const
+		{
+			std::vector<EdgeIndex> actions;
+
 		}
 	};
 

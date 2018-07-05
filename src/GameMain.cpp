@@ -14,12 +14,13 @@ namespace dots_and_boxes_solver
 	void DabTest()
 	{
 		DabState<5, 5> state;
-		for (size_t i = 0; i < 59; i++)
+		for (size_t i = 0; i < 60; i++)
 		{
 			state.SetRandomEdge();
+			state.Visualization(state.board().GetFreeActionSet());
+			gadt::console::SystemClear();
 		}
-		state.Visualization();
-		std::cout << "eval = " << EvalMinimax<5, 5>(state) << std::endl;
+		
 	}
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
@@ -187,6 +188,34 @@ namespace dots_and_boxes_solver
 	void InitGamePage(gadt::shell::GameShell& dab)
 	{
 		auto game = dab.CreateShellPage<DabState<WIDTH, HEIGHT>>("dab" + GameFeatureText<WIDTH, HEIGHT>());
+
+		game->AddFunction("print", "print state/action", [](DabState<WIDTH, HEIGHT>& state, const gadt::shell::ParamsList& params)->bool {
+			if (params.size() == 0)
+			{
+				state.Visualization();
+				return true;
+			}
+			else if (params.size() == 1)
+			{
+				if (params[0] == "action")
+					state.Visualization(state.board().GetFreeActionSet());
+			}
+			return false;
+		});
+
+		game->AddFunction("random", "set one or multi random edge", [](DabState<WIDTH, HEIGHT>& state, const gadt::shell::ParamsList& params)->bool {
+			if (params.size() == 0)
+			{
+				state.Visualization();
+				return true;
+			}
+			else if (params.size() == 1)
+			{
+				if (params[0] == "action")
+					state.Visualization(state.board().GetFreeActionSet());
+			}
+			return false;
+		});
 	}
 
 	//init shell
