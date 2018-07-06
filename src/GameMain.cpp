@@ -15,13 +15,16 @@ namespace dots_and_boxes_solver
 	//test codes.
 	void DabTest()
 	{
-		DabState<5, 5> state(DabBoard<5,5>(1140871544087723839), 0);
+		DabBoard<5, 5> board(549439149682196479);
+		//board.set_edge(32);
+		DabState<5, 5> state(board, 0);
 		state.Print();
 		DabActionGenerator<5, 5> ag(state);
 		for (auto a : ag.actions())
+		{
 			state.Print(a);
-		ChainAnalyst<5,5> ca(state.board());
-		ca.ShowChainInfo();
+		}
+		std::cout << "eval = "<< (int)EvalMinimax(state) << std::endl;
 	}
 
 	template<size_t WIDTH, size_t HEIGHT, typename std::enable_if< IsLegalGameSize(WIDTH, HEIGHT), int>::type = 0>
@@ -243,7 +246,7 @@ namespace dots_and_boxes_solver
 				DabAction action;
 				for (auto p : params)
 				{
-					EdgeIndex edge = gadt::ToUInt8(p);
+					EdgeIndex edge = (EdgeIndex)gadt::ToUInt16(p);
 					if (edge < EdgeCount<WIDTH, HEIGHT>())
 						action.set(edge);
 				}
@@ -251,6 +254,38 @@ namespace dots_and_boxes_solver
 				return true;
 			}
 			return false;
+		});
+
+		game->AddFunction("reset", "reset edge", [](DabState<WIDTH, HEIGHT>& state, const gadt::shell::ParamsList& params)->bool {
+			if (params.size() > 0)
+			{
+				for (auto p : params)
+				{
+					EdgeIndex edge = (EdgeIndex)gadt::ToUInt16(p);
+					if (edge < EdgeCount<WIDTH, HEIGHT>())
+						state.board_ref().reset_edge(edge);
+				}
+				return true;
+			}
+			return false;
+		});
+
+		game->AddFunction("margin", "set margin", [](DabState<WIDTH, HEIGHT>& state, const gadt::shell::ParamsList& params)->bool {
+			if (params.size() == 1)
+			{
+				int margin = gadt::ToInt(params[0]);
+				state.SetMargin((MarginType)margin);
+				gadt::console::PrintMessage("set margin to "+ params[0]);
+				state.Print();
+				return true;
+			}
+			return false;
+		});
+
+		game->AddFunction("cp", "change player", [](DabState<WIDTH, HEIGHT>& state)->void {
+			state.ChangePlayer();
+			gadt::console::PrintMessage("change player to " + (state.is_fir_player() ? std::string("P1") : std::string("P2")));
+			state.Print();
 		});
 
 		game->AddFunction("actions", "get actions of current state", [](DabState<WIDTH, HEIGHT>& state)->void {
@@ -270,6 +305,29 @@ namespace dots_and_boxes_solver
 			}
 			std::cout << "eval = " << (int)EvalMinimax<WIDTH, HEIGHT>(state) << std::endl;
 		});
+
+		game->AddFunction("save", "save state", [](DabState<WIDTH, HEIGHT>& state)->void {
+			DabFileWriter writer(DAB_STATE_JSON_PATH);
+			writer.save_item({ state.board().to_ullong(), state.boxes_margin() });
+			gadt::console::PrintMessage("save json success!");
+		});
+
+		game->AddFunction("load", "load state", [](DabState<WIDTH, HEIGHT>& state)->void {
+			if (gadt::filesystem::exist_file(DAB_STATE_JSON_PATH))
+			{
+				DabFileLoader loader(DAB_STATE_JSON_PATH);
+				auto item = loader.LoadNextItem();
+				state = DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), item.second);
+				gadt::console::PrintMessage("load json success!");
+				state.Print();
+			}
+			else
+			{
+				gadt::console::PrintError("json file not found!");
+			}
+		});
+
+
 
 		game->AddFunction("mcts", "run mcts", [](DabState<WIDTH, HEIGHT>& state)->void {
 			DabAction action = DabMcts<WIDTH, HEIGHT>(state);
@@ -306,7 +364,7 @@ namespace dots_and_boxes_solver
 
 		game->AddChildPage("game55", "5x5 game");
 
-		dab.StartFromPage("root", "./game/game55");
+		dab.StartFromPage("root", "./game/game55/");
 	}
 }
 

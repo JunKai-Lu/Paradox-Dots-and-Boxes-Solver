@@ -35,7 +35,10 @@ namespace dots_and_boxes_solver
 					MarginType box_count = static_cast<MarginType>(board.count_of_boxes_that_owns_edge(i));
 					DabBoard<WIDTH, HEIGHT> new_board = board;
 					new_board.reset_edge(i);
-					if (new_board.IsReasonable())
+					bool filter = (BoxCount<WIDTH, HEIGHT>() - new_board.ExistingBoxCount()) <= 5;
+					if (filter == false)
+						filter = new_board.IsReasonable();
+					if (filter)
 					{
 						MarginType new_margin = item.second;
 						if (box_count == 0)

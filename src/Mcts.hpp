@@ -1,4 +1,4 @@
-#include "StateDefine.hpp"
+﻿#include "StateDefine.hpp"
 #include "GameStreamDefine.h"
 
 #pragma once
@@ -16,12 +16,12 @@ namespace dots_and_boxes_solver
 			DabGameFuncPackage<WIDTH, HEIGHT>::AllowUpdateValue
 		);
 		gadt::mcts::MctsSetting setting;
-		setting.max_node_per_thread = 10000000;
-		setting.max_iteration_per_thread = 10000000;
+		setting.max_node_per_thread = 1000000;
+		setting.max_iteration_per_thread = 1000000;
 		setting.max_thread = 4;
 		setting.no_winner_index = 0x0;
 		setting.simulation_warning_length = 60;
-		setting.timeout = 0;
+		setting.timeout = 30;
 		mcts.InitLog(
 			DabGameFuncPackage<WIDTH, HEIGHT>::StateToString,
 			DabGameFuncPackage<WIDTH, HEIGHT>::ActionToString,

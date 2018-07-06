@@ -60,12 +60,23 @@ namespace dots_and_boxes_solver
 		static DabActionList MakeFreeActions(const DabBoard<WIDTH, HEIGHT>& board)
 		{
 			DabActionList actions;
+
 			for (EdgeIndex i = 0; i < EdgeCount<WIDTH, HEIGHT>(); i++)
 			{
 				if (board.IsFreeEdge(i))
 				{
 					actions.push_back(DabAction());
 					actions.back().set(i);
+				}
+			}
+
+			if (BoxCount<WIDTH, HEIGHT>() - board.ExistingBoxCount() < 8)
+			{
+				EdgeIndex inner_circle = board.GetInnerOpenCircleActions();
+				if (inner_circle != EdgeCount<WIDTH, HEIGHT>())
+				{
+					actions.push_back(DabAction());
+					actions.back().set(inner_circle);
 				}
 			}
 			return actions;
@@ -110,7 +121,7 @@ namespace dots_and_boxes_solver
 				temp_board.set_edge(fir);
 				if (!temp_board.ExistDeadChain())
 				{
-					EdgeIndex sec = temp_board.GetFirstFreeEdgeInDeadBox();
+					EdgeIndex sec = temp_board.GetAnotherEdgeThatOwnedBySameBox(fir);
 					prev_action.set(sec);
 					sacrifice_action = prev_action;
 					prev_action.set(fir);

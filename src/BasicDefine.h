@@ -3,6 +3,7 @@
 #include "../lib/gadt/src/game_shell.h"
 #include "../lib/gadt/src/parallel_mcts.hpp"
 #include "../lib/gadt/src/minimax.hpp"
+#include <unordered_map>
 
 #pragma once
 
@@ -18,6 +19,10 @@ namespace dots_and_boxes_solver
 	using DabPos = gadt::BasicUPoint<uint8_t>;
 	using DabAction = gadt::bitboard::BitBoard64;
 	using DabActionList = std::vector<DabAction>;
+
+	constexpr const char* DAB_STATE_JSON_PATH = "./state.json";
+
+	extern std::unordered_map<BoardValueType, MarginType> GLOBAL_HASH_TABLE;
 
 	constexpr bool IsLegalGameSize(const size_t width, const size_t height)
 	{

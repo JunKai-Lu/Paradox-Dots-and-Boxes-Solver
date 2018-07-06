@@ -15,15 +15,18 @@ namespace dots_and_boxes_solver
 
 	private:
 
-		void change_player()
-		{
-			_is_fir_player = !_is_fir_player;
-		}
+		
 
 	public:
 
 		//get the board.
 		inline const DabBoard<WIDTH, HEIGHT>& board() const
+		{
+			return _board;
+		}
+
+		//get the board.
+		inline DabBoard<WIDTH, HEIGHT>& board_ref()
 		{
 			return _board;
 		}
@@ -97,10 +100,10 @@ namespace dots_and_boxes_solver
 			std::cout << PREV_SPACE;
 			Cprintf("[" + gadt::ToString(WIDTH) + " x " + gadt::ToString(HEIGHT) + "]  ", ConsoleColor::Yellow);
 			//std::cout << std::endl << PREV_SPACE;
-			Cprintf(_is_fir_player? "P0":"P1", ConsoleColor::Cyan);
+			Cprintf((_is_fir_player? "P1":"P2"), ConsoleColor::Cyan);
 			//std::cout << std::endl << PREV_SPACE;
 			Cprintf("  Margin: " + gadt::ToString(_boxes_margin), ConsoleColor::Green);
-			Cprintf(std::string("  Reasonable: ") + (board().IsReasonable() ? "Y" : "N"), ConsoleColor::Brown);
+			//Cprintf(std::string("  Reasonable: ") + (board().IsReasonable() ? "Y" : "N"), ConsoleColor::Brown);
 			PrintEndLine<2>();
 
 			//print top horizon edges.
@@ -183,6 +186,16 @@ namespace dots_and_boxes_solver
 			return 0x0;
 		}
 
+		void ChangePlayer()
+		{
+			_is_fir_player = !_is_fir_player;
+		}
+
+		void SetMargin(MarginType margin)
+		{
+			_boxes_margin = margin;
+		}
+
 		//set the state to full
 		void BeFull()
 		{
@@ -213,7 +226,7 @@ namespace dots_and_boxes_solver
 				_boxes_margin += margin;
 			else
 				_boxes_margin -= margin;
-			change_player();
+			ChangePlayer();
 		}
 	};
 }

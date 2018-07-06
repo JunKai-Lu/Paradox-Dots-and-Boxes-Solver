@@ -967,6 +967,69 @@ namespace dots_and_boxes_solver
 			return false;
 		}
 
+		EdgeIndex GetInnerOpenCircleActions() const
+		{
+			for (EdgeIndex i = 0; i < _BOX_COUNT; i++)
+			{
+				DabPos box_pos = get_the_pos(i);
+				//inner empty box. the begin of open circle.
+				if (box_edges_count(box_pos) == 0)
+				{
+					DabPos left_box = box_pos - DabPos{ 1,0 };
+					DabPos right_box = box_pos + DabPos{ 1,0 };
+					DabPos bottom_box = box_pos - DabPos{ 0,1 };
+					DabPos top_box = box_pos + DabPos{ 0,1 };
+					//left-top box.
+					if (is_rve(get_lve(box_pos)) && is_bhe(get_the(box_pos)))
+					{
+						if (box_edges_count(left_box) == 2 && box_edges_count(top_box) == 2)
+						{
+							if (edge_exist(i - 1) == false && edge_exist(get_lve(box_pos) - 1) == false)
+							{
+								return i - 1;
+							}
+						}
+					}
+					
+					//right-top box.
+					if (is_lve(get_rve(box_pos)) && is_bhe(get_the(box_pos)))
+					{
+						if (box_edges_count(right_box) == 2 && box_edges_count(top_box) == 2)
+						{
+							if (edge_exist(i + 1) == false && edge_exist(get_rve(box_pos) - 1) == false)
+							{
+								return i + 1;
+							}
+						}
+					}
+					//left-bottom box.
+					if (is_rve(get_lve(box_pos)) && is_the(get_bhe(box_pos)))
+					{
+						if (box_edges_count(left_box) == 2 && box_edges_count(bottom_box) == 2)
+						{
+							if (edge_exist(get_bhe(box_pos) - 1) == false && edge_exist(get_lve(box_pos) + 1) == false)
+							{
+								return get_bhe(box_pos) - 1;
+							}
+						}
+					}
+					//right-bottom box.
+					if (is_lve(get_rve(box_pos)) && is_the(get_bhe(box_pos)))
+					{
+						if (box_edges_count(left_box) == 2 && box_edges_count(bottom_box) == 2)
+						{
+							if (edge_exist(get_bhe(box_pos) + 1) == false && edge_exist(get_rve(box_pos) + 1) == false)
+							{
+								return get_bhe(box_pos) + 1;
+							}
+
+						}
+					}
+				}
+			}
+			return _EDGE_COUNT;
+		}
+
 		//get the free edge of first dead-box. return _EDGE_COUNT if such a edge do not exist.
 		EdgeIndex GetFirstFreeEdgeInDeadBox() const
 		{
@@ -1057,6 +1120,66 @@ namespace dots_and_boxes_solver
 							}
 						}
 					}
+				}
+			}
+			return _EDGE_COUNT;
+		}
+
+		EdgeIndex GetAnotherEdgeThatOwnedBySameBox(EdgeIndex edge) const
+		{
+			if (is_he(edge))
+			{
+				if (is_bhe(edge))
+				{
+					EdgeIndex the = bhe_to_the(edge);
+					EdgeIndex lve = the_to_lve(the);
+					EdgeIndex rve = lve_to_rve(lve);
+					if (edge_exist(the) == false)
+						return the;
+					if (edge_exist(lve) == false)
+						return lve;
+					if (edge_exist(rve) == false)
+						return rve;
+				}
+				if (is_the(edge))
+				{
+					EdgeIndex bhe = the_to_bhe(edge);
+					EdgeIndex lve = the_to_lve(edge);
+					EdgeIndex rve = lve_to_rve(lve);
+					if (edge_exist(bhe) == false)
+						return bhe;
+					if (edge_exist(lve) == false)
+						return lve;
+					if (edge_exist(rve) == false)
+						return rve;
+				}
+			}
+			else if(is_ve(edge))
+			{
+				if (is_lve(edge))
+				{
+					EdgeIndex the = lve_to_the(edge);
+					EdgeIndex bhe = the_to_bhe(the);
+					EdgeIndex rve = lve_to_rve(edge);
+					if (edge_exist(the) == false)
+						return the;
+					if (edge_exist(bhe) == false)
+						return bhe;
+					if (edge_exist(rve) == false)
+						return rve;
+				}
+				if (is_rve(edge))
+				{
+					EdgeIndex lve = rve_to_lve(edge);
+					EdgeIndex the = lve_to_the(lve);
+					EdgeIndex bhe = the_to_bhe(the);
+					
+					if (edge_exist(the) == false)
+						return the;
+					if (edge_exist(bhe) == false)
+						return bhe;
+					if (edge_exist(lve) == false)
+						return lve;
 				}
 			}
 			return _EDGE_COUNT;

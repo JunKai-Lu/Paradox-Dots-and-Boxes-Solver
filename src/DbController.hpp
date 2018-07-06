@@ -144,18 +144,28 @@ namespace dots_and_boxes_solver
 					gadt::console::PrintMessage("EOF, item count = " + gadt::ToString(count));
 					return;
 				}
-				DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Print();
+				
 				if (enable_minimax)
 				{
 					DabState<WIDTH, HEIGHT> state(DabBoard<WIDTH, HEIGHT>(item.first), 0);
-					std::cout << "eval = " << (int)EvalMinimax<WIDTH, HEIGHT>(state) << std::endl;
+					auto margin = EvalMinimax<WIDTH, HEIGHT>(state);
+					if (margin != item.second)
+					{
+						DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Print();
+						std::cout << "eval = " << (int)margin << std::endl;
+						std::cout << "feature = " << state.board().to_ullong() << std::endl;
+						gadt::console::PrintMessage("Assert Failed!");
+						gadt::console::SystemPause();
+					}
 				}
-				
-
-				if (!gadt::console::GetUserConfirm("continue?"))
+				else
 				{
-					gadt::console::PrintMessage("print completed, item count = " + gadt::ToString(count));
-					return;
+					DabState<WIDTH, HEIGHT>(DabBoard<WIDTH, HEIGHT>(item.first), (int)item.second).Print();
+					if (!gadt::console::GetUserConfirm("continue?"))
+					{
+						gadt::console::PrintMessage("print completed, item count = " + gadt::ToString(count));
+						return;
+					}
 				}
 			}
 		}
